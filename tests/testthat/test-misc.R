@@ -21,6 +21,6 @@ testthat::test_that("inequality works", {
                                 c = c(FALSE,TRUE))
 
   testthat::expect_equal(testdf %>%
-                           dplyr::mutate(c = a %!=% b), expected_output)
+                           dplyr::mutate(c = a %not=% b), expected_output)
 })
 

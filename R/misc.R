@@ -10,7 +10,7 @@
 #' a <- 2
 #' a %==% 2
 "%==%" <- function(a, b){
-  ifelse(!is.na(a), a==b, F)
+  ifelse(!is.na(a), a == b, F)
 }
 
 
@@ -26,7 +26,7 @@
 #'
 #' @examples
 #' a <- 3
-#' a %!=% 2
-"%!=%" <- function(a, b){
-  ifelse(!is.na(a), a!=b, F)
+#' a %not=% 2
+"%not=%" <- function(a, b){
+  ifelse(!is.na(a), a != b, F)
 }
