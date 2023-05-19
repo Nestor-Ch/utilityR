@@ -1,6 +1,4 @@
 <!-- badges: start -->
 [![check-release](https://github.com/AbrahamAz/utilityR/actions/workflows/check-release.yaml/badge.svg)](https://github.com/AbrahamAz/utilityR/actions/workflows/check-release.yaml)
-<!-- badges: end -->
-<!-- badges: start -->
-[![check-standard](https://github.com/AbrahamAz/utilityR/actions/workflows/check-standard.yaml/badge.svg)](https://github.com/AbrahamAz/utilityR/actions/workflows/check-standard.yaml)
+[![Codecov test coverage](https://codecov.io/gh/AbrahamAz/utilityR/branch/master/graph/badge.svg)](https://app.codecov.io/gh/AbrahamAz/utilityR?branch=master)
 <!-- badges: end -->
