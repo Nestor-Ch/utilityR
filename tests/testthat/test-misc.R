@@ -136,6 +136,15 @@ testthat::test_that("Check that collapsing works multiple options into 1 works",
 
 
 
+testthat::test_that("Check that isna works", {
+  a <-  c(1,2,"a",3,NA,4,NA)
+  expected_output_a <- c(FALSE,FALSE,FALSE,FALSE,TRUE,FALSE,TRUE)
+  testthat::expect_equal( isna(a), expected_output_a)
+})
+
+
+
+
 testthat::test_that("Check that transposal of dataframes works", {
 
 #Check for matching for the standard case of mixed character/numeric columns

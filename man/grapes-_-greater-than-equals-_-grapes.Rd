@@ -7,9 +7,9 @@
 a \%_>=_\% b
 }
 \arguments{
-\item{a}{- a numeric variable present in the environment}
+\item{a}{- a variable present in the environment}
 
-\item{b}{- a numeric variable present in the environment}
+\item{b}{- a variable present in the environment}
 }
 \value{
 - A boolean for the check

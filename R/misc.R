@@ -1,7 +1,7 @@
 #' Equality checker
 #'
-#' @param a - a numeric/string variable present in the environment
-#' @param b - a numeric/string variable present in the environment
+#' @param a - a  variable present in the environment
+#' @param b - a  variable present in the environment
 #'
 #' @return - A boolean for the equality check
 #' @export
@@ -18,8 +18,8 @@
 
 #' Inequality checker
 #'
-#' @param a - a numeric/string variable present in the environment
-#' @param b - a numeric/string variable present in the environment
+#' @param a - a variable present in the environment
+#' @param b - a variable present in the environment
 #'
 #' @return - A boolean for the inequality check
 #' @export
@@ -34,8 +34,8 @@
 
 #' Check if a is greater than b
 #'
-#' @param a - a numeric variable present in the environment
-#' @param b - a numeric variable present in the environment
+#' @param a - a variable present in the environment
+#' @param b - a variable present in the environment
 #'
 #' @return - A boolean for the check
 #' @export
@@ -50,8 +50,8 @@
 
 #' Check if a is greater than or equal to b
 #'
-#' @param a - a numeric variable present in the environment
-#' @param b - a numeric variable present in the environment
+#' @param a - a variable present in the environment
+#' @param b - a variable present in the environment
 #'
 #' @return - A boolean for the check
 #' @export
@@ -66,8 +66,8 @@
 
 #' Check if a is less than b
 #'
-#' @param a - a numeric variable present in the environment
-#' @param b - a numeric variable present in the environment
+#' @param a - a variable present in the environment
+#' @param b - a variable present in the environment
 #'
 #' @return - A boolean for the check
 #' @export
@@ -82,8 +82,8 @@
 
 #' Check if a is less than or equal to b
 #'
-#' @param a - a numeric variable present in the environment
-#' @param b - a numeric variable present in the environment
+#' @param a - a variable present in the environment
+#' @param b - a variable present in the environment
 #'
 #' @return - A boolean for the check
 #' @export
@@ -98,8 +98,8 @@
 
 #' Sum of two numerics
 #'
-#' @param a - a numeric variable present in the environment
-#' @param b - a numeric variable present in the environment
+#' @param a - a variable present in the environment
+#' @param b - a variable present in the environment
 #'
 #' @return  - A numeric sum
 #' @export

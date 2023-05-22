@@ -7,9 +7,9 @@
 a \%not=\% b
 }
 \arguments{
-\item{a}{- a numeric/string variable present in the environment}
+\item{a}{- a variable present in the environment}
 
-\item{b}{- a numeric/string variable present in the environment}
+\item{b}{- a variable present in the environment}
 }
 \value{
 - A boolean for the inequality check
