@@ -183,6 +183,33 @@ testthat::expect_equal( mock_df3%>%
 
 
 
+testthat::test_that("Factorization works", {
+  # check if the correct class is assigned
+  a <-  c(rep(LETTERS[1:10],4),"",rep(LETTERS[11:16],3),NA,rep(LETTERS[17:22],1),NA,LETTERS[23:26])
+  expected_output_a <- c("ordered",'factor')
+  result <-  factorize(a, min_n = 2, min_freq = 0.01)
+  testthat::expect_equal( class(result), expected_output_a)
+
+  # check if the correct factors were kept
+  expected_output_b <-  c('(blank)', LETTERS[1:22],"(NA)", 'Other')
+  testthat::expect_true(all(levels(result) %in%  expected_output_b))
+
+  # check if the correct order was kept
+  expected_output_c <-  c('(blank)',"(NA)",LETTERS[11:16],LETTERS[1:10], 'Other')
+  testthat::expect_true(all(levels(result) %in%  expected_output_c))
+
+  # check if the reverse order works
+  result <-  factorize(a, min_n = 2, min_freq = 0.01, reverse_order=TRUE)
+  expected_output_d <-  c('Other',LETTERS[1:10],LETTERS[11:16],LETTERS[1:10],'(blank)',"(NA)")
+  testthat::expect_true(all(levels(result) %in%  expected_output_d))
+
+
+  # check if the 'infrequent_can_include_blank_and_NA' functionality works
+  result2 <-  factorize(a, min_n = 2, min_freq = 0.01,infrequent_can_include_blank_and_NA = TRUE)
+  expected_output_e <-  c(LETTERS[1:22], 'Other', '(NA)')
+  testthat::expect_true(all(levels(result2) %in%  expected_output_e))
+
+})
 
 
 

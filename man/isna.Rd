@@ -2,7 +2,7 @@
 % Please edit documentation in R/misc.R
 \name{isna}
 \alias{isna}
-\title{A shorthand is NA function}
+\title{A shorthand for is.na() function}
 \usage{
 isna(x)
 }
@@ -13,7 +13,7 @@ isna(x)
 - a boolean of whether X was NA
 }
 \description{
-A shorthand is NA function
+A shorthand for is.na() function
 }
 \examples{
 a <- 2

@@ -2,7 +2,7 @@
 % Please edit documentation in R/misc.R
 \name{\%_+_\%}
 \alias{\%_+_\%}
-\title{Sum of two numerics}
+\title{Produce a sum of two numeric variables}
 \usage{
 a \%_+_\% b
 }
@@ -15,7 +15,7 @@ a \%_+_\% b
 - A numeric sum
 }
 \description{
-Sum of two numerics
+Produce a sum of two numeric variables
 }
 \examples{
 a <- 4
