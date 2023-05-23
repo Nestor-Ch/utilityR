@@ -2,7 +2,7 @@
 % Please edit documentation in R/misc.R
 \name{\%==na\%}
 \alias{\%==na\%}
-\title{Compare two variables are the same and are not NA}
+\title{Check if two variables are the same and are not NA}
 \usage{
 e1 \%==na\% e2
 }
@@ -15,7 +15,7 @@ e1 \%==na\% e2
 - a boolean result of the comparison
 }
 \description{
-Compare two variables are the same and are not NA
+Check if two variables are the same and are not NA
 }
 \examples{
 a <- 4
