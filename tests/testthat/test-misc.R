@@ -196,12 +196,12 @@ testthat::test_that("Factorization works", {
 
   # check if the correct order was kept
   expected_output_c <-  c('(blank)',"(NA)",LETTERS[11:16],LETTERS[1:10], 'Other')
-  testthat::expect_true(all(levels(result) %in%  expected_output_c))
+  testthat::expect_true(all(levels(result) ==  expected_output_c))
 
   # check if the reverse order works
   result <-  factorize(a, min_n = 2, min_freq = 0.01, reverse_order=TRUE)
-  expected_output_d <-  c('Other',LETTERS[1:10],LETTERS[11:16],LETTERS[1:10],'(blank)',"(NA)")
-  testthat::expect_true(all(levels(result) %in%  expected_output_d))
+  expected_output_d <-  c('Other',LETTERS[1:10],LETTERS[11:16],"(NA)",'(blank)')
+  testthat::expect_true(all(levels(result) ==  expected_output_d))
 
 
   # check if the 'infrequent_can_include_blank_and_NA' functionality works
