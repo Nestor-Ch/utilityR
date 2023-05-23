@@ -200,7 +200,7 @@ transpose_df <- function(df) {
 
 
 
-#' Title
+#' Factorize a variable
 #'
 #' @param x - vector to be transformed
 #' @param min_freq - all levels less than this percentage of records will be bucketed
