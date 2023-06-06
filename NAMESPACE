@@ -2,6 +2,7 @@
 
 export("%==%")
 export("%==na%")
+export("%>%")
 export("%_+_%")
 export("%_<=_%")
 export("%_<_%")
@@ -13,3 +14,4 @@ export(anychoice_pattern)
 export(factorize)
 export(isna)
 export(transpose_df)
+importFrom(magrittr,"%>%")
