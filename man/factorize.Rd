@@ -2,7 +2,7 @@
 % Please edit documentation in R/misc.R
 \name{factorize}
 \alias{factorize}
-\title{Title}
+\title{Factorize a variable}
 \usage{
 factorize(
   x,
@@ -39,7 +39,7 @@ factorize(
 An ordered factor variable
 }
 \description{
-Title
+Factorize a variable
 }
 \examples{
 a <- letters[1:10]
