@@ -20,6 +20,7 @@ Load the 'choices' tab from a Kobo tool.
 \examples{
 \dontrun{
 filename_tool <- "tool.xlsx"
-tool_choices <- load.tool.choices(filename_tool)
+label_colname <- load.label.colname(filename_tool)
+tool_choices <- load.tool.choices(filename_tool, label_colname)
 }
 }
