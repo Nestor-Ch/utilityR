@@ -90,7 +90,7 @@ get.choice.label <- function(choice,
                          dplyr::pull(name), collapse = ", ")
     warning(paste0("Choices not in the list (", list, "):", culprits))
   }
-  if(nrow(res) == 0) stop("All choices not in the list!")
+  # if(nrow(res) == 0) stop("All choices not in the list!")
 
   res_vec <- dplyr::pull(res, label_colname)
   return(res_vec)
