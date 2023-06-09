@@ -21,6 +21,6 @@ Find the label of a variable
 }
 \examples{
 \dontrun{
-label <- get.label(variable = "a2_partner",tool.survey = tool.survey)
+label <- get.label(variable = "a2_partner", label_colname = label_colname, tool.survey = tool.survey)
 }
 }

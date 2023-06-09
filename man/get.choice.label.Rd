@@ -2,7 +2,7 @@
 % Please edit documentation in R/get.R
 \name{get.choice.label}
 \alias{get.choice.label}
-\title{Title}
+\title{Find the label of the Choice}
 \usage{
 get.choice.label(choice, list, label_colname = NULL, tool.choices = NULL)
 }
@@ -19,7 +19,7 @@ get.choice.label(choice, list, label_colname = NULL, tool.choices = NULL)
 It will return the label of the choice
 }
 \description{
-Title
+Find the label of the Choice
 }
 \examples{
 \dontrun{
