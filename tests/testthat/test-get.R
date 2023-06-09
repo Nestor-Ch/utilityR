@@ -25,7 +25,7 @@ testthat::test_that("get.label works", {
 testthat::test_that("get.choice.label", {
   filename <- testthat::test_path("fixtures","tool.xlsx")
   label_colname <- "label::English"
-  tool.choices <- load.tool.choices(filename,label_colname)
+  tool.choices <- utilityR::load.tool.choices(filename,label_colname)
 
   testthat::expect_error(get.choice.label("yes",list = "yn",label_colname = label_colname))
   testthat::expect_error(get.choice.label("yes",list = "yn",tool.choices = tool.choices))
@@ -33,4 +33,19 @@ testthat::test_that("get.choice.label", {
 
   testthat::expect_equal(get.choice.label("yes","yn",label_colname,tool.choices),"Yes")
   testthat::expect_warning(get.choice.label("ye","yn",label_colname,tool.choices))
+})
+
+testthat::test_that("get.choice.list.from.name", {
+  filename <- testthat::test_path("fixtures","tool.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+  testthat::expect_error(get.choice.list.from.name("a2_partner",label_colname = label_colname))
+  testthat::expect_error(get.choice.list.from.name("a2_partner",tool.survey = tool.survey))
+  testthat::expect_warning(get.choice.list.from.name("a_partner",label_colname,tool.survey))
+
+  testthat::expect_equal(get.choice.list.from.name("a2_partner",label_colname,tool.survey),"partner")
+  actual_output <- get.choice.list.from.name("b17_access_stores/test",label_colname,tool.survey) %>%
+    suppressWarnings()
+  testthat::expect_equal(actual_output,"affect")
+
 })
