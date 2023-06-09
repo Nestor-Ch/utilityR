@@ -130,3 +130,150 @@ get.choice.list.from.name <- function(variable,
 }
 
 
+#' Finds the choice list for a question basing on its type
+#'
+#' @param q_type The type of the variable from the kobo tool
+#'
+#' @return the list_name of the choices
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#'   choice_list_name <- get.choice.list.from.type("select_one a2_partner")
+#' }
+get.choice.list.from.type <- function(q_type){
+  q_type.1 <- stringr::str_split(q_type, " ")[[1]]
+  if (length(q_type.1)==1) return(NA)
+  else return(q_type.1[2])
+}
+
+#' Finds parent question basing on relevancy text
+#'
+#' @param q_relevancy The relevancy entry from the kobo tool
+#'
+#' @return the parent questions variable name
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' parent_variable <- get.ref.question("selected(${b17_access_stores}, 'other'"))
+#' }
+#'
+get.ref.question <- function(q_relevancy){
+  q_relevancy.1 <- stringr::str_split(q_relevancy, "\\{")[[1]][2]
+  return(stringr::str_split(q_relevancy.1, "\\}")[[1]][1])
+}
+
+
+#' Finds all 'select' type questions, and their choices
+#'
+#' @param tool.choices This is the tool.choices data.frame
+#' @param tool.survey This is the tool.survey data.frame
+#' @param label_colname This is the label_colname input
+#'
+#' @return a data.frame including all select questions with the type, name, label, q.type, list_name, and choices
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' select_db <- get.select.db(tool.choices = tool.choices,
+#'                            tool.survey = tool.survey,
+#'                            label_colname = label_colname)
+#' }
+#'
+get.select.db <- function(tool.choices = NULL,
+                          tool.survey = NULL,
+                          label_colname = NULL){
+  if(is.null(tool.survey)) stop("tool.survey is not provided.")
+  if(is.null(tool.choices)) stop("tool.choices is not provided.")
+  if(is.null(label_colname)) stop("label_colname is not provided.")
+
+  # list of choices for each list_name (from TOOL_CHOICES)
+  list.choices <- tool.choices[!is.na(tool.choices$list_name),] %>% dplyr::group_by(list_name) %>%
+    dplyr::mutate(choices=paste(name, collapse=";\n"),
+           choices.label=paste(!!rlang::sym(label_colname), collapse=";\n")) %>%
+    dplyr:: summarise(choices=choices[1], choices.label=choices.label[1])
+  # list of choices for each question
+  select.questions <- tool.survey %>%
+    dplyr::rename(q.label=label_colname) %>%
+    dplyr::select(type, name, q.label) %>%
+    dplyr::mutate(q.type=as.character(lapply(type, function(x) return(stringr::str_split(x, " ")[[1]][1]))),
+           list_name=as.character(lapply(type, get.choice.list.from.type)))
+  select.questions <- select.questions[select.questions$list_name!="NA" & select.questions$list_name!="group" & select.questions$list_name!="repeat",] %>%
+    dplyr::left_join(list.choices, by="list_name")
+  select.questions <- select.questions[!is.na(select.questions$choices)]
+  return(select.questions)
+}
+
+
+#' Finds all 'other' questions and their ref question and choices
+#'
+#' @param tool.choices This is the tool.choices data.frame
+#' @param tool.survey This is the tool.survey data.frame
+#' @param label_colname This is the label_colname input
+#'
+#' @return Dataframe containing name, parent name, full.label, parent type, choices, choices label
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' other_db <- get.other.db(tool.choices = tool.choices,
+#'                          tool.survey = tool.survey,
+#'                          label_colname = label_colname)
+#' }
+#'
+get.other.db <- function(tool.survey= NULL,
+                         tool.choices= NULL,
+                         label_colname = NULL){
+  if(is.null(tool.survey)) stop("tool.survey is not provided.")
+  if(is.null(tool.choices)) stop("tool.choices is not provided.")
+  if(is.null(label_colname)) stop("label_colname is not provided.")
+  select.questions <- get.select.db(tool.choices = tool.choices,
+                                    tool.survey = tool.survey,
+                                    label_colname = label_colname)
+
+ # for each "other" question, get ref.question and list of choices
+ other.db <- tool.survey[stringr::str_ends(tool.survey$name, "_other") & tool.survey$type=="text",] %>%
+    dplyr::rename(label=label_colname) %>%
+    dplyr::select("name", "label", "relevant") %>%
+    dplyr::mutate(ref.name=as.character(lapply(relevant, get.ref.question))) %>%
+    dplyr::left_join(dplyr::select(select.questions, "name", "q.type", "q.label", "list_name", "choices", "choices.label"),
+              by=c("ref.name"="name")) %>%
+    dplyr::rename(ref.label=q.label, ref.type=q.type) %>%
+    dplyr::mutate(full.label=paste0(ref.label, " - ", label)) %>%
+    dplyr::select(name, ref.name, full.label, ref.type, choices, choices.label)
+
+  return(other.db)
+}
+
+#' Finds all questions which should be translated (meaning all 'text'-type question that are not 'other's)
+#'
+#' @param tool.choices This is the tool.choices data.frame
+#' @param tool.survey This is the tool.survey data.frame
+#' @param label_colname This is the label_colname input
+#'
+#' @return Dataframe containing name,full.label
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' trans_db <- get.trans.db(tool.choices = tool.choices,
+#'                          tool.survey = tool.survey,
+#'                          label_colname = label_colname)
+#' }
+get.trans.db <- function(tool.survey= NULL,
+                         tool.choices= NULL,
+                         label_colname = NULL){
+  if(is.null(tool.survey)) stop("tool.survey is not provided.")
+  if(is.null(tool.choices)) stop("tool.choices is not provided.")
+  if(is.null(label_colname)) stop("label_colname is not provided.")
+  select.questions <- get.select.db(tool.choices = tool.choices,
+                                    tool.survey = tool.survey,
+                                    label_colname = label_colname)
+
+  trans.db <- tool.survey[!stringr::str_ends(tool.survey$name, "_other") & tool.survey$type == "text",]
+  trans.db <- trans.db %>%
+    dplyr::rename(label=label_colname) %>%
+    dplyr::select("name", "label")
+  return(trans.db)
+}
