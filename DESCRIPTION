@@ -20,4 +20,5 @@ RoxygenNote: 7.2.3
 Imports: 
     magrittr,
     rlang,
-    tibble
+    tibble,
+    readxl

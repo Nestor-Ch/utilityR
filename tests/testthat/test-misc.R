@@ -91,6 +91,66 @@ testthat::test_that("Numeric sum works", {
 })
 
 
+testthat::test_that("Numeric subtraction works", {
+  testdf <- data.frame(a = c(1,2,12,NA),
+                       b = c(1,4,3,11))
+  expected_output <- data.frame(a = c(1,2,12,NA),
+                                b = c(1,4,3,11),
+                                c = c(0,-2,9,NA))
+  # check if warning is produced when a character value is transformed into na
+  testthat::expect_warning( 1 %_-_% 'b')
+  # check if the function itself works properly
+  testthat::expect_equal(testdf %>%
+                           dplyr::mutate(c = a %_-_% b), expected_output)
+  # check if the sum produces a numerical column
+  testthat::expect_equal(testdf %>%
+                           dplyr::mutate(c = a %_-_% b)%>%
+                           na.omit()%>%
+                           dplyr::pull(c)%>%
+                           class(), 'numeric')
+
+})
+
+
+testthat::test_that("Numeric multiplication works", {
+  testdf <- data.frame(a = c(1,2,-4,NA,12),
+                       b = c(1,4,-1,11,-2))
+  expected_output <- data.frame(a = c(1,2,-4,NA,12),
+                                b = c(1,4,-1,11,-2),
+                                c = c(1,8,4,NA, -24))
+  # check if warning is produced when a character value is transformed into na
+  testthat::expect_warning( 1 %_*_% 'b')
+  # check if the function itself works properly
+  testthat::expect_equal(testdf %>%
+                           dplyr::mutate(c = a %_*_% b), expected_output)
+  # check if the sum produces a numerical column
+  testthat::expect_equal(testdf %>%
+                           dplyr::mutate(c = a %_*_% b)%>%
+                           na.omit()%>%
+                           dplyr::pull(c)%>%
+                           class(), 'numeric')
+
+})
+
+testthat::test_that("Numeric division works", {
+  testdf <- data.frame(a = c(1,8,-4,NA,9, 10),
+                       b = c(1,4,-1,11,3,3))
+  expected_output <- data.frame(a = c(1,8,-4,NA,9, 10),
+                                b = c(1,4,-1,11,3, 3),
+                                c = c(1,2,4,NA,3, 3.33))
+  # check if warning is produced when a character value is transformed into na
+  testthat::expect_warning( 1 %_/_% 'b')
+  # check if the function itself works properly
+  testthat::expect_equal(testdf %>%
+                           dplyr::mutate(c = round(a %_/_% b,2)), expected_output)
+  # check if the sum produces a numerical column
+  testthat::expect_equal(testdf %>%
+                           dplyr::mutate(c = a %_/_% b)%>%
+                           na.omit()%>%
+                           dplyr::pull(c)%>%
+                           class(), 'numeric')
+
+})
 
 testthat::test_that("Equality of 2 variables works", {
   testdf <- data.frame(a = c(1,2,3,NA,'a','b','f'),

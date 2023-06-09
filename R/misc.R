@@ -111,6 +111,72 @@
   as.numeric(a) + as.numeric(b)
 }
 
+#' Produce a result of subtraction of two numeric variables
+#'
+#' @param a - a variable present in the environment
+#' @param b - a variable present in the environment
+#'
+#' @return - a numeric result of subtraction
+#' @export
+#'
+#' @examples
+#' a <- 4
+#' a %_-_% 2
+#'
+"%_-_%" <- function(a, b){
+  as.numeric(a) - as.numeric(b)
+}
+
+
+#' Produce a result of multiplication of two numeric variables
+#'
+#' @param a - a variable present in the environment
+#' @param b - a variable present in the environment
+#'
+#' @return - a numeric result of multiplication
+#' @export
+#'
+#' @examples
+#' a <- 4
+#' a %_*_% 2
+#'
+"%_*_%" <- function(a, b){
+  as.numeric(a) * as.numeric(b)
+}
+
+#' Produce a result of multiplication of two numeric variables
+#'
+#' @param a - a variable present in the environment
+#' @param b - a variable present in the environment
+#'
+#' @return - a numeric result of multiplication
+#' @export
+#'
+#' @examples
+#' a <- 4
+#' a %_*_% 2
+#'
+"%_*_%" <- function(a, b){
+  as.numeric(a) * as.numeric(b)
+}
+
+
+#' Produce a result of division of two numeric variables
+#'
+#' @param a - a variable present in the environment
+#' @param b - a variable present in the environment
+#'
+#' @return - a numeric result of division
+#' @export
+#'
+#' @examples
+#' a <- 4
+#' a %_/_% 2
+#'
+"%_/_%" <- function(a, b){
+  as.numeric(a) / as.numeric(b)
+}
+
 #' Check if two variables are the same and are not NA
 #'
 #' @param e1 - a variable present in the environment
