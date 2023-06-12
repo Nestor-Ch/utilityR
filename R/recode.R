@@ -112,6 +112,7 @@ recode.set.NA <- function(data, variables, issue){
 #' @param new.value New value for the recoded rows
 #' @param pattern Regex pattern which will be used to find entries that will be turned to NA.
 #' @param issue String with explanation used for the cleaning log entry.
+#' @param affect_na Whether NA values in the column should be recoded as well.
 #' @param CL_COLS string of columns of the cleaning log defauls to c("uuid", "loop_index", "variable", "old.value", "new.value", "issue")
 #'
 #' @return Dataframe containing cleaning log entries constructed from `data`.

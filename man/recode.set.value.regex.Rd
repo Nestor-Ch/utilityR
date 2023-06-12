@@ -25,6 +25,8 @@ recode.set.value.regex(
 
 \item{issue}{String with explanation used for the cleaning log entry.}
 
+\item{affect_na}{Whether NA values in the column should be recoded as well.}
+
 \item{CL_COLS}{string of columns of the cleaning log defauls to c("uuid", "loop_index", "variable", "old.value", "new.value", "issue")}
 }
 \value{
