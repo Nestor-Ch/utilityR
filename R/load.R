@@ -63,8 +63,8 @@ load.tool.survey <- function(filename_tool, label_colname,  keep_cols = F){
   tool.survey <- tool.survey[!is.na(tool.survey$type),]
   tool.survey <- tool.survey %>%
     dplyr::mutate(q.type=as.character(lapply(type, function(x) stringr::str_split(x, " ")[[1]][1])),
-           list_name=as.character(lapply(type, function(x) stringr::str_split(x, " ")[[1]][2])),
-           list_name=ifelse(stringr::str_starts(type, "select_"), list_name, NA)) %>%
+                  list_name=as.character(lapply(type, function(x) stringr::str_split(x, " ")[[1]][2])),
+                  list_name=ifelse(stringr::str_starts(type, "select_"), list_name, NA)) %>%
     as.data.frame()
 
   if(!keep_cols){
@@ -88,4 +88,82 @@ load.tool.survey <- function(filename_tool, label_colname,  keep_cols = F){
   }
   return(tool.survey)
 }
+
+
+
+
+
+#' Load 'request' logs from specified directory.
+#'
+#' Searches `dir` to find XLSX files with names that start with a match for `filename.pattern`.
+#' NB: This pattern-matching is case-insensitive. If files contain the classic "TRUE", "EXISTING" or "INVALID" (TEI) columns,
+#' these will be renamed to "true.v", "existing.v", and "invalid.v" respectively and optionally validated for errors.
+
+#' @param dir Directory which should be searched for files.
+#' @param filename.pattern String with a regex pattern which will be passed to `list.files` to match files,
+#' however: '^' (string start) is added at the start of the pattern, and ".*\\.xlsx" is added at the end,
+#' so effectively files that will be loaded must be XLSX and have names that start with the provided pattern.
+#'
+#' @param sheet Optional parameter passed to `read_xlsx`, defaults to NULL (first sheet of an Excel workbook)
+#' @param validate Should the file be validated (make sure that only one of TEI columns is filled.)
+#'
+#' @return Your request file in the tibble format
+#'
+#' @examples
+#' \dontrun{
+#' load.requests(dir = 'your_path', filename.pattern = 'your_pattern')
+#' }
+load.requests <- function(dir, filename.pattern, sheet=NULL, validate=FALSE){
+  file.type <-  stringr::str_squish(stringr::str_replace_all(filename.pattern, "[^a-zA-Z]+"," "))
+  filenames <- list.files(dir, recursive=FALSE, full.names=TRUE, ignore.case = TRUE,
+                          pattern=paste0("^",filename.pattern,".*\\.xlsx"))
+  if (length(filenames) == 0){
+    warning(paste("Files with",file.type,"requests not found!"))
+    return(dplyr::tibble())
+  } else {
+    cat(paste("Loading",length(filenames),file.type,"files:\n"),paste(filenames, collapse = "\n "),"\n")
+    res <- data.frame()
+    for (filename in filenames){
+      # load file
+      other <- readxl::read_xlsx(filename, col_types = "text", trim_ws = T, sheet = sheet)
+      if (filename==filenames[1]){
+        res <- other
+      }else{
+        if(ncol(res)!=ncol(other)) warning("Number of columns differs between files! Check them to make sure everything is correct, please!")
+        res <- dplyr::bind_rows(res, other)
+      }
+
+    }
+    # rename: TRUE -> true.v, EXISTING -> existing.v, INVALID -> invalid.v
+    c_tei_cols <- c("true", "existing", "invalid")
+    for(c in c_tei_cols) {
+      colnames(res)[stringr::str_starts(colnames(res), stringr::str_to_upper(c))] <- paste0(c,'.v')
+    }
+    if(validate){
+      c_tei_cols <- paste0(c_tei_cols, ".v")
+      if(all(c_tei_cols %in% colnames(res))){
+        res <- res %>% dplyr::mutate(check = rowSums(is.na(dplyr::select(res, dplyr::all_of(c_tei_cols)))))
+        check.res <- res %>% dplyr::select(c(
+          dplyr::any_of(c("uuid","ref.type","check"))))
+        check.missing <- check.res %>% dplyr::filter(check == 3)
+        if(nrow(check.missing)){
+          warning(paste0("Missing entries:\n", paste0(" ", unlist(check.missing[,1]) , collapse = "\n")))
+        }
+        if("ref.type" %in% colnames(check.res)){
+          check.res <- check.res %>%
+            dplyr::filter(check == 0 | (check == 1 & ref.type != "select_multiple"))  # select_multiple can have 2 columns selected
+        }else{
+          check.res <- dplyr::filter(check.res, check != 2)
+        }
+        if(nrow(check.res)>0) {
+          warning(paste0("Multiple columns selected:\n", paste0(" ", unlist(check.res[,1]) , collapse = "\n")))
+        }
+      }else{
+        stop("One or more of 'true', 'existing', 'invalid' columns not found in requests files.")
+      }
+    }
+    return(res)
+  }
+}
+
 

@@ -226,7 +226,7 @@ testthat::test_that("recode.multiple.set.NA works", {
 
 
 
-testthat::test_that("recode.multiple.set.NA works", {
+testthat::test_that("recode.multiple.set.choices works", {
 # upload the data
 
   test_path <- testthat::test_path("fixtures","utilityR_raw_data.xlsx")
@@ -235,28 +235,24 @@ testthat::test_that("recode.multiple.set.NA works", {
   # set up loop index to test if it works
   test_data$loop_index = 1:10
 
-  # Test 1 - test if it throws the tool.survey error
-
-  testthat::expect_error(testthat::expect_message(recode.multiple.set.choices(test_data, 'b7_1_heating_fuel','gas_heating',issue='test_issue')),
-                         'tool.survey is not present in the environment, please upload it with load.tool.survey function')
 # load the tool data
-
 
 filename <- testthat::test_path("fixtures","tool.survey_full.xlsx")
 label_colname <- "label::English"
-tool.survey <<- utilityR::load.tool.survey(filename,label_colname)
-
-# Test 2 - test if it throws the tool.choices error
-
-testthat::expect_error(testthat::expect_message(recode.multiple.set.choices(test_data, 'b7_1_heating_fuel','gas_heating',issue='test_issue')),
-                       'tool.choices is not present in the environment, please upload it with load.tool.choices function')
+tool.survey <- utilityR::load.tool.survey(filename,label_colname)
 
 
-# Test 3 - test if it works as expected with 1 variable
+# Test 0 - expect error with wrong names
+
+testthat::expect_error(recode.multiple.set.choices(test_data, 'b7_1_heating_fuel','fake_option',issue='test_issue', tool.survey = tool.survey,
+                                             tool.choices =tool.choices))
+
+
+# Test 1 - test if it works as expected with 1 variable
 
 
 # rename the tool.choices db
-tool.choices <<- utilityR::utilityR_choices
+tool.choices <- utilityR::utilityR_choices
 
 
 expected_output <- data.frame(uuid = c(test_data[!test_data$b7_1_heating_fuel=='gas_heating',]$uuid,test_data[test_data$`b7_1_heating_fuel/gas_heating`==0,]$uuid,
@@ -268,7 +264,8 @@ expected_output <- data.frame(uuid = c(test_data[!test_data$b7_1_heating_fuel=='
                               new.value = c(rep('gas_heating',2),1,0,0),
                               issue = rep('test_issue',5)
                                 ) %>% dplyr::tibble()
-actual_output <- recode.multiple.set.choices(test_data, 'b7_1_heating_fuel','gas_heating',issue='test_issue')
+actual_output <- recode.multiple.set.choices(test_data, 'b7_1_heating_fuel','gas_heating',issue='test_issue', tool.survey = tool.survey,
+                                             tool.choices =tool.choices)
 
 
 testthat::expect_equal(expected_output, actual_output)
@@ -302,15 +299,30 @@ expected_output2 <- data.frame(uuid = c(test_data$uuid, test_data[test_data$`b17
                               issue = rep('test_issue',19)
                               ) %>% dplyr::tibble()
 
-actual_output2 <- recode.multiple.set.choices(test_data, 'b17_access_stores',c('no_impact','road_damage'),issue='test_issue')
+actual_output2 <- recode.multiple.set.choices(test_data, 'b17_access_stores',c('no_impact','road_damage'),issue='test_issue', tool.survey = tool.survey,
+                                              tool.choices =tool.choices)
 
 testthat::expect_equal(expected_output2, actual_output2)
+
+
+# test 5 - returns an empty df when no changes needed
+
+test_data <- readxl::read_excel(test_path)[41:50,] %>%
+  dplyr::rename(uuid = `_uuid`)
+test_data$loop_index = 1:10
+
+test_data2 <- test_data[test_data$b7_1_heating_fuel=='gas_heating',]
+
+actual_output3 <- recode.multiple.set.choices(test_data2, 'b7_1_heating_fuel','gas_heating',issue='test_issue', tool.survey = tool.survey,
+                                              tool.choices =tool.choices)
+
+testthat::expect_equal(data.frame(), actual_output3)
+
+
 })
 
-rm(tool.choices,tool.survey)
 
-
-testthat::test_that("recode.multiple.set.NA works", {
+testthat::test_that("recode.multiple.add.choices works", {
 
 test_path <- testthat::test_path("fixtures","utilityR_raw_data.xlsx")
 test_data <- readxl::read_excel(test_path)[41:50,] %>%
@@ -344,11 +356,19 @@ testthat::expect_error(recode.multiple.add.choices(test_data, "b17_access_stores
 # test 3 - test if it breaks like its supposed to
 testthat::expect_error(recode.multiple.add.choices(test_data, "fake_column", c("air_alert"),issue='test_issue' ))
 
+# test 4 - test that it produces an empty df when there's nothing to change
+
+test_data2 <- test_data[test_data$b17_access_stores == 'no_impact',]
+
+actual_output <- recode.multiple.add.choices(test_data2, "b17_access_stores", c("no_impact"),issue='test_issue' )
+
+testthat::expect_equal(actual_output, data.frame())
+
 })
 
 
 
-testthat::test_that("recode.multiple.set.NA works", {
+testthat::test_that("recode.multiple.remove.choices works", {
 
 
 # test 1 check if the general functionality works
@@ -413,6 +433,14 @@ testthat::expect_error(recode.multiple.remove.choices(test_data, "fake_column", 
 
 # test 4 - test if it breaks like its supposed to
 testthat::expect_error(recode.multiple.remove.choices(test_data, "b17_access_stores", c("fake_choice","other"),issue='test_issue' ))
+
+# test 5 - test if it produces an empty df when needed
+
+test_data2 <- test_data[!test_data$b17_access_stores == 'no_impact',]
+
+actual_output <- recode.multiple.remove.choices(test_data2, "b17_access_stores", c("no_impact"),issue='test_issue' )
+
+testthat::expect_equal(actual_output, data.frame())
 
 })
 

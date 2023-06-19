@@ -224,6 +224,8 @@ recode.multiple.set.NA <- function(data, variable, issue, other_var_name = NULL,
 #' @param choices Vector of strings (or a single string) containing the choices that will be added. They must be valid options for this variable.
 #' @param issue String with explanation used for the cleaning log entry.
 #' @param other_var_name the name of your _other variable - variable containing string responses, NULL by default
+#' @param tool.survey your survey sheet in the tool
+#' @param tool.choices your choices sheet in the tool
 #'
 #' @return Dataframe containing cleaning log entries constructed from `data`.
 #'
@@ -232,15 +234,8 @@ recode.multiple.set.NA <- function(data, variable, issue, other_var_name = NULL,
 #' recode.multiple.set.choices(data = filter(raw.main, condition),
 #' variable = "question_name", choices = "option", issue = "explanation")
 #' }
-recode.multiple.set.choices <- function(data, variable, choices, issue, other_var_name = NULL){
-
-  if(!exists('tool.survey')){
-    stop('tool.survey is not present in the environment, please upload it with load.tool.survey function')
-  }
-
-  if(!exists('tool.choices')){
-    stop('tool.choices is not present in the environment, please upload it with load.tool.choices function')
-  }
+recode.multiple.set.choices <- function(data, variable, choices, issue, other_var_name = NULL,
+                                        tool.survey, tool.choices){
 
   choice_columns <- paste0(variable,"/",choices)
   if(any(!choice_columns %in% colnames(data))){
@@ -399,8 +394,5 @@ recode.multiple.remove.choices <- function(data, variable, choices, issue, other
   return(data.frame())
 
 }
-
-
-
 
 
