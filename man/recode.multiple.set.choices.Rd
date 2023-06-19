@@ -9,7 +9,9 @@ recode.multiple.set.choices(
   variable,
   choices,
   issue,
-  other_var_name = NULL
+  other_var_name = NULL,
+  tool.survey,
+  tool.choices
 )
 }
 \arguments{
@@ -22,6 +24,10 @@ recode.multiple.set.choices(
 \item{issue}{String with explanation used for the cleaning log entry.}
 
 \item{other_var_name}{the name of your _other variable - variable containing string responses, NULL by default}
+
+\item{tool.survey}{your survey sheet in the tool}
+
+\item{tool.choices}{your choices sheet in the tool}
 }
 \value{
 Dataframe containing cleaning log entries constructed from `data`.
