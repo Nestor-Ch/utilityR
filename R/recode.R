@@ -8,7 +8,7 @@
 #' @param code Vector of strings (or a single string) which will be changed to NA.
 #' @param issue String with explanation used for the cleaning log entry.
 #' @param ignore_case Whether `code` should be matched case-insensitively. Defaults to True.
-#' @param CL_COLS string of columns of the cleaning log defauls to c("uuid", "loop_index", "variable", "old.value", "new.value", "issue")
+#' @param CL_COLS string of columns of the cleaning log defauls to c("uuid","uniqui", "loop_index", "variable", "old.value", "new.value", "issue")
 #'
 #' @returns Dataframe containing cleaning log entries constructed from `data`.
 #'
@@ -20,7 +20,7 @@
 #'  }
 
 recode.set.NA.if <- function(data, variables, code, issue, ignore_case = T,
-                             CL_COLS = c("uuid", "loop_index", "variable",
+                             CL_COLS = c("uuid", 'uniqui',"loop_index", "variable",
                                          "old.value", "new.value", "issue")){
 
   if(!all(variables %in% names(data))){
@@ -50,7 +50,7 @@ recode.set.NA.if <- function(data, variables, code, issue, ignore_case = T,
 #' @param variables Vector of strings (or a single string) containing the names of the variables.
 #' @param pattern Regex pattern which will be used to find entries that will be turned to NA.
 #' @param issue String with explanation used for the cleaning log entry.
-#' @param CL_COLS string of columns of the cleaning log defauls to c("uuid", "loop_index", "variable", "old.value", "new.value", "issue")
+#' @param CL_COLS string of columns of the cleaning log defauls to c("uuid","uniqui", "loop_index", "variable", "old.value", "new.value", "issue")
 #'
 #' @returns Dataframe containing cleaning log entries constructed from `data`.
 #'
@@ -62,7 +62,7 @@ recode.set.NA.if <- function(data, variables, code, issue, ignore_case = T,
 #'  }
 
 recode.set.NA.regex <- function(data, variables, pattern, issue,
-                                CL_COLS = c("uuid", "loop_index", "variable",
+                                CL_COLS = c("uuid", 'uniqui',"loop_index", "variable",
                                             "old.value", "new.value", "issue")){
   if(!all(variables %in% names(data))){
     stop(paste0('Selected variable names are not present in the data',": ",
@@ -113,7 +113,7 @@ recode.set.NA <- function(data, variables, issue){
 #' @param pattern Regex pattern which will be used to find entries that will be turned to NA.
 #' @param issue String with explanation used for the cleaning log entry.
 #' @param affect_na Whether NA values in the column should be recoded as well.
-#' @param CL_COLS string of columns of the cleaning log defauls to c("uuid", "loop_index", "variable", "old.value", "new.value", "issue")
+#' @param CL_COLS string of columns of the cleaning log defauls to c("uuid","uniqui", "loop_index", "variable", "old.value", "new.value", "issue")
 #'
 #' @return Dataframe containing cleaning log entries constructed from `data`.
 #'
@@ -124,7 +124,7 @@ recode.set.NA <- function(data, variables, issue){
 #'   pattern = "birth_certificates?", issue = "explanation")
 #'   }
 recode.set.value.regex <- function(data, variables, pattern, new.value, issue, affect_na = FALSE,
-                                   CL_COLS = c("uuid", "loop_index", "variable",
+                                   CL_COLS = c("uuid",'uniqui' ,"loop_index", "variable",
                                                "old.value", "new.value", "issue")){
   if(!all(variables %in% names(data))){
     stop(paste0('Selected variable names are not present in the data',": ",
@@ -155,7 +155,7 @@ recode.set.value.regex <- function(data, variables, pattern, new.value, issue, a
 #' @param variable String containing the name of the select_multiple variable.
 #' @param issue  String with explanation used for the cleaning log entry.
 #' @param other_var_name the name of the variable containing the "other" responses
-#' @param CL_COLS string of columns of the cleaning log defauls to c("uuid", "loop_index", "variable", "old.value", "new.value", "issue")
+#' @param CL_COLS string of columns of the cleaning log defauls to c("uuid","uniqui", "loop_index", "variable", "old.value", "new.value", "issue")
 #'
 #' @return Dataframe containing cleaning log entries constructed from `data`.
 #'
@@ -165,7 +165,7 @@ recode.set.value.regex <- function(data, variables, pattern, new.value, issue, a
 #'  variable = "question2")
 #'   }
 recode.multiple.set.NA <- function(data, variable, issue, other_var_name = NULL,
-                                   CL_COLS = c("uuid", "loop_index", "variable",
+                                   CL_COLS = c("uuid", 'uniqui',"loop_index", "variable",
                                                "old.value", "new.value", "issue")){
 
   if(!all(variable %in% names(data))){
@@ -178,7 +178,7 @@ recode.multiple.set.NA <- function(data, variable, issue, other_var_name = NULL,
   # filter out cases that already are NA
   data <- data %>% dplyr::filter(!dplyr::if_all(dplyr::all_of(ccols), ~is.na(.)))
   if(nrow(data)>0){
-    cl_cummulative <- data %>% dplyr::select(dplyr::any_of(c("uuid", "loop_index", variable))) %>%
+    cl_cummulative <- data %>% dplyr::select(dplyr::any_of(c("uuid", 'uniqui',"loop_index", variable))) %>%
       dplyr::mutate(variable = variable, old.value = !!rlang::sym(variable), new.value = NA, issue = issue) %>%
       dplyr::select(dplyr::any_of(CL_COLS))
 
@@ -252,7 +252,7 @@ recode.multiple.set.choices <- function(data, variable, choices, issue, other_va
   data <- data %>% dplyr::filter(!!rlang::sym(variable) != newvalue)
 
   if(nrow(data) > 0){
-    cl_cummulative <- data %>% dplyr::select(dplyr::any_of(c("uuid", "loop_index", variable))) %>%
+    cl_cummulative <- data %>% dplyr::select(dplyr::any_of(c("uuid",'uniqui' ,"loop_index", variable))) %>%
       dplyr::rename(old.value = !!rlang::sym(variable)) %>%
       dplyr::mutate(variable = variable, new.value = newvalue, issue = issue)
 
@@ -314,12 +314,13 @@ recode.multiple.add.choices <- function(data, variable, choices, issue){
   choices_len <- stringr::str_length(paste0(choices, collapse = "")) + length(choices)-1
   # filter out cases that already have all choices selected
   data <- data %>%
-    dplyr::select(any_of(c("uuid", "loop_index", variable)), dplyr::all_of(choice_columns)) %>% dplyr::filter(!is.na(!!rlang::sym(variable))) %>%
+    dplyr::select(any_of(c("uuid", 'uniqui',"loop_index", variable)), dplyr::all_of(choice_columns)) %>%
+    dplyr::filter(!is.na(!!rlang::sym(variable))) %>%
     dplyr::mutate(variable2 = stringr::str_squish(stringr::str_remove_all(!!rlang::sym(variable), choices_pattern))) %>%
     dplyr::mutate(len_diff = stringr::str_length(!!rlang::sym(variable)) - stringr::str_length(variable2)) %>%
     dplyr::filter(stringr::str_length(!!rlang::sym(variable)) - stringr::str_length(variable2) != choices_len)
   if(nrow(data) > 0){
-    cl_cummulative <- data %>% dplyr::select(dplyr::any_of(c("uuid", "loop_index", variable, "variable2"))) %>%
+    cl_cummulative <- data %>% dplyr::select(dplyr::any_of(c("uuid",'uniqui', "loop_index", variable, "variable2"))) %>%
       dplyr::rename(old.value = !!rlang::sym(variable)) %>%
       dplyr::mutate(variable = variable, new.value = stringr::str_squish(paste(variable2, paste0(choices, collapse = " "))), issue = issue) %>%
       dplyr::select(-variable2)
@@ -346,7 +347,7 @@ recode.multiple.add.choices <- function(data, variable, choices, issue){
 #' @param choices choices Vector of strings (or a single string) containing the choices that will be removed. They must be valid options for this variable.
 #' @param issue issue String with explanation used for the cleaning log entry.
 #' @param other_var_name the name of your _other variable - variable containing string responses, NULL by default
-#' @param CL_COLS string of columns of the cleaning log defauls to c("uuid", "loop_index", "variable", "old.value", "new.value", "issue")
+#' @param CL_COLS string of columns of the cleaning log defauls to c("uuid","uniqui", "loop_index", "variable", "old.value", "new.value", "issue")
 #'
 #' @return Dataframe containing cleaning log entries constructed from `data`
 #'
@@ -357,7 +358,7 @@ recode.multiple.add.choices <- function(data, variable, choices, issue){
 #' }
 
 recode.multiple.remove.choices <- function(data, variable, choices, issue, other_var_name = NULL,
-                                           CL_COLS = c("uuid", "loop_index", "variable",
+                                           CL_COLS = c("uuid", 'uniqui',"loop_index", "variable",
                                                        "old.value", "new.value", "issue")){
 
   choice_columns <- paste0(variable,"/",choices)
@@ -394,5 +395,391 @@ recode.multiple.remove.choices <- function(data, variable, choices, issue, other
   return(data.frame())
 
 }
+
+
+
+#' Recode others: function for recoding select_one questions
+#'
+#' @param or.select_one Your filled out recoding form after translation and verification  (with only select ones)
+#' @param orig_response_col The name of your original column with the untranslated responses, "response.uk" by default
+#' @param print_debug Whether you want the function to print out what it's doing
+#' @param tool.survey_others The survey sheet of your kobo tool
+#' @param tool.choices_others The choices sheet of your kobo tool
+#' @param label_colname The name of your english label column. "label::English" by default
+#' @param CL_COLS string of columns of the cleaning log. Defauls to c("uuid","uniqui", "loop_index", "variable", "old.value", "new.value", "issue")
+#'
+#' @note  _others suffix is added to the kobo tool dataframes to avoid recursion
+#'
+#'
+#' @return A dataframe for the changes that need to be applied to the data
+#'
+#' @examples
+#' \dontrun{
+#' recode.others_select_one(or.select_one = other_requests_file, tool.survey_others=tool.survey,
+#' tool.choices_others = tool.choices)
+#' }
+recode.others_select_one <- function(or.select_one, orig_response_col = "response.uk", print_debug = T,
+                                     tool.survey_others=tool.survey, tool.choices_others =tool.choices,label_colname = "label::English",
+                                     CL_COLS = c("uuid", 'uniqui',"loop_index", "variable",
+                                                 "old.value", "new.value", "issue")){
+
+  # invalid select_ones:
+  or.select_one.remove <- dplyr::filter(or.select_one, !is.na(invalid.v))
+  if(print_debug) {
+    cat(paste("Number of invalid other select_one responses:", nrow(or.select_one.remove)), "\n")
+  }
+  cl_s1_remove <- rbind(
+    or.select_one.remove %>%
+      dplyr::mutate(variable = name, old.value = !!rlang::sym(orig_response_col), new.value = NA, issue = "Invalid other response") %>%
+      dplyr::select(dplyr::any_of(CL_COLS)),
+    or.select_one.remove %>%
+      dplyr::mutate(variable = ref.name, old.value = "other", new.value = NA, issue = "Invalid other response") %>%
+      dplyr::select(dplyr::any_of(CL_COLS))
+  )
+
+  # recoding select_ones:
+  or.select_one.recode <- or.select_one %>%
+    dplyr::filter(!is.na(existing.v)) %>%
+    dplyr::mutate(list_name = sapply(ref.name,function(x){get.choice.list.from.name(x, tool.survey=tool.survey_others, label_colname=label_colname)}),
+                  existing.v = stringr::str_remove_all(existing.v, ";"))
+  if(print_debug) {
+    cat(paste("Number of select_one responses to be recoded:", nrow(or.select_one.recode)), "\n")
+  }
+  choices_lookup <- or.select_one.recode %>%
+    dplyr::select(existing.v, list_name) %>%
+    dplyr::rename(label = existing.v) %>%
+    dplyr::left_join(tool.choices_others %>%
+                       dplyr::rename(label = !!rlang::sym(label_colname), choice_name = name), by = c("label", "list_name")) %>%
+    dplyr::distinct()
+  if(any(is.na(choices_lookup$choice_name))) {
+    missing_names <- choices_lookup %>%
+      dplyr::filter(is.na(choice_name))
+    stop("Choices not found in lists:\n\t", paste(missing_names$label, missing_names$list_name, sep = "\t - in list ", collapse = "\n\t"))
+  }
+  cl_s1_recode <- rbind(
+    or.select_one.recode %>%
+      dplyr::mutate(variable = name, old.value = !!rlang::sym(orig_response_col), new.value = NA, issue = "Recoding other response") %>%
+      dplyr::select(dplyr::any_of(CL_COLS)),
+    or.select_one.recode %>%
+      dplyr::rename(label = existing.v) %>%
+      dplyr::left_join(choices_lookup, by = c("list_name", "label")) %>%
+      dplyr::mutate(variable = ref.name, old.value = "other", new.value = choice_name, issue = "Recoding other response") %>%
+      dplyr::select(dplyr::any_of(CL_COLS))
+  )
+
+  # true select_ones:
+  or.select_one.true <- dplyr::filter(or.select_one, !is.na(true.v))
+  if(print_debug) {
+    cat("Number of true other select_one responses:", nrow(or.select_one.true), "\n")
+  }
+  cl_s1_true <- or.select_one.true %>%
+    dplyr::mutate(variable = name, old.value = !!rlang::sym(orig_response_col), new.value = true.v, issue = "Translating other response") %>%
+    dplyr::select(dplyr::any_of(CL_COLS))
+
+  return(rbind(cl_s1_true, cl_s1_remove, cl_s1_recode))
+}
+
+
+
+
+#' Recode others: function for recoding select_multiple questions
+#'
+#' @param data your dataframe
+#' @param or.select_multiple Your filled out recoding form after translation and verification (with only select multiple)
+#' @param orig_response_col The name of your original column with the untranslated responses, "response.uk" by default
+#' @param print_debug Whether you want the function to print out what it's doing
+#' @param is.loop Whether you're working with loop data
+#' @param tool.survey_others The survey sheet of your kobo tool
+#' @param tool.choices_others  The choices sheet of your kobo tool
+#' @param label_colname The name of your english label column. "label::English" by default
+#' @param CL_COLS CL_COLS string of columns of the cleaning log. Defauls to c("uuid","uniqui" ,"loop_index", "variable", "old.value", "new.value", "issue")
+#'
+#' @return A dataframe for the changes that need to be applied to the data
+#'
+#' @note When running loop data, make sure to have a uuid column in your dataframe. This ensures that the resulting tables are uniform
+#'
+#' @examples
+#' \dontrun{
+#' recode.others_select_multiple(data, or.select_one = other_requests_file, tool.survey_others=tool.survey,
+#' tool.choices_others = tool.choices)
+#' }
+
+recode.others_select_multiple <- function(data, or.select_multiple, orig_response_col = "response.uk", print_debug = T, is.loop = F,
+                                          tool.survey_others=tool.survey, tool.choices_others =tool.choices,label_colname = "label::English",
+                                          CL_COLS = c("uuid",'uniqui', "loop_index", "variable",
+                                                      "old.value", "new.value", "issue")){
+
+
+  if(!'uuid' %in% names(data) & is.loop){
+stop(print('Your loop data doesnt have the uuid variable, please check the data and rename uuid appropriately'))
+}
+
+
+
+# filter out uuids not in the data
+
+  if(any(! or.select_multiple$uniqui %in% data$uniqui)){
+    cat(paste0('The following unique IDs from your requests file were not found in the data provided: ',
+               paste0(dplyr::setdiff(or.select_multiple$uniqui,data$uniqui),collapse=', '), '. Please double check '
+               ))
+    or.select_multiple <- or.select_multiple[or.select_multiple$uniqui %in% data$uniqui,]
+  }
+
+
+  # invalid select_multiples:
+  or.select_multiple.remove <- dplyr::filter(or.select_multiple, !is.na(invalid.v))
+  cl_sm_remove <- dplyr::tibble()
+  if (nrow(or.select_multiple.remove) > 0) {
+    if(print_debug) {
+      cat(paste("Number of invalid select_multiple responses:", nrow(or.select_multiple.remove)), "\n")
+    }
+    variables <- or.select_multiple.remove %>%
+      dplyr::select(ref.name, name) %>%
+      dplyr::distinct(ref.name, .keep_all = T)
+    for(variable in variables %>%
+        dplyr::pull(ref.name)){
+      thisvar_data <- data %>%
+        dplyr::filter(uniqui %in% (or.select_multiple.remove %>%
+                                     dplyr::filter(ref.name == variable) %>%
+                                     dplyr::pull(uniqui)))
+      other_variable <- variables$name[which(variables$ref.name == variable)]
+      # if the 'other' was the only one selected, change the entire question to NA:
+      cl_only_other <- thisvar_data %>%
+        dplyr::filter(!!rlang::sym(variable) == "other") %>%
+        recode.multiple.set.NA( variable, "Invalid other response", other_var_name = other_variable,
+                               CL_COLS = CL_COLS)
+      cl_notjust_other <- thisvar_data %>%
+        dplyr::filter(!!rlang::sym(variable) != "other") %>%
+        recode.multiple.remove.choices(variable, "other", "Invalid other response", other_var_name = other_variable,
+                                       CL_COLS = CL_COLS)
+      cl_sm_remove <- rbind(cl_sm_remove, cl_only_other, cl_notjust_other)
+    }
+  }
+
+  # recoding select_multiples:
+
+  or.select_multiple.recode <- or.select_multiple %>%
+    dplyr::filter(!is.na(existing.v)) %>%
+    dplyr::mutate(list_name = sapply(ref.name,function(x){get.choice.list.from.name(x, tool.survey=tool.survey_others, label_colname=label_colname)}),
+                  existing.v = stringr::str_split(stringr::str_squish(existing.v), " *; *", simplify = T))
+
+  if(nrow(or.select_multiple.recode) > 0){
+    cl_sm_recode <- dplyr::tibble()
+    if(print_debug) {
+      cat(paste("Number of select_multiple responses to be recoded:", nrow(or.select_multiple.recode)), "\n")
+    }
+    choices_lookup <- tool.choices_others %>%
+      dplyr::filter(list_name %in% or.select_multiple.recode$list_name) %>%
+      dplyr::rename(label = !!rlang::sym(label_colname), choice_name = name)
+
+    for (r in 1:nrow(or.select_multiple.recode)) {
+      or.row <- or.select_multiple.recode[r,]
+      data.row <- data %>%
+        dplyr::filter(uniqui == or.row$uniqui)
+
+      chosen_labels <- or.row$existing.v[or.row$existing.v != "" & !is.na(or.row$existing.v)]
+
+      if(any(!chosen_labels %in% choices_lookup$label)) {
+        # add a test for breaking
+        stop("Choice '", paste(chosen_labels[!chosen_labels %in% choices_lookup$label], collapse = "' "), "' not found in list ", or.row$list_name)
+      }
+
+      choices <- choices_lookup %>%
+        dplyr::filter(list_name == or.row$list_name & label %in% chosen_labels) %>%
+        dplyr::pull(choice_name)
+
+      # check if true.v is also not na
+      if(!is.na(or.row$true.v)){
+
+        # in this case, simply add new choices
+        cl_sm_recode <- rbind(cl_sm_recode, or.row %>%
+                                dplyr::mutate(variable = name, old.value = !!rlang::sym(orig_response_col), new.value = true.v,
+                                                              issue = "Translating other response") %>%
+                                dplyr::select(any_of(CL_COLS)))
+
+        cl_sm_recode_add_choice <- recode.multiple.add.choices(data.row, or.row$ref.name, choices, "Recoding other response")
+
+        if(! 'uuid' %in% names(cl_sm_remove) & !'loop_index' %in% names(cl_sm_remove) ){
+          cl_sm_recode_add_choice$loop_index = NA
+        }
+
+        cl_sm_recode <- rbind(cl_sm_recode,cl_sm_recode_add_choice)
+      }else{
+
+        # read the previous choices and set selection to previous + new
+        old_choices <- data.row[[or.row$ref.name]] %>% stringr::str_split(" ", simplify = T)
+        choices <- c(choices, old_choices[old_choices!="other"])
+
+        cl_sm_recode_add_ch <- recode.multiple.set.choices(data.row, or.row$ref.name, choices, "Recoding other response",
+                                                           other_var_name = or.row$name, tool.survey = tool.survey_others,
+                                                           tool.choices = tool.choices_others)
+
+        if(! 'uuid' %in% names(cl_sm_remove) & !'loop_index' %in% names(cl_sm_remove) ){
+          cl_sm_recode_add_ch$loop_index = NA
+        }
+
+        cl_sm_recode <- rbind(cl_sm_recode,cl_sm_recode_add_ch)
+      }
+    }
+  }
+
+  # true select_multiples:
+
+  or.select_multiple.true <- or.select_multiple %>%
+    dplyr::filter(!is.na(true.v) & check == 2)
+  if(print_debug){
+    cat(paste("Number of true select_multiple responses:", nrow(or.select_multiple.true)), "\n")
+  }
+  cl_sm_true <- or.select_multiple.true %>%
+    dplyr::mutate(variable = name, old.value = !!rlang::sym(orig_response_col), new.value = true.v,
+                  issue = "Translating other response") %>%
+    dplyr::select(any_of(CL_COLS))
+
+  # When working with non-loop data we will have an error as loop_index column doesn't exist in the raw.main df. We add it here
+  # loop data will have columns uniqui and uuid. Main will only have uniqui
+
+
+
+  if(! 'uuid' %in% names(cl_sm_remove) & !'loop_index' %in% names(cl_sm_remove) ){
+    cl_sm_remove$loop_index = NA
+  }
+  if(! 'uuid' %in% names(cl_sm_remove) & !'loop_index' %in% names(cl_sm_remove) ){
+    cl_sm_true$loop_index = NA
+  }
+
+  return(rbind(cl_sm_true, cl_sm_remove, cl_sm_recode))
+
+}
+
+
+
+
+#' Create a cleaning log for recoding other responses
+#'
+#' Use the filled out other_requests file to create cleaning.log.other.
+#' Run this function on every datasheet your data has (main, loop1, loop2, etc...)
+#' Unexpected behavior may occur if some variables from `or.edited` are not present in the data.
+#'
+#' @param data Dataframe containing Kobo data
+#' @param or.edited Dataframe containing the filled-out other_requests file. Needs to contain the standard TEI (True, Existing, Invalid) columns
+#' in one of the following formats: (true.v,existing.v, invalid.v) or (true.other, existing.other, invalid.other),
+#' as well as column `check`. Please use the ```load.requests``` function to load these xlsx files.
+#' @param orig_response_col The name of the column which stores the original (untranslated!) response for each question.
+#' @param is.loop Set this to True if the provided dataframe is a loop (it needs to contain loop_index and uuid columns
+#' @param print_debug Whether debugging information will be printed to screen (about how many responses will be recoded/translated etc.).
+#' @param tool.survey The survey sheet of your kobo tool
+#' @param tool.choices The choices sheet of your kobo tool
+#'
+#' @return Dataframe containing cleaning log entries covering recoding others, constructed from `data` and `or.edited`
+#'
+#' @examples
+#' \dontrun{
+#' recode.others(data, or.edited = other_requests_file, orig_response_col = "response.uk",tool.survey=tool.survey,
+#' tool.choices = tool.choices)
+#' }
+recode.others <- function(data, or.edited, orig_response_col = "response.uk", is.loop = F, print_debug = T,
+                          tool.survey, tool.choices){
+
+  # a new thing: UNIQUI - universal unique identifier (either loop_index or uuid)
+  # it will be used for matching records to or.edited entries :)
+  if(!is.loop) {
+    or.edited <- or.edited %>%
+      dplyr::select(-any_of("loop_index")) %>%
+      dplyr::mutate(uniqui = uuid)
+    data <- data %>%
+      dplyr::mutate(uniqui = uuid)
+  }else{
+    if(!"loop_index" %in% colnames(or.edited)){
+      stop("Parameter is.loop = TRUE, but column loop_index was not found in or.edited!")
+    }
+    else{
+      or.edited <- or.edited %>%
+        dplyr::mutate(uniqui = loop_index)
+      data <- data %>%
+        dplyr::mutate(uniqui = loop_index)
+    }
+  }
+
+  # fix legacy naming
+  if(!"existing.v" %in% colnames(or.edited)) {
+    if("existing.other" %in% colnames(or.edited)) {
+      or.edited <- or.edited %>%
+        dplyr::rename_with(~gsub(".other", ".v", .), dplyr::ends_with(".other"))
+    }else{
+      stop("Column 'existing.v' not found in or.edited!\n\tPlease check your requests file.")
+    }
+  }
+  # the column 'check' must be present in the or.edited (meaning you must use the validate = T option when loading requests)
+  if(!"check" %in% colnames(or.edited)){
+    stop("Column 'check' was not found in or.edited!\n\tPlease, use the `validate` option in load.requests.")
+  }
+
+  # check for missing identifiers:
+  if(any(!or.edited$uniqui %in% data$uniqui)){
+    ids <- or.edited %>%
+      dplyr::distinct(uniqui) %>%
+      dplyr::pull()
+
+    missing_ids <- ids[!ids %in% data$uniqui]
+    if(length(missing_ids) == length(ids)){
+      stop("NONE of the identifiers from or.edited were found in data!")
+    }else{
+      if(print_debug){
+        warning("Identifiers from or.edited not found in data:\n\t", paste(missing_ids, collapse = ",\n\t"), "\n")
+      }
+    }
+  }
+
+
+  # HANDLE SELECT_ONES:
+  or.select_one <- or.edited %>%
+    dplyr::filter(ref.type == "select_one")
+  if(print_debug){
+    cat("Total number of select_one other responses:", nrow(or.select_one), "\n")
+  }
+  s1_data <- data %>%
+    dplyr::filter(uniqui %in% or.select_one$uniqui)
+  if(nrow(s1_data) == 0) {
+    cl_select_one <- dplyr::tibble()
+  }else {
+    cl_select_one <- recode.others_select_one(or.select_one, tool.survey_others = tool.survey, tool.choices_others = tool.choices)
+  }
+  # HANDLE SELECT_MULTIPLES:
+  or.select_multiple <- or.edited %>%
+    dplyr::filter(ref.type == "select_multiple")
+  if(print_debug){
+    cat("Total number of select_multiple other responses:", nrow(or.select_multiple), "\n")
+  }
+  sm_data <- data %>%
+    dplyr::filter(uniqui %in% or.select_multiple$uniqui)
+  if(nrow(sm_data) == 0){
+    cl_select_multiple <- dplyr::tibble()
+  }else {
+    cl_select_multiple <- recode.others_select_multiple(sm_data, or.select_multiple, orig_response_col, print_debug, tool.survey_others = tool.survey, tool.choices_others = tool.choices)
+  }
+  # works fine for non-loops
+
+  cl_all_others <- rbind(cl_select_one, cl_select_multiple) %>%
+    dplyr::filter(old.value %not=na% new.value)
+
+  return(cl_all_others)
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

@@ -10,7 +10,8 @@ recode.set.NA.if(
   code,
   issue,
   ignore_case = T,
-  CL_COLS = c("uuid", "loop_index", "variable", "old.value", "new.value", "issue")
+  CL_COLS = c("uuid", "uniqui", "loop_index", "variable", "old.value", "new.value",
+    "issue")
 )
 }
 \arguments{
@@ -24,7 +25,7 @@ recode.set.NA.if(
 
 \item{ignore_case}{Whether `code` should be matched case-insensitively. Defaults to True.}
 
-\item{CL_COLS}{string of columns of the cleaning log defauls to c("uuid", "loop_index", "variable", "old.value", "new.value", "issue")}
+\item{CL_COLS}{string of columns of the cleaning log defauls to c("uuid","uniqui", "loop_index", "variable", "old.value", "new.value", "issue")}
 }
 \value{
 Dataframe containing cleaning log entries constructed from `data`.

@@ -9,7 +9,8 @@ recode.multiple.set.NA(
   variable,
   issue,
   other_var_name = NULL,
-  CL_COLS = c("uuid", "loop_index", "variable", "old.value", "new.value", "issue")
+  CL_COLS = c("uuid", "uniqui", "loop_index", "variable", "old.value", "new.value",
+    "issue")
 )
 }
 \arguments{
@@ -21,7 +22,7 @@ recode.multiple.set.NA(
 
 \item{other_var_name}{the name of the variable containing the "other" responses}
 
-\item{CL_COLS}{string of columns of the cleaning log defauls to c("uuid", "loop_index", "variable", "old.value", "new.value", "issue")}
+\item{CL_COLS}{string of columns of the cleaning log defauls to c("uuid","uniqui", "loop_index", "variable", "old.value", "new.value", "issue")}
 }
 \value{
 Dataframe containing cleaning log entries constructed from `data`.

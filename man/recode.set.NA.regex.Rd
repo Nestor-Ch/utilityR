@@ -9,7 +9,8 @@ recode.set.NA.regex(
   variables,
   pattern,
   issue,
-  CL_COLS = c("uuid", "loop_index", "variable", "old.value", "new.value", "issue")
+  CL_COLS = c("uuid", "uniqui", "loop_index", "variable", "old.value", "new.value",
+    "issue")
 )
 }
 \arguments{
@@ -21,7 +22,7 @@ recode.set.NA.regex(
 
 \item{issue}{String with explanation used for the cleaning log entry.}
 
-\item{CL_COLS}{string of columns of the cleaning log defauls to c("uuid", "loop_index", "variable", "old.value", "new.value", "issue")}
+\item{CL_COLS}{string of columns of the cleaning log defauls to c("uuid","uniqui", "loop_index", "variable", "old.value", "new.value", "issue")}
 }
 \value{
 Dataframe containing cleaning log entries constructed from `data`.

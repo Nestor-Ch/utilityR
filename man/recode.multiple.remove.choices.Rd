@@ -10,7 +10,8 @@ recode.multiple.remove.choices(
   choices,
   issue,
   other_var_name = NULL,
-  CL_COLS = c("uuid", "loop_index", "variable", "old.value", "new.value", "issue")
+  CL_COLS = c("uuid", "uniqui", "loop_index", "variable", "old.value", "new.value",
+    "issue")
 )
 }
 \arguments{
@@ -24,7 +25,7 @@ recode.multiple.remove.choices(
 
 \item{other_var_name}{the name of your _other variable - variable containing string responses, NULL by default}
 
-\item{CL_COLS}{string of columns of the cleaning log defauls to c("uuid", "loop_index", "variable", "old.value", "new.value", "issue")}
+\item{CL_COLS}{string of columns of the cleaning log defauls to c("uuid","uniqui", "loop_index", "variable", "old.value", "new.value", "issue")}
 }
 \value{
 Dataframe containing cleaning log entries constructed from `data`
