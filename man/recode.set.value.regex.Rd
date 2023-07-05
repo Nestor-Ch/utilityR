@@ -11,7 +11,8 @@ recode.set.value.regex(
   new.value,
   issue,
   affect_na = FALSE,
-  CL_COLS = c("uuid", "loop_index", "variable", "old.value", "new.value", "issue")
+  CL_COLS = c("uuid", "uniqui", "loop_index", "variable", "old.value", "new.value",
+    "issue")
 )
 }
 \arguments{
@@ -27,7 +28,7 @@ recode.set.value.regex(
 
 \item{affect_na}{Whether NA values in the column should be recoded as well.}
 
-\item{CL_COLS}{string of columns of the cleaning log defauls to c("uuid", "loop_index", "variable", "old.value", "new.value", "issue")}
+\item{CL_COLS}{string of columns of the cleaning log defauls to c("uuid","uniqui", "loop_index", "variable", "old.value", "new.value", "issue")}
 }
 \value{
 Dataframe containing cleaning log entries constructed from `data`.
