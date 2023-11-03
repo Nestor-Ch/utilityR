@@ -396,7 +396,7 @@ vectorized.add.to.cleaning.log.other.remove <-  function(data, other_requests, i
                                      other_requests=other_requests[row,],
                                      is.loop = !is.na(other_requests[row,]$loop_index),
                                      issue = issue
-                                     )
+    )
   })
 
   clog <- do.call(rbind, clog)
