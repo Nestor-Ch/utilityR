@@ -1,648 +1,1128 @@
-# ------------------------------------ Recode - related functions -------------------------------------------
 
 
-
-#' Apply changes to main data basing on a cleaning log.
-#'
-#' Outputs warnings if uuids, loop indeces, or variables from `clog` are not found in `data`. Or if old.value doesn't match what is present in the data
-#' Be aware: all values will be written to data as character.
-#'
-#' @param data Data (raw.main or raw.loop)
-#' @param clog Cleaning log - dataframe containing columns uuid, loop_index, variable, new.value, old.value
-#' @param is.loop Obsolete. This function automatically guesses whether the data contains column 'loop_index'. But there will be warnings produced just in case.
-#' @param print_debug If True (any by default), warnings related to value mismatches and informational messages about the number of changes will be printed.
-#'
-#' @return Dataframe containing data with applied changes
-#' @export
-#' @examples
-#' \dontrun{
-#' apply.changes(data, clog = c_log, is.loop = F,print_debug = T)
-#' }
-apply.changes <- function(data, clog, is.loop, print_debug = T){
-  if(!is.loop && "loop_index" %in% colnames(data)){
-    warning("Parameter is.loop is = False, but data contains column 'loop_index'. It will be assumed that this data is, actually, a loop!\n
-              N.B.: for the future, you can use apply.changes without the is.loop parameter.\n")
-    is.loop <- T
-  }else if(is.loop && (!"loop_index" %in% colnames(data))) {
-    stop("Parameter is.loop is = True, but data does not contain column 'loop_index'!\n
-              N.B.: for the future, you can use apply.changes without the is.loop parameter.\n")
-  }
-
-  if(!is.loop && ("loop_index" %in% colnames(clog))){
-    clog <- dplyr::filter(clog, is.na(loop_index))
-  }else if(is.loop)
-    clog <- dplyr::filter(clog, !is.na(loop_index))
-  if(nrow(clog) == 0){
-    stop("No changes to be applied (cleaning log empty).")
-  }
-  else{
-    missinguuids <- c()
-    missingloop_indexs <- c()
-    missingvars <- c()
-    changes_counter <- 0
-    for (r in 1:nrow(clog)){
-      variable <- as.character(clog$variable[r])
-      if(!variable %in% colnames(data)) {
-        missingvars <- append(missingvars, variable)
-        next
-      }
-      if(is.loop){
-        loop_index <- as.character(clog$loop_index[r])
-        if(!loop_index %in% data$loop_index){
-          missingloop_indexs <- append(missingloop_indexs, loop_index)
-          next
-        }
-        if(print_debug && data[data$loop_index == loop_index, variable] %not=na% clog$old.value[r]){
-          warning(paste0("Value in data is different than old.value in Cleaning log!\nloop_index: ", loop_index,
-                         "\tVariable: ", variable,
-                         "\tExpected: ", clog$old.value[r], "\t found: ", data[data$loop_index == loop_index, variable],
-                         "\tReplacing with: ", clog$new.value[r]))
-        }
-        data[data$loop_index == loop_index, variable] <- as.character(clog$new.value[r])
-        changes_counter <- changes_counter + 1
-      }else {
-        uuid <- as.character(clog$uuid[r])
-        if(!uuid %in% data$uuid) {
-          missinguuids <- append(missinguuids, uuid)
-          next
-        }
-        if(print_debug && data[data$uuid == uuid, variable] %not=na% clog$old.value[r]){
-          warning(paste0("Value in data is different than old.value in Cleaning log!\nUUID: ", uuid,
-                         "\tVariable: ", variable,
-                         "\tExpected: ", clog$old.value[r], "\t found: ", data[data$uuid == uuid, variable],
-                         "\tReplacing with: ", clog$new.value[r]))
-        }
-        data[data$uuid == uuid, variable] <- as.character(clog$new.value[r])
-        changes_counter <- changes_counter + 1
-      }
-    }
-    if(print_debug && length(missinguuids > 0)) warning(paste0("uuids from cleaning log not found in data:\n\t", paste0(missinguuids, collapse = "\n\t")))
-    if(print_debug && length(missingloop_indexs) > 0) warning(paste0("loop_indexes from cleaning log not found in data:\n\t", paste0(missingloop_indexs, collapse = "\n\t")))
-    if(print_debug && length(missingvars > 0))  warning(paste0("variables from cleaning log not found in data:\n\t", paste0(missingvars, collapse = "\n\t")))
-    if(print_debug) cat("\tMade", changes_counter, "changes to the data.\n")
-  }
-  return(data)
-}
+testthat::test_that("apply.changes works", {
 
 
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
 
-#' Undo the things that you've changed in your data
-#'
-#' Provide the same cleaning log as the one that you used to apply the changes and voila...
-#'
-#' this function will undo the changes and rewind your data to the previous state! as long as you didn't modify the cleaning log since you applied the changes!
-#' This function basically flips old.value and new.value around in the clog, and applies changes again.
-#'
-#' @param data your dataframe with applied changes
-#' @param clog your cleaning log
-#' @param is.loop whether the changes were applied to the loop
-#' @export
-#' @return an old version of your dataframe
-#'
-#' @examples
-#' \dontrun{
-#' undo.changes(data, clog = c_log)
-#' }
-undo.changes <- function(data, clog, is.loop){
-  clog <- clog %>%
-    dplyr::mutate(temp = new.value) %>%
-    dplyr::mutate(new.value = old.value,
-                  old.value = temp)
-  return(data %>% apply.changes(clog, print_debug = T,is.loop=is.loop))
-}
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices', col_types = 'text')
+
+  # get the change log file
+  filename <- testthat::test_path("fixtures","data_cl_log.xlsx")
+  cl_log <- readxl::read_excel(filename, col_types = 'text') %>%
+    dplyr::mutate(check = 2)
+
+  # get the dataframe
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`) %>%
+    dplyr::filter(uuid %in% cl_log$uuid)  # keep only the uuids I'll be changing
 
 
-#' Create a logical check DF
-#'
-#' @param check Dataframe with data, filtered according to some flag (variable + uuid/loop_index filter).
-#' Must contain columns `uuid` and all columns in `question.names`
-#' @param id The identifier of this logical check.
-#' @param question.names List of relevant queston names for this logical check.
-#' @param issue description of the issue encountered
-#' @param cols_to_keep  List of columns from raw.main to be included in result.
-#' @param is.loop Obsolete. This function automatically guesses whether the data contains column 'loop_index'.
-#' But there will be warnings produced just in case.
-#' @param date If you want to include the `date` column, you can specify it's name in here
-#' @export
-#' @return Dataframe containing at the least columns: `uuid`, `check.id`, `variable`, `issue`, `old.value`, `new.value`, `explanation`.
-#' This object can be later added to cleaning log.
-#'
-#' @examples
-#' \dontrun{
-#' make.logical.check.entry(check = data, id = 1, question_names = c('b11_gas_heating_price','b10_gas_vehicle_price'), issue = 'test', is.loop = F)
-#' }
+  test_data <- test_data[,c('uuid', intersect(cl_log$variable, names(test_data)))] # keep only the colnames I'll be using
+
+  # test 1 - general functionality
+
+  expected_output <- test_data %>%
+    dplyr::mutate(q0_4_2_1_center_idp_other= ifelse(uuid=="2343f19e-819c-4f1f-b827-cff4d9c7a953","Religious community of the First Christian Church of the Living God in Mukachevo",q0_4_2_1_center_idp_other),
+                  q0_4_2_1_center_idp_other= ifelse(uuid=="db187669-7f5d-4d8b-9cba-aa212fd44da9","Religious community of the First Christian Evangelical Church of the Living God in Mukachevo",q0_4_2_1_center_idp_other),
+                  q7_2_2_1_initiate_compensation_other= ifelse(uuid=="bd005032-6f63-455f-8202-313583a128b1",NA,q7_2_2_1_initiate_compensation_other),
+                  q7_2_2_1_initiate_compensation_other= ifelse(uuid=="f903166e-abc9-4258-848b-77ada6987d31",NA,q7_2_2_1_initiate_compensation_other),
+                  q7_2_2_initiate_compensation= ifelse(uuid=="bd005032-6f63-455f-8202-313583a128b1",NA,q7_2_2_initiate_compensation),
+                  q7_2_2_initiate_compensation= ifelse(uuid=="f903166e-abc9-4258-848b-77ada6987d31",NA,q7_2_2_initiate_compensation),
+                  q0_4_2_1_center_idp_other= ifelse(uuid=="a46a1c10-bf18-4594-a0be-99447fa22116",NA,q0_4_2_1_center_idp_other),
+                  q0_4_2_1_center_idp_other= ifelse(uuid=="51862558-1b68-466a-8e71-be2817dce5aa",NA,q0_4_2_1_center_idp_other),
+                  q0_4_2_center_idp= ifelse(uuid=="a46a1c10-bf18-4594-a0be-99447fa22116","UKRs006888",q0_4_2_center_idp),
+                  q0_4_2_center_idp= ifelse(uuid=="51862558-1b68-466a-8e71-be2817dce5aa","UKRs006888",q0_4_2_center_idp),
+                  q2_4_3_1_main_cause_other= ifelse(uuid=="10cef1b0-82ab-4cc2-bd59-bf9ade4fd1b6","evacuated due to injury",q2_4_3_1_main_cause_other), q2_4_3_1_main_cause_other= ifelse(uuid=="7a526721-e59d-4bef-aa69-d80f9a9558b5","For the purpose of the survey",q2_4_3_1_main_cause_other),
+                  q10_1_3_relationship_negativ_factors= ifelse(uuid=="644ec1bf-4fec-4e93-b088-676dd2ae52ec",NA,q10_1_3_relationship_negativ_factors),
+                  q10_1_3_relationship_negativ_factors= ifelse(uuid=="2a6bacd0-6a4d-420f-9463-cbf8a66cdb48",NA,q10_1_3_relationship_negativ_factors),
+                  `q10_1_3_relationship_negativ_factors/a_lack_of_sense_of_trust_between_the_idps_and_the_nonidps`= ifelse(uuid=="644ec1bf-4fec-4e93-b088-676dd2ae52ec",NA,`q10_1_3_relationship_negativ_factors/a_lack_of_sense_of_trust_between_the_idps_and_the_nonidps`),
+                  `q10_1_3_relationship_negativ_factors/a_lack_of_sense_of_trust_between_the_idps_and_the_nonidps`= ifelse(uuid=="2a6bacd0-6a4d-420f-9463-cbf8a66cdb48",NA,`q10_1_3_relationship_negativ_factors/a_lack_of_sense_of_trust_between_the_idps_and_the_nonidps`),
+                  `q10_1_3_relationship_negativ_factors/different_cultural_identities`= ifelse(uuid=="644ec1bf-4fec-4e93-b088-676dd2ae52ec",NA,`q10_1_3_relationship_negativ_factors/different_cultural_identities`),
+                  `q10_1_3_relationship_negativ_factors/different_cultural_identities`= ifelse(uuid=="2a6bacd0-6a4d-420f-9463-cbf8a66cdb48",NA,`q10_1_3_relationship_negativ_factors/different_cultural_identities`),
+                  `q10_1_3_relationship_negativ_factors/different_language`= ifelse(uuid=="644ec1bf-4fec-4e93-b088-676dd2ae52ec",NA,`q10_1_3_relationship_negativ_factors/different_language`),
+                  `q10_1_3_relationship_negativ_factors/different_language`= ifelse(uuid=="2a6bacd0-6a4d-420f-9463-cbf8a66cdb48",NA,`q10_1_3_relationship_negativ_factors/different_language`),
+                  `q10_1_3_relationship_negativ_factors/stereotypes_against_each_other`= ifelse(uuid=="644ec1bf-4fec-4e93-b088-676dd2ae52ec",NA,`q10_1_3_relationship_negativ_factors/stereotypes_against_each_other`),
+                  `q10_1_3_relationship_negativ_factors/stereotypes_against_each_other`= ifelse(uuid=="2a6bacd0-6a4d-420f-9463-cbf8a66cdb48",NA,`q10_1_3_relationship_negativ_factors/stereotypes_against_each_other`),
+                  `q10_1_3_relationship_negativ_factors/a_lack_of_willingness_from_both_groups_to_interac`= ifelse(uuid=="644ec1bf-4fec-4e93-b088-676dd2ae52ec",NA,`q10_1_3_relationship_negativ_factors/a_lack_of_willingness_from_both_groups_to_interac`),
+                  `q10_1_3_relationship_negativ_factors/a_lack_of_willingness_from_both_groups_to_interac`= ifelse(uuid=="2a6bacd0-6a4d-420f-9463-cbf8a66cdb48",NA,`q10_1_3_relationship_negativ_factors/a_lack_of_willingness_from_both_groups_to_interac`),
+                  `q10_1_3_relationship_negativ_factors/a_perceived_lack_of_proactivity_from_the_idps_in_trying_to_find_work`= ifelse(uuid=="644ec1bf-4fec-4e93-b088-676dd2ae52ec",NA,`q10_1_3_relationship_negativ_factors/a_perceived_lack_of_proactivity_from_the_idps_in_trying_to_find_work`),
+                  `q10_1_3_relationship_negativ_factors/a_perceived_lack_of_proactivity_from_the_idps_in_trying_to_find_work`= ifelse(uuid=="2a6bacd0-6a4d-420f-9463-cbf8a66cdb48",NA,`q10_1_3_relationship_negativ_factors/a_perceived_lack_of_proactivity_from_the_idps_in_trying_to_find_work`),
+                  `q10_1_3_relationship_negativ_factors/other`= ifelse(uuid=="644ec1bf-4fec-4e93-b088-676dd2ae52ec",NA,`q10_1_3_relationship_negativ_factors/other`),
+                  `q10_1_3_relationship_negativ_factors/other`= ifelse(uuid=="2a6bacd0-6a4d-420f-9463-cbf8a66cdb48",NA,`q10_1_3_relationship_negativ_factors/other`),
+                  q10_1_3_1_relationship_negativ_factors_other= ifelse(uuid=="644ec1bf-4fec-4e93-b088-676dd2ae52ec",NA,q10_1_3_1_relationship_negativ_factors_other),
+                  q10_1_3_1_relationship_negativ_factors_other= ifelse(uuid=="2a6bacd0-6a4d-420f-9463-cbf8a66cdb48",NA,q10_1_3_1_relationship_negativ_factors_other),
+                  `q10_1_3_relationship_negativ_factors/do_not_know`= ifelse(uuid=="644ec1bf-4fec-4e93-b088-676dd2ae52ec",NA,`q10_1_3_relationship_negativ_factors/do_not_know`),
+                  `q10_1_3_relationship_negativ_factors/do_not_know`= ifelse(uuid=="2a6bacd0-6a4d-420f-9463-cbf8a66cdb48",NA,`q10_1_3_relationship_negativ_factors/do_not_know`),
+                  `q10_1_3_relationship_negativ_factors/prefer_not_to_answer`= ifelse(uuid=="644ec1bf-4fec-4e93-b088-676dd2ae52ec",NA,`q10_1_3_relationship_negativ_factors/prefer_not_to_answer`),
+                  `q10_1_3_relationship_negativ_factors/prefer_not_to_answer`= ifelse(uuid=="2a6bacd0-6a4d-420f-9463-cbf8a66cdb48",NA,`q10_1_3_relationship_negativ_factors/prefer_not_to_answer`),
+                  q10_2_1_discrimination_idp= ifelse(uuid=="f79999d6-192f-4b9b-aee9-5f613bd4e770","yes_we_feel_discriminated_against_when_trying_to_access_basic_services",q10_2_1_discrimination_idp),
+                  `q10_2_1_discrimination_idp/yes_we_feel_discriminated_against_when_trying_to_access_basic_services`= ifelse(uuid=="f79999d6-192f-4b9b-aee9-5f613bd4e770","1",`q10_2_1_discrimination_idp/yes_we_feel_discriminated_against_when_trying_to_access_basic_services`),
+                  `q10_2_1_discrimination_idp/other`= ifelse(uuid=="f79999d6-192f-4b9b-aee9-5f613bd4e770","0",`q10_2_1_discrimination_idp/other`),
+                  q10_2_1_1_discrimination_idp_other= ifelse(uuid=="f79999d6-192f-4b9b-aee9-5f613bd4e770",NA,q10_2_1_1_discrimination_idp_other),
+                  q2_4_3_main_cause= ifelse(uuid=="f79999d6-192f-4b9b-aee9-5f613bd4e770","security_considerations",q2_4_3_main_cause),
+                  `q2_4_3_main_cause/security_considerations`= ifelse(uuid=="f79999d6-192f-4b9b-aee9-5f613bd4e770","1",`q2_4_3_main_cause/security_considerations`),
+                  `q2_4_3_main_cause/other`= ifelse(uuid=="f79999d6-192f-4b9b-aee9-5f613bd4e770","0",`q2_4_3_main_cause/other`),
+                  q2_4_3_1_main_cause_other= ifelse(uuid=="f79999d6-192f-4b9b-aee9-5f613bd4e770",NA,q2_4_3_1_main_cause_other))
 
 
-make.logical.check.entry <- function(check, id, question.names, issue, cols_to_keep = c(), is.loop , date = NA){
-  res <- data.frame()
+  actual_output <-   apply.changes(data = test_data,
+                                   clog = cl_log,
+                                   is.loop = F,
+                                   print_debug = T)
 
-  if(!is.loop && "loop_index" %in% colnames(check)){
-    warning("Parameter is.loop is = False, but check contains column 'loop_index'. It will be assumed that this data is, actually, a loop!\n
-              N.B.: for the future, you can use apply.changes without the is.loop parameter.\n")
-    is.loop <- T
-  }else if(is.loop && (!"loop_index" %in% colnames(check))) {
-    stop("Parameter is.loop is = True, but check does not contain column 'loop_index'!\n
-              N.B.: for the future, you can use apply.changes without the is.loop parameter.\n")
-  }
+  testthat::expect_equal(actual_output, expected_output)
 
-  if(is.loop){
-    cols_to_keep <- append("loop_index", cols_to_keep)
-  }
+  # test 2 it should throw an error when we try to make it work like a loop on non-loop data
 
+  testthat::expect_error(apply.changes(data = test_data,
+                                       clog = cl_log,
+                                       is.loop = T,
+                                       print_debug = T))
 
-  for(q.n in question.names){
-    new.entries <- check %>%
-      dplyr::mutate(variable = q.n,
-                    issue=issue,
-                    old.value =!!rlang::sym(q.n),
-                    new.value = NA,
-                    invalid = NA,
-                    explanation = NA)
+  # test 3 - expect warning if the cl_log is empty
 
-    new.entries[["check.id"]] <- id
-
-    if(!is.na(date)){
-      cols_to_keep <- c(cols_to_keep, 'survey.date')
-      new.entries['survey.date'] = check[,date]
-    }
-
-    new.entries <- new.entries %>%
-      dplyr::select(dplyr::all_of(c(cols_to_keep, "uuid","check.id", "variable", "issue",
-                                    "old.value", "new.value", "invalid", "explanation"))) %>%
-      dplyr::relocate(uuid) %>%
-      dplyr::mutate_all(as.character)
-
-    res <- rbind(res, new.entries)
-  }
-
-  return(res %>%
-           dplyr::arrange(uuid))
-}
+  testthat::expect_error(apply.changes(data = test_data,
+                                       clog = cl_log[0,],
+                                       is.loop = F,
+                                       print_debug = T))
 
 
-#' Create deletion log
-#'
-#' Creates a deletion log for the provided data and reason.
-#'
-#' @param data Dataframe containing columns `uuid` and `col_enum`. A subset of `raw.main`, filtered to have the deleted `uuid` `loop_index`
-#' @param col_enum The name of the column which contains the enumerator's id in your main dataframe
-#' @param reason This is a string describing the reason for removing a survey from data.
-#' @param is.loop Whether the `data` argument is a loop or not
-#' @param data.main If the `data` argument is a loop, you'll need to provide the main dataframe too
-#'
-#' @note The provision of `data.main` in the case of using `is.loop` = T is needed because we're pulling up the `col_enum`
-#' from the main dataframe.
-#' @export
-#' @return A dataframe containing a deletion log with columns `uuid`, `col_enum`, `reason`, OR an empty dataframe if `data` has 0 rows.
-#'
-#' @examples
-#' \dontrun{
-#' # for non-loops
-#' create.deletion.log(data = data, col_enum = 'enum_col', reason = 'bad entry', is.loop = F)
-#' # for loops
-#' create.deletion.log(data = data_loop, col_enum = 'enum_col', reason = 'bad entry', is.loop = T, data.main = data)
-#' }
+  # test 4 - test that it gives me a warning if I insert a fake uuid
 
-create.deletion.log <- function(data, col_enum, reason, is.loop = F, data.main = NULL){
+  cl_fake <- cl_log
+  cl_fake[5,]$uuid <- 'fake'
 
-  if(!'uuid' %in% colnames(data)){
-    stop("Your data doesn't have a uuid column, please add it and re-run the script")
-  }
+  testthat::expect_warning(
+    apply.changes(data = test_data,
+                  clog = cl_fake,
+                  is.loop = F,
+                  print_debug = T)
+  )
 
-  if(!is.loop && "loop_index" %in% colnames(data)){
-    warning("Parameter is.loop is = False, but data contains column 'loop_index'. It will be assumed that this data is, actually, a loop!\n
-              N.B.: for the future, you can use apply.changes without the is.loop parameter.\n")
-    is.loop <- T
-  }else if(is.loop && (!"loop_index" %in% colnames(data))) {
-    stop("Parameter is.loop is = True, but data does not contain column 'loop_index'!\n")
-  }
+  # test 5 - test that it gives me a warning if I insert a fake old.value
 
-  if(is.loop & is.null(data.main)){
-    stop("Your data is a loop but you haven't provided the main dataframe. Please enter the data.main parameter")
-  } else if(is.loop & !is.null(data.main)){
+  cl_fake <- cl_log
+  cl_fake[5,]$old.value <- 'fake'
 
-    data[,col_enum] <- plyr::mapvalues(data$uuid,
-                                       from=data.main[,'uuid'],
-                                       to=data.main[,col_enum],
-                                       warn_missing = F) %>%
-      unlist()
+  testthat::expect_warning(
+    apply.changes(data = test_data,
+                  clog = cl_fake,
+                  is.loop = F,
+                  print_debug = T)
+  )
 
-  }
+  # test 6 - test that it works with the loop
 
-  if(!col_enum %in% colnames(data)){
-    stop(paste0("\nEnumerator column (", col_enum, ") not found in the data!\nPossible matches for enum_col:\n",
-                paste0(agrep('enum', colnames(data), max.distance = 1, value = T),collapse = '\n')))
-  }
-
-  if(nrow(data) > 0){
-    # if it's a loop, then include the loop_index in the deletion log
-    if("loop_index" %in% colnames(data)){
-      data <- data %>%
-        dplyr::select(uuid, loop_index, any_of(col_enum)) %>%
-        dplyr::rename('col_enum' = dplyr::all_of(col_enum))
-    }else{
-      data <- data %>%
-        dplyr::select(uuid, any_of(col_enum))%>%
-        dplyr::rename('col_enum' = dplyr::all_of(col_enum))
-    }
-    return(data %>%
-             dplyr::mutate(reason=reason))
-  }else return(data.frame())
-}
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`) %>%
+    dplyr::filter(loop_index %in% cl_log$loop_index)  # keep only the uuids I'll be changing
 
 
+  test_data <- test_data[,c('loop_index', intersect(cl_log$variable, names(test_data)))] # keep only the colnames I'll be using
 
 
-#' add.to.cleaning.log.other.remove
-#'
-#' The function that takes the filled out other.requests and creates a cleaning log the changes needed for the `invalid` entries
-#'
-#' @param data your dataframe
-#' @param other_requests  filled out other.requests file (only invalid == T rows) #add a check for this
-#' @param is.loop whether the data is a loop
-#' @param issue the reason that the entries were deemed invalid for the cleaning log entry, "Invalid other response" by default
-#' @export
-#' @return a filled out cleaning log file for the given entry
-#' @note this function is not vectorized - hence it takes on only 1 row of `other_requests` at a time.
-#' If you want to run it over a column, please use `vectorized.add.to.cleaning.log.other.remove`. Just make sure to provide the correct inputs
-#'
-#'
-#' @examples
-#' \dontrun{
-#' add.to.cleaning.log.other.remove(data = data, other_requests = other.requests, is.loop = F)
-#' }
-
-add.to.cleaning.log.other.remove <- function(data, other_requests, is.loop, issue = "Invalid other response"){
-
-
-  if(!is.loop && "loop_index" %in% colnames(data)){
-    warning("Parameter is.loop is = False, but data contains column 'loop_index'. It will be assumed that this data is, actually, a loop!")
-    is.loop <- T
-  }else if(is.loop && (!"loop_index" %in% colnames(data))) {
-    stop("Parameter is.loop is = True, but data does not contain column 'loop_index'!\n")
-  }
-
-
-  if(length(setdiff(other_requests$name,colnames(data)))>0){
-    stop(paste0(
-      'One of the entries in your name column in the other_requests file is not present in the columns of the dataframe:\n',
-      paste0(setdiff(other_requests$name,colnames(data)), collapse = '\n')
-    ))
-
-  }
-
-  # uniqui will allow us to filter with 1 smooth function
-
-  if(is.loop){
-    data$uniqui <- data$loop_index
-    other_requests$uniqui <- other_requests$loop_index
-  }else{
-    data$uniqui <- data$uuid
-    other_requests$uniqui <- other_requests$uuid
-  }
-
-  old.response <- data %>%
-    dplyr::filter(uniqui %in% other_requests$uniqui) %>%
-    dplyr::pull(!!rlang::sym(other_requests$name))
-
-  clog <- data.frame()
-
-  # remove text of the response
-  df <- data.frame(uuid=other_requests$uuid, variable=other_requests$name, issue=issue,
-                   old.value=old.response, new.value=NA)
-
-
-  clog <- rbind(clog, df)
-
-  # remove relative entries
-  if (other_requests$ref.type[1]=="select_one"){
-    old.value <- "other"
-    df <- data.frame(uuid=other_requests$uuid, variable=other_requests$ref.name, issue=issue, old.value=old.value, new.value=NA)
-    clog <- rbind(clog, df)
-
-  }
-  if (other_requests$ref.type[1]=="select_multiple"){
-    old.value <- as.character(data[data$uniqui==other_requests$uniqui[1], other_requests$ref.name])
-    l <- stringr::str_split(old.value, " ")[[1]]
-    new.value <- paste(l[l!="other"], collapse=" ")
-    new.value <- ifelse(new.value=="", NA, new.value)
-    df <- data.frame(uuid=other_requests$uuid, variable=other_requests$ref.name, issue=issue, old.value=old.value, new.value=new.value)
-
-    clog <- rbind(clog, df)
-    if (is.na(new.value)){
-      # set all choices columns to NA
-      cols <- colnames(data)[stringr::str_starts(colnames(data), paste0(other_requests$ref.name, "/"))]
-      oldvalues <- data %>%
-        dplyr::filter(uniqui == other_requests$uniqui) %>%
-        dplyr::select(dplyr::all_of(cols)) %>%
-        unlist() %>%
-        unname()
-      df <- data.frame(uuid=other_requests$uuid, variable=cols, issue=issue, old.value=oldvalues, new.value=NA)
-      clog <- rbind(clog, df)
-    } else{
-      df <- data.frame(uuid=other_requests$uuid, variable=paste0(other_requests$ref.name, "/other"), issue=issue,
-                       old.value="1", new.value="0")
-      clog <- rbind(clog, df)
-    }
-  }
-
-  if(is.loop==T){
-    clog$loop_index = other_requests$loop_index
-  }else{
-    clog$loop_index = NA
-  }
-
-  clog <- dplyr::relocate(clog, loop_index, .after = uuid)
-  return(clog)
-}
-
-
-#' Vectorized add.to.cleaning.log.other.remove
-#'
-#' Allows the user to iterate over their `other_requests` file and produce the cleaning log file
-#'
-#' @param data your dataframe
-#' @param other_requests your other_requests - make sure that you're inputing the requests that are available in the `data`
-#' If one of the variables in the `name` column of `other_requests` isn't present in the `data` object, it will be removed from the resuls
-#' @param issue the reason that the entries were deemed invalid for the cleaning log entry, "Invalid other response" by default
-#' @param invalid the name of your invalid column - 'invalid.v' by default
-#' @export
-#' @return a cleaning log file
-#'
-#' @examples
-#' \dontrun{
-#' vectorized.add.to.cleaning.log.other.remove(data = data, other_requests = other.requests)
-#' }
-
-vectorized.add.to.cleaning.log.other.remove <-  function(data, other_requests, issue = "Invalid other response",
-                                                         invalid = 'invalid.v'){
-
-  if(!all(other_requests[[invalid]] == 'yes')){
-    stop("Not all of the rows in the invalid column are equal to 'yes', are you sure you're uploading only invalid entries?")
-  }
-
-  if(length(setdiff(other_requests$name,colnames(data)))>0){
-    warning(paste0(
-      'Some of the entries in your name column in the other_requests file are not present in the columns of the dataframe:\n',
-      paste0(setdiff(other_requests$name,colnames(data)), collapse = '\n'), 'Make sure to run them for the correct dataframe'
-    ))
-
-    other_requests <- other_requests[other_requests$name %in% colnames(data),]
-
-  }
-
-  clog <- lapply(1:nrow(other_requests),function(row){
-    add.to.cleaning.log.other.remove(data = data,
-                                     other_requests=other_requests[row,],
-                                     is.loop = !is.na(other_requests[row,]$loop_index),
-                                     issue = issue
+  expected_output <- test_data %>%
+    dplyr::mutate(
+      q2_3_4_1_employment_situation_last_week_other= ifelse(loop_index=="1040","Employed, but now the enterprise is idle",q2_3_4_1_employment_situation_last_week_other),
+      q2_3_4_1_employment_situation_last_week_other= ifelse(loop_index=="95","listed at the place of residence officially",q2_3_4_1_employment_situation_last_week_other),
+      q2_3_7_1_sector_working_other= ifelse(loop_index=="331",NA,q2_3_7_1_sector_working_other),
+      q2_3_8_1_sector_working_currently_other= ifelse(loop_index=="241",NA,q2_3_8_1_sector_working_currently_other),
+      q2_3_7_sector_working= ifelse(loop_index=="331",NA,q2_3_7_sector_working),
+      q2_3_8_sector_working_currently= ifelse(loop_index=="241",NA,q2_3_8_sector_working_currently),
+      q2_3_3_1_employment_situation_other= ifelse(loop_index=="2802",NA,q2_3_3_1_employment_situation_other),
+      q2_3_3_1_employment_situation_other= ifelse(loop_index=="486",NA,q2_3_3_1_employment_situation_other),
+      q2_3_3_employment_situation= ifelse(loop_index=="2802","student_not_working",q2_3_3_employment_situation),
+      q2_3_3_employment_situation= ifelse(loop_index=="486","officially_employed_permanen_job",q2_3_3_employment_situation)
     )
-  })
 
-  clog <- do.call(rbind, clog)
+  actual_output <- apply.changes(data = test_data,
+                                 clog = cl_log,
+                                 is.loop = T,
+                                 print_debug = T)
 
-  return(clog)
-
-}
-
-
-#' Remove invalid responses to open question
-#'
-#' @param other_requests - a file with invalid answers to open questions
-#' @param issue - why they were deleted
-#' @export
-#' @return a cleaning log for deletion of responses
-#'
-#' You can provide it with vectors of invalid answers, it'll work just fine
-#'
-#' @examples
-#' \dontrun{
-#' add.to.cleaning.log.trans.remove(other_requests = other.requests)
-#' }
-
-add.to.cleaning.log.trans.remove <- function(other_requests,issue = "Invalid response"){
-
-  # remove text of the response
-  df <- data.frame(uuid=other_requests$uuid, loop_index= other_requests$loop_index, variable=other_requests$name, issue=issue,
-                   old.value=other_requests$response.uk, new.value=NA)
-
-  return(df)
-}
+  testthat::expect_equal(expected_output,actual_output)
 
 
+  # test 7 - expect warning if working with a loop but is.loop = F but should still run
+
+  testthat::expect_warning(
+    apply.changes(data = test_data,
+                  clog = cl_log,
+                  is.loop = F,
+                  print_debug = T)
+  )
+
+  # test 8 - expect a warning about a missing loop index if one of them is wrong
+
+  cl_log_fake <- cl_log
+  cl_log_fake[50,]$loop_index <- 'fake'
 
 
-#' Add existing select_one choices
-#'
-#' This function creates a cleaning log for cases where the 'other' response is already present in the
-#'select_one choices list
-#'
-#' @param data The dataframe
-#' @param other_requests The other_requests file, filtered to only contain existing response options
-#' @param is.loop Whether the data is a loop
-#' @param tool.survey The survey sheet of the tool
-#' @param tool.choices The choices sheet of the tool
-#' @param issue The reason you're recoding this entry, "Recoding other response" by default
-#' @param label_colname the column with the choice label in your tool.choices. 'label::English' by default
-#' @param existing your 'existing' column - 'existing.v' by default
-#'
-#' @note This function is not vectorized. It only works 1 row of `other_requests` at a time
-#' @export
-#' @return a filled out cleaning log file
-#'
-#' @examples
-#' \dontrun{
-#' add.to.cleaning.log.other.recode.one(data = data, other_requests = other_requests, is.loop = F,
-#' tool.survey = tool.survey, tool.choices=tool.choices)
-#' }
+  testthat::expect_warning(
+    apply.changes(data = test_data,
+                  clog = cl_log_fake,
+                  is.loop = T,
+                  print_debug = T)
+  )
 
-add.to.cleaning.log.other.recode.one <- function(data, other_requests, is.loop,
-                                                 tool.survey, tool.choices,
-                                                 issue = "Recoding other response",
-                                                 label_colname = 'label::English',
-                                                 existing = 'existing.v'){
+  # test 9 - expect a warning about a missing variable if one of them is wrong
 
-  if(!existing %in% colnames(other_requests)){
-    stop(paste0('Your other_requests file does not containt the ',existing,' column.
-                If your existing column has another name please make sure to write it in the existing argument of this function'))
-  }
+  cl_log_fake <- cl_log
+  cl_log_fake[50,]$variable <- 'fake'
 
-  if(!is.loop && "loop_index" %in% colnames(data)){
-    warning("Parameter is.loop is = False, but data contains column 'loop_index'. It will be assumed that this data is, actually, a loop!")
-    is.loop <- T
-  }else if(is.loop && (!"loop_index" %in% colnames(data))) {
-    stop("Parameter is.loop is = True, but data does not contain column 'loop_index'!\n")
-  }
+  testthat::expect_warning(
+    apply.changes(data = test_data,
+                  clog = cl_log_fake,
+                  is.loop = T,
+                  print_debug = T)
+  )
 
-  if(length(setdiff(other_requests$name,colnames(data)))>0){
-    stop(paste0(
-      'One of the entries in your name column in the other_requests file is not present in the columns of the dataframe:\n',
-      paste0(setdiff(other_requests$name,colnames(data)), collapse = '\n')
+
+  # test 10 - test if it gives a warning if I provide a wrong old.value to it
+
+  cl_log_fake <- cl_log
+  cl_log_fake[50,]$old.value <- 'fake'
+
+  testthat::expect_warning(
+    apply.changes(data = test_data,
+                  clog = cl_log_fake,
+                  is.loop = T,
+                  print_debug = T)
+  )
+
+})
+
+
+testthat::test_that("undo.changes works", {
+
+
+  # get the change log file
+  filename <- testthat::test_path("fixtures","data_cl_log.xlsx")
+  cl_log <- readxl::read_excel(filename, col_types = 'text') %>%
+    dplyr::mutate(check = 2)
+
+  # get the dataframe
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`) %>%
+    dplyr::filter(uuid %in% cl_log$uuid)  # keep only the uuids I'll be changing
+
+
+  test_data <- test_data[,c('uuid', intersect(cl_log$variable, names(test_data)))] # keep only the colnames I'll be using
+
+  # general functionality
+
+
+  temp_output <-   apply.changes(data = test_data,
+                                 clog = cl_log,
+                                 is.loop = F,
+                                 print_debug = T)
+
+  actual_output <-  undo.changes(data = temp_output,
+                                 clog = cl_log,
+                                 is.loop = F)
+
+  expected_output <- test_data
+
+  testthat::expect_equal(actual_output, expected_output)
+
+})
+
+
+testthat::test_that("make.logical.check.entry works", {
+
+  # get the dataframe
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`) %>%  # keep only the uuids I'll be changing
+    dplyr::filter(uuid %in% c('00126b85-7083-4099-908b-0b93cd5fdde9','0024a26b-2bae-4f70-8a90-23a4b7e75c2d','00289e2e-4f0d-4155-a6e1-932833e3ab71'))
+
+
+  # test 1 general functionality
+
+  actual_output <- make.logical.check.entry(check = test_data,
+                                            id = 2,
+                                            is.loop = F,
+                                            question.names = c("q2_4_3_main_cause"),
+                                            issue = 'test',
+                                            date = 'start')
+
+
+  expected_output <- data.frame(
+    uuid = test_data$uuid,
+    survey.date = test_data$start,
+    check.id = '2',
+    variable = 'q2_4_3_main_cause',
+    issue = 'test',
+    old.value = c(NA_character_, 'security_considerations','security_considerations'),
+    new.value = NA_character_,
+    invalid = NA_character_,
+    explanation = NA_character_
+  ) %>%
+    dplyr::tibble()
+
+
+  testthat::expect_equal(actual_output, expected_output)
+
+  # test 2 - more data
+
+  actual_output <- make.logical.check.entry(check = test_data,
+                                            id = 2,
+                                            is.loop = F,
+                                            question.names = c("q2_4_3_main_cause",'q2_4_4_main_reason'),
+                                            issue = 'test',
+                                            date = 'start')
+
+
+  expected_output <- data.frame(
+    uuid = rep(test_data$uuid,2),
+    survey.date = rep(test_data$start,2),
+    check.id = '2',
+    variable = c(rep('q2_4_3_main_cause',3),rep('q2_4_4_main_reason',3)),
+    issue = 'test',
+    old.value = c(NA_character_, 'security_considerations','security_considerations',
+                  NA_character_,'relative_safety availability_of_accommodation','relative_safety availability_of_accommodation'),
+    new.value = NA_character_,
+    invalid = NA_character_,
+    explanation = NA_character_
+  ) %>%
+    dplyr::tibble() %>%
+    dplyr::arrange(uuid)
+
+
+  testthat::expect_equal(actual_output, expected_output)
+
+
+  # test 3 - what if we use a loop ?
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`,
+                  uuid = `_submission__uuid`) %>%
+    dplyr::filter(loop_index %in% c('904',"276","999"))
+
+
+
+  actual_output <- make.logical.check.entry(check = test_data,
+                                            id = 2,
+                                            question.names = c('q2_3_4_employment_situation_last_month','q2_3_3_employment_situation'),
+                                            issue = 'test',
+                                            is.loop = T)
+
+  expected_output <- data.frame(
+    uuid = rep(test_data$uuid,2),
+    loop_index = rep(test_data$loop_index,2),
+    check.id = '2',
+    variable = c(rep('q2_3_4_employment_situation_last_month',3),rep('q2_3_3_employment_situation',3)),
+    issue = 'test',
+    old.value = c(NA,'doing_housework_looking_after_children_or_other_persons','officially_employed_permanen_job',
+                  NA,'doing_housework_looking_after_children_or_other_persons','officially_employed_permanen_job'),
+    new.value = NA_character_,
+    invalid = NA_character_,
+    explanation = NA_character_
+  ) %>%
+    dplyr::tibble() %>%
+    dplyr::arrange(uuid)
+
+  testthat::expect_equal(actual_output, expected_output)
+
+  # test 4 - warning
+  testthat::expect_warning(make.logical.check.entry(check = test_data,
+                                                    id = 2,
+                                                    question.names = c('q2_3_4_employment_situation_last_month','q2_3_3_employment_situation'),
+                                                    issue = 'test',
+                                                    is.loop = F))
+
+
+  # test 5 what if the data doesn't have a loop_index column but is a loop?
+
+  test_data <- test_data %>% dplyr::select(-loop_index)
+
+  testthat::expect_error(make.logical.check.entry(check = test_data,
+                                                  id = 2,
+                                                  question.names = c('q2_3_4_employment_situation_last_month','q2_3_3_employment_situation'),
+                                                  issue = 'test',
+                                                  is.loop = T))
+
+
+})
+
+
+testthat::test_that("create.deletion.log works", {
+
+  # get the dataframe
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
+
+
+  del_test <- dplyr::filter(test_data, uuid %in% c("37a0e3d8-8081-4b01-be36-aecf37495a31","98201d53-a8fa-4e10-84f2-e48ec3f8f98b",
+                                                   "39c79139-987d-4f57-a21b-a5a3e92a22e7"))
+  # test 1 - general functionality
+
+
+  actual_output <- create.deletion.log(data = del_test,
+                                       col_enum = 'q0_2_enum_id',
+                                       is.loop = F,
+                                       reason = 'test')
+
+  expected_output <- data.frame(
+    uuid = c("37a0e3d8-8081-4b01-be36-aecf37495a31","98201d53-a8fa-4e10-84f2-e48ec3f8f98b","39c79139-987d-4f57-a21b-a5a3e92a22e7"),
+    col_enum = c("enum_20","enum_20","enum_20"),
+    reason = 'test'
+  )%>%
+    dplyr::tibble()
+
+  testthat::expect_equal(actual_output,expected_output)
+
+
+  # test 2 - test that it returns an empty df if you feed it an empty df
+
+  actual_output <- create.deletion.log(data = del_test[0,],
+                                       col_enum = 'q0_2_enum_id',
+                                       is.loop = F,
+                                       reason = 'test')
+
+  testthat::expect_equal(actual_output,data.frame())
+
+  # test 3 - expect an error if we provide a non-existent col_enum
+
+  testthat::expect_error(
+
+    actual_output <- create.deletion.log(data = del_test,
+                                         col_enum = 'fake_col',
+                                         is.loop = F,
+                                         reason = 'test')
+
+  )
+
+  # test 4 - expect an error if say that our data is a loop but it isn't
+
+  testthat::expect_error(
+
+    actual_output <- create.deletion.log(data = del_test,
+                                         data.main = test_data,
+                                         col_enum = 'q0_2_enum_id',
+                                         is.loop = T,
+                                         reason = 'test')
+  )
+
+
+  # test 5 - the function works with loops
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data_l <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`,
+                  uuid = `_submission__uuid`)
+
+
+  del_test <- dplyr::filter(test_data_l, loop_index %in% c('904',"276","999"))
+
+  actual_output <- create.deletion.log(data = del_test,
+                                       data.main = test_data,
+                                       col_enum = 'q0_2_enum_id',
+                                       is.loop = T,
+                                       reason = 'test')
+
+  expected_output <- data.frame(
+    uuid = c("9297bf6b-e35d-45c9-ae19-02e92f53a678","da2516dd-a175-4c75-b941-ffcd7fe247cb","4ee0da4f-1262-4f50-82d3-7ea66f62ca02"),
+    loop_index = c("276",'904',"999"),
+    col_enum = c('9297bf6b-e35d-45c9-ae19-02e92f53a678', 'da2516dd-a175-4c75-b941-ffcd7fe247cb', '4ee0da4f-1262-4f50-82d3-7ea66f62ca02'),
+    reason = 'test'
+  )%>%
+    dplyr::tibble()
+
+  testthat::expect_equal(actual_output,expected_output)
+
+
+  # test 6 - is loop = T, but we haven't provided the main data
+
+  testthat::expect_error(
+    create.deletion.log(data = del_test,
+                        col_enum = 'q0_2_enum_id',
+                        is.loop = T,
+                        reason = 'test')
+  )
+
+  # test 7 - is loop = F, but our data is a loop, and we haven't provided the main data
+  # we should get both a warning and an error
+
+  testthat::expect_error(
+    testthat::expect_warning(
+      create.deletion.log(data = del_test,
+                          col_enum = 'q0_2_enum_id',
+                          is.loop = F,
+                          reason = 'test')
     ))
 
-  }
+  # test 8 - is loop = F, but our data is aloop
 
-  # uniqui will allow us to filter with 1 smooth function
+  testthat::expect_warning(
+    create.deletion.log(data = del_test,
+                        data.main = test_data,
+                        col_enum = 'q0_2_enum_id',
+                        is.loop = F,
+                        reason = 'test')
+  )
 
-  if(is.loop){
-    data$uniqui <- data$loop_index
-    other_requests$uniqui <- other_requests$loop_index
-  }else{
-    data$uniqui <- data$uuid
-    other_requests$uniqui <- other_requests$uuid
-  }
+  # test 9 - our data doesn't have a uuid column
 
-  clog <- data.frame()
+  del_test <- dplyr::filter(test_data_l, loop_index %in% c('904',"276","999")) %>%
+    dplyr::select(-uuid)
 
-  old.response <- data %>%
-    dplyr::filter(uniqui == other_requests$uniqui) %>%
-    dplyr::pull(!!rlang::sym(other_requests$name))
-  # remove text of the response
-  df <- data.frame(uuid=other_requests$uuid, loop_index = other_requests$loop_index,
-                   variable=other_requests$name, issue=issue,
-                   old.value=old.response, new.value=NA)
 
-  clog <- rbind(clog, df)
-  # get list of choices from other response
-  if (stringr::str_detect(other_requests[[existing]], ";")) {
-    choices <- stringr::str_trim(stringr::str_split(other_requests[[existing]], ";")[[1]])
-  } else {
-    choices <- stringr::str_trim(stringr::str_split(other_requests[[existing]], "\r\n")[[1]])
-  }
-  choices <- choices[choices!=""]
-  if (length(choices)>1) {
-    print(dplyr::select(other_requests, uuid,loop_index, name))
-    stop("More than one existing.option for a select_one question")
-  }
-  # recode choice
-  choice <- choices[1]
-  list.name <- dplyr::filter(tool.survey, name==other_requests$ref.name[1])$list_name
-  new.code <- dplyr::filter(tool.choices, list_name==list.name & !!rlang::sym(label_colname)==choice)
-  if (nrow(new.code)!=1) {
-    stop(paste0("Choice is not in the list. UUID: ", other_requests$uuid,"; recode.into: ", choice))
-  }
-  else{
-    df <- data.frame(uuid=other_requests$uuid, loop_index = other_requests$loop_index,
-                     variable=other_requests$ref.name, issue=issue,
-                     old.value="other", new.value=new.code$name)
-    clog <- rbind(clog, df)
-    return(clog)
-  }
-}
+  testthat::expect_error(
+    create.deletion.log(data = del_test,
+                        data.main = test_data,
+                        col_enum = 'q0_2_enum_id',
+                        is.loop = T,
+                        reason = 'test')
+  )
+
+})
 
 
 
-#' Add existing select_one choices
-#' This function creates a cleaning log for cases where the 'other' response is already present in the
-#' select_multiple choices list
-#'
-#' @param data The dataframe
-#' @param other_requests The other_requests file, filtered to only contain existing response options
-#' @param is.loop Whether the data is a loop
-#' @param tool.survey The survey sheet of the tool
-#' @param tool.choices The choices sheet of the tool
-#' @param issue The reason you're recoding this entry, "Recoding other response" by default
-#' @param label_colname the column with the choice label in your tool.choices. 'label::English' by default
-#' @param existing your 'existing' column - 'existing.v' by default
-#'
-#' @note This function is not vectorized. It only works 1 row of `other_requests` at a time
-#' @export
-#' @return a filled out cleaning log file
-#'
-#' @examples
-#' \dontrun{
-#' add.to.cleaning.log.other.recode.multiple(data = data, other_requests = other_requests, is.loop = F,
-#' tool.survey = tool.survey, tool.choices=tool.choices)
-#' }
-add.to.cleaning.log.other.recode.multiple <- function(data, other_requests, is.loop,
-                                                      tool.survey, tool.choices,
-                                                      issue = "Recoding other response",
-                                                      label_colname = 'label::English',
-                                                      existing = 'existing.v'){
 
-  if(!existing %in% colnames(other_requests)){
-    stop(paste0('Your other_requests file does not containt the ',existing,' column.
-                If your existing column has another name please make sure to write it in the existing argument of this function'))
-  }
 
-  if(!is.loop && "loop_index" %in% colnames(data)){
-    warning("Parameter is.loop is = False, but data contains column 'loop_index'. It will be assumed that this data is, actually, a loop!")
-    is.loop <- T
-  }else if(is.loop && (!"loop_index" %in% colnames(data))) {
-    stop("Parameter is.loop is = True, but data does not contain column 'loop_index'!\n")
-  }
+testthat::test_that("add.to.cleaning.log.other.remove works", {
 
-  if(length(setdiff(other_requests$name,colnames(data)))>0){
-    stop(paste0(
-      'One of the entries in your name column in the other_requests file is not present in the columns of the dataframe:\n',
-      paste0(setdiff(other_requests$name,colnames(data)), collapse = '\n')
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::filter(invalid.v == 'yes',
+                  is.na(loop_index))
+
+
+  # test 1 - general functionality for select_one works - non-loop
+
+  actual_output <- add.to.cleaning.log.other.remove(data = test_data, other_requests = other_requests[1,], is.loop = F)
+
+  expected_output <- data.frame(
+    uuid = rep('bd005032-6f63-455f-8202-313583a128b1',2),
+    loop_index = rep(NA,2),
+    variable = c('q7_2_2_1_initiate_compensation_other','q7_2_2_initiate_compensation'),
+    issue = rep('Invalid other response',2),
+    old.value = c('Ніхто не знає чи хтось там живе', 'other'),
+    new.value = NA
+  )
+
+  testthat::expect_equal(actual_output,expected_output)
+
+
+  # test 2 - general functionality for select_multiple works - loop
+
+  actual_output <- add.to.cleaning.log.other.remove(data = test_data, other_requests = other_requests[3,], is.loop = F)
+
+  expected_output <- data.frame(
+    uuid = '644ec1bf-4fec-4e93-b088-676dd2ae52ec',
+    loop_index = NA,
+    variable = c('q10_1_3_1_relationship_negativ_factors_other',test_data %>%
+                   dplyr::select(dplyr::starts_with('q10_1_3_relationship_negativ_factors')) %>%
+                   names()),
+    issue = 'Invalid other response',
+    old.value = c('Ничего не влияет', 'other', rep(0,6),1,0,0),
+    new.value = NA
+  )
+  testthat::expect_equal(actual_output,expected_output)
+
+
+  # test 3 - we've indicated loop on non-loop data
+
+  testthat::expect_error(
+    add.to.cleaning.log.other.remove(data = test_data, other_requests = other_requests[1,], is.loop = T)
+  )
+
+
+  # test 4 - select_multiple functionality with loop data that doesn't need all binaries to be transformed into 0
+
+  # I didn't prepare any cases for this, so I'll insert it here
+  other_requests <- rbind(other_requests,
+                          data.frame(
+                            uuid = "07ceefd6-fd0a-4915-8899-1f250f8bd0ae",
+                            loop_index = NA,
+                            name = 'q2_4_3_1_main_cause_other',
+                            ref.name = 'q2_4_3_main_cause',
+                            full.label = 'test',
+                            ref.type = 'select_multiple',
+                            choices.label = 'test',
+                            response.uk = "Ракета влучила в дах",
+                            response.en = 'test',
+                            true.v = NA,
+                            existing.v = NA,
+                            invalid.v = 'yes'
+                          ))
+
+
+  actual_output <- add.to.cleaning.log.other.remove(data = test_data, other_requests = other_requests[5,], is.loop = F)
+
+  expected_output <- data.frame(
+    uuid = rep('07ceefd6-fd0a-4915-8899-1f250f8bd0ae',3),
+    loop_index = rep(NA,3),
+    variable = c('q2_4_3_1_main_cause_other','q2_4_3_main_cause','q2_4_3_main_cause/other'),
+    issue = rep('Invalid other response',3),
+    old.value = c('Ракета влучила в дах', "security_considerations bad_standards_of_living other",'1'),
+    new.value = c(NA,"security_considerations bad_standards_of_living",0)
+  )
+
+  testthat::expect_equal(actual_output,expected_output)
+
+  # test 5 - basic select_one functionality with a loop
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`,
+                  uuid = `_submission__uuid`)
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::filter(invalid.v == 'yes',
+                  !is.na(loop_index))
+
+
+  actual_output <- add.to.cleaning.log.other.remove(data = test_data, other_requests = other_requests[1,], is.loop = T)
+
+  expected_output <- data.frame(
+    uuid = rep('c25aa98d-36e7-4788-bd3b-b4da3b4a6415',2),
+    loop_index = rep('331',2),
+    variable = c('q2_3_7_1_sector_working_other','q2_3_7_sector_working'),
+    issue = rep('Invalid other response',2),
+    old.value = c('В декретном отпуске', 'other'),
+    new.value = NA
+  )
+
+  testthat::expect_equal(actual_output,expected_output)
+
+  # test 6 - basic select_multiple functionality with a loop
+
+  actual_output <- add.to.cleaning.log.other.remove(data = test_data, other_requests = other_requests[3,], is.loop = T)
+
+  expected_output <- data.frame(
+    uuid = 'e489957a-65d5-4777-b40b-6084a9559b82',
+    loop_index = '1210',
+    variable = c('q2_1_4_1_members_vulnerabilities_other',test_data %>%
+                   dplyr::select(dplyr::starts_with('q2_1_4_members_vulnerabilities')) %>%
+                   names()),
+    issue = 'Invalid other response',
+    old.value = c('У лікарні не був дуже давно', 'other', rep(0,8),1,0,0),
+    new.value = NA
+  )
+
+  testthat::expect_equal(actual_output,expected_output)
+
+  # test 7 - shoots a warning if you're working with a loop but didn't say it's a loop
+
+  testthat::expect_warning(
+    add.to.cleaning.log.other.remove(data = test_data, other_requests = other_requests[3,], is.loop = F)
+  )
+
+  # test 8 - wrong entry
+
+  other_requests <- rbind(other_requests,
+                          data.frame(
+                            uuid = "07ceefd6-fd0a-4915-8899-1f250f8bd0ae",
+                            loop_index = NA,
+                            name = 'fake',
+                            ref.name = 'fake',
+                            full.label = 'test',
+                            ref.type = 'select_multiple',
+                            choices.label = 'test',
+                            response.uk = "Ракета влучила в дах",
+                            response.en = 'test',
+                            true.v = NA,
+                            existing.v = NA,
+                            invalid.v = 'yes'
+                          ))
+
+  testthat::expect_error(
+    add.to.cleaning.log.other.remove(data = test_data, other_requests = other_requests[5,], is.loop = T)
+  )
+})
+
+
+
+
+
+testthat::test_that("vectorized.add.to.cleaning.log.other.remove works", {
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
+
+  test_data_l <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`,
+                  uuid = `_submission__uuid`)
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::filter(invalid.v == 'yes')
+
+
+  # test 1 - basic functionality - non-loop data
+
+  actual_output <- vectorized.add.to.cleaning.log.other.remove(data = test_data,
+                                                               other_requests = other_requests%>% dplyr::filter(is.na(loop_index)))
+
+
+  expected_output <- data.frame(
+    uuid = c(rep('bd005032-6f63-455f-8202-313583a128b1',2),rep('f903166e-abc9-4258-848b-77ada6987d31',2),
+             rep('644ec1bf-4fec-4e93-b088-676dd2ae52ec',11), rep('2a6bacd0-6a4d-420f-9463-cbf8a66cdb48',11)),
+    loop_index = rep(NA,26),
+    variable = c(rep(c('q7_2_2_1_initiate_compensation_other','q7_2_2_initiate_compensation'),2),
+                 rep(c(
+                   'q10_1_3_1_relationship_negativ_factors_other',test_data %>%
+                     dplyr::select(dplyr::starts_with('q10_1_3_relationship_negativ_factors')) %>%
+                     names()),2)
+    ),
+    issue = rep('Invalid other response',26),
+    old.value = c('Ніхто не знає чи хтось там живе', 'other','Респондент не верит в помощь от государства','other',
+                  'Ничего не влияет', 'other', rep(0,6),1,0,0, 'Нет негативных факторов','other', rep(0,6),1,0,0),
+    new.value = NA
+  )
+
+  testthat::expect_equal(actual_output,expected_output)
+
+  # test 2 - basic functionality - loop data
+
+  actual_output <- vectorized.add.to.cleaning.log.other.remove(data = test_data_l,
+                                                               other_requests = other_requests%>% dplyr::filter(!is.na(loop_index)))
+
+
+  expected_output <- data.frame(
+    uuid = c(rep('c25aa98d-36e7-4788-bd3b-b4da3b4a6415',2), rep('abef16e7-ac19-47d5-9914-16cc40580b22',2),
+             rep('e489957a-65d5-4777-b40b-6084a9559b82',13),rep('2a7ab223-bc9e-4f15-ace2-feb857ac7742',13)),
+    loop_index = c(rep('331',2), rep('241',2), rep('1210',13),rep('670',13)),
+    variable = c('q2_3_7_1_sector_working_other','q2_3_7_sector_working',
+                 'q2_3_8_1_sector_working_currently_other','q2_3_8_sector_working_currently',
+                 rep(c('q2_1_4_1_members_vulnerabilities_other',test_data_l %>%
+                         dplyr::select(dplyr::starts_with('q2_1_4_members_vulnerabilities')) %>%
+                         names()),2)
+    ),
+    issue = rep('Invalid other response',30),
+    old.value = c('В декретном отпуске', 'other','Не працюю','other',
+                  'У лікарні не був дуже давно', 'other', rep(0,8),1,0,0,
+                  'Важке інфікційне захворювання', 'other', rep(0,8),1,0,0),
+    new.value = NA
+  )
+
+  testthat::expect_equal(actual_output,expected_output)
+
+  # test 3 - expect error if out other.requests file was not good enough
+  other_requests_f <- other_requests
+  other_requests_f[1,]$invalid.v <- ''
+
+  testthat::expect_error(
+    vectorized.add.to.cleaning.log.other.remove(data = test_data_l,
+                                                other_requests = other_requests_f%>% dplyr::filter(!is.na(loop_index)))
+
+  )
+
+  # test 4 - expect a warning when we run the file with an incorrect other.requests. But it should still give is a correct result
+
+  testthat::expect_warning(
+    actual_output <- vectorized.add.to.cleaning.log.other.remove(data = test_data_l,
+                                                                 other_requests = other_requests)
+  )
+
+  expected_output <- data.frame(
+    uuid = c(rep('c25aa98d-36e7-4788-bd3b-b4da3b4a6415',2), rep('abef16e7-ac19-47d5-9914-16cc40580b22',2),
+             rep('e489957a-65d5-4777-b40b-6084a9559b82',13),rep('2a7ab223-bc9e-4f15-ace2-feb857ac7742',13)),
+    loop_index = c(rep('331',2), rep('241',2), rep('1210',13),rep('670',13)),
+    variable = c('q2_3_7_1_sector_working_other','q2_3_7_sector_working',
+                 'q2_3_8_1_sector_working_currently_other','q2_3_8_sector_working_currently',
+                 rep(c('q2_1_4_1_members_vulnerabilities_other',test_data_l %>%
+                         dplyr::select(dplyr::starts_with('q2_1_4_members_vulnerabilities')) %>%
+                         names()),2)
+    ),
+    issue = rep('Invalid other response',30),
+    old.value = c('В декретном отпуске', 'other','Не працюю','other',
+                  'У лікарні не був дуже давно', 'other', rep(0,8),1,0,0,
+                  'Важке інфікційне захворювання', 'other', rep(0,8),1,0,0),
+    new.value = NA
+  )
+
+  testthat::expect_equal(actual_output,expected_output)
+
+
+})
+
+
+
+testthat::test_that("add.to.cleaning.log.trans.remove works", {
+
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::filter(invalid.v == 'yes')
+
+
+  actual_output <- add.to.cleaning.log.trans.remove(other_requests[c(1,3),])
+
+  expected_output <- data.frame(
+    uuid = c('c25aa98d-36e7-4788-bd3b-b4da3b4a6415','bd005032-6f63-455f-8202-313583a128b1'),
+    loop_index= c('331',NA),
+    variable=c('q2_3_7_1_sector_working_other','q7_2_2_1_initiate_compensation_other'),
+    issue= "Invalid response",
+    old.value=c('В декретном отпуске','Ніхто не знає чи хтось там живе'),
+    new.value=NA
+
+  )
+
+  testthat::expect_equal(actual_output,expected_output)
+
+})
+
+testthat::test_that("add.to.cleaning.log.other.recode.one works", {
+
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
+
+  test_data_l <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`,
+                  uuid = `_submission__uuid`)
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::filter(ref.type == 'select_one',
+                  !is.na(existing.v))
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices', col_types = 'text')
+
+
+  # test 1 - basic functionality on non-loop data
+
+  actual_output <- add.to.cleaning.log.other.recode.one(
+    data = test_data,
+    other_requests = other_requests[3,],
+    is.loop = F,
+    tool.survey = tool.survey,
+    tool.choices = tool.choices
+  )
+
+  expected_output <- data.frame(
+    uuid = 'a46a1c10-bf18-4594-a0be-99447fa22116',
+    loop_index = NA_character_,
+    variable = c('q0_4_2_1_center_idp_other','q0_4_2_center_idp'),
+    issue= "Recoding other response",
+    old.value = c('29','other'),
+    new.value = c(NA,'UKRs006888')
+  )
+
+  testthat::expect_equal(actual_output,expected_output)
+
+  # test 2 trying to run a loop on non loop data
+
+  testthat::expect_error(
+    actual_output <- add.to.cleaning.log.other.recode.one(
+      data = test_data,
+      other_requests = other_requests[3,],
+      is.loop = T,
+      tool.survey = tool.survey,
+      tool.choices = tool.choices
+    )
+  )
+
+  # test 3 - basic functionality on loop data
+
+  actual_output <- add.to.cleaning.log.other.recode.one(
+    data = test_data_l,
+    other_requests = other_requests[1,],
+    is.loop = T,
+    tool.survey = tool.survey,
+    tool.choices = tool.choices
+  )
+
+  expected_output <- data.frame(
+    uuid = '3dc15f20-8964-419c-9ab0-f7b9d367120e',
+    loop_index = '2802',
+    variable = c('q2_3_3_1_employment_situation_other','q2_3_3_employment_situation'),
+    issue= "Recoding other response",
+    old.value = c('17 років, навчання в школі','other'),
+    new.value = c(NA,'student_not_working')
+  )
+
+  testthat::expect_equal(actual_output,expected_output)
+
+
+  # test 4 - indicating non loop on loop data
+
+  testthat::expect_warning(
+    actual_output <- add.to.cleaning.log.other.recode.one(
+      data = test_data_l,
+      other_requests = other_requests[1,],
+      is.loop = F,
+      tool.survey = tool.survey,
+      tool.choices = tool.choices
+    )
+  )
+
+  # test 5 - multiple choices on select_one produce an error
+  other_requests_f <- other_requests
+  other_requests_f[1,'existing.v'] <- 'fake1;fake2'
+
+  testthat::expect_error(
+    add.to.cleaning.log.other.recode.one(
+      data = test_data_l,
+      other_requests = other_requests_f[1,],
+      is.loop = T,
+      tool.survey = tool.survey,
+      tool.choices = tool.choices
+    )
+  )
+
+  # test 6 - wrong choices produce an error
+  other_requests_f[1,'existing.v'] <- 'fake1'
+
+  testthat::expect_error(
+    add.to.cleaning.log.other.recode.one(
+      data = test_data_l,
+      other_requests = other_requests_f[1,],
+      is.loop = T,
+      tool.survey = tool.survey,
+      tool.choices = tool.choices
+    )
+  )
+  # test 7 - non-existing variables produce an error
+  other_requests_f[1,'name'] <- 'fake1'
+
+  testthat::expect_error(
+    add.to.cleaning.log.other.recode.one(
+      data = test_data_l,
+      other_requests = other_requests_f[1,],
+      is.loop = T,
+      tool.survey = tool.survey,
+      tool.choices = tool.choices
+    )
+  )
+
+  # test 8  - wrong 'existing column
+  other_requests_f <- other_requests
+  other_requests_f <- other_requests_f %>%  dplyr::rename(existing = existing.v)
+
+  testthat::expect_error(
+    add.to.cleaning.log.other.recode.one(
+      data = test_data_l,
+      other_requests = other_requests_f[1,],
+      is.loop = T,
+      tool.survey = tool.survey,
+      tool.choices = tool.choices
+    )
+  )
+
+})
+
+
+testthat::test_that("add.to.cleaning.log.other.recode.multiple works", {
+
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
+
+  test_data_l <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`,
+                  uuid = `_submission__uuid`)
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::filter(ref.type == 'select_multiple',
+                  !is.na(existing.v))
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices', col_types = 'text')
+
+
+  # test 1 - basic functionality on non-loop data
+
+  actual_output <- add.to.cleaning.log.other.recode.multiple(
+    data = test_data,
+    other_requests = other_requests[1,],
+    is.loop = F,
+    tool.survey = tool.survey,
+    tool.choices = tool.choices
+  )
+
+  expected_output <- data.frame(
+    uuid = 'f79999d6-192f-4b9b-aee9-5f613bd4e770',
+    loop_index = NA_character_,
+    variable = c('q10_2_1_1_discrimination_idp_other','q10_2_1_discrimination_idp/other',
+                 'q10_2_1_discrimination_idp/yes_we_feel_discriminated_against_when_trying_to_access_basic_services',
+                 'q10_2_1_discrimination_idp'
+    ),
+    issue = "Recoding other response",
+    old.value = c('Так зі сторони проживаючих тут студентів','1','0','other'),
+    new.value = c(NA,'0','1','yes_we_feel_discriminated_against_when_trying_to_access_basic_services')
+  )
+
+  testthat::expect_equal(actual_output,expected_output)
+
+  # test 2 - trying to call loop for non-loop data
+
+  testthat::expect_error(
+    add.to.cleaning.log.other.recode.multiple(
+      data = test_data,
+      other_requests = other_requests[1,],
+      is.loop = T,
+      tool.survey = tool.survey,
+      tool.choices = tool.choices
+    )
+  )
+
+  # test 3 - loop data, cumulative only has the 'other' response
+
+  actual_output <- add.to.cleaning.log.other.recode.multiple(
+    data = test_data_l,
+    other_requests = other_requests[3,],
+    is.loop = T,
+    tool.survey = tool.survey,
+    tool.choices = tool.choices
+  )
+
+  expected_output <- data.frame(
+    uuid = '5f5bac4d-b250-41dc-93de-1b27043a2869',
+    loop_index = '494',
+    variable = c('q2_1_4_1_members_vulnerabilities_other','q2_1_4_members_vulnerabilities/other',
+                 'q2_1_4_members_vulnerabilities/person_with_disabilities',
+                 'q2_1_4_members_vulnerabilities'
+    ),
+    issue = "Recoding other response",
+    old.value = c('3 група інвалідності','1','0','other'),
+    new.value = c(NA,'0','1','person_with_disabilities')
+  )
+  testthat::expect_equal(actual_output,expected_output)
+
+  # test 4 - loop data, cumulative has the 'other' response + some others
+
+  actual_output <- add.to.cleaning.log.other.recode.multiple(
+    data = test_data_l,
+    other_requests = other_requests[4,],
+    is.loop = T,
+    tool.survey = tool.survey,
+    tool.choices = tool.choices
+  )
+
+  expected_output <- data.frame(
+    uuid = 'efab8f40-dcb4-47c6-ba3f-fd89237a6f14',
+    loop_index = '1168',
+    variable = c('q2_1_4_1_members_vulnerabilities_other','q2_1_4_members_vulnerabilities/other',
+                 'q2_1_4_members_vulnerabilities/person_with_disabilities',
+                 'q2_1_4_members_vulnerabilities'
+    ),
+    issue = "Recoding other response",
+    old.value = c('Оформлюють інвалідність','1','0','chronic_illness_which_affects_the_quality_of_life other'),
+    new.value = c(NA,'0','1','chronic_illness_which_affects_the_quality_of_life person_with_disabilities')
+  )
+  testthat::expect_equal(actual_output,expected_output)
+
+  # test 5 calling non-loop on loop value
+  testthat::expect_warning(
+    add.to.cleaning.log.other.recode.multiple(
+      data = test_data_l,
+      other_requests = other_requests[4,],
+      is.loop = F,
+      tool.survey = tool.survey,
+      tool.choices = tool.choices
     ))
 
-  }
+  # test 6 using a fake variable should produce an error
+  other_requests_f <- other_requests
+  other_requests_f$name <- 'fake'
 
-  if(is.loop){
-    data$uniqui <- data$loop_index
-    other_requests$uniqui <- other_requests$loop_index
-  }else{
-    data$uniqui <- data$uuid
-    other_requests$uniqui <- other_requests$uuid
-  }
+  testthat::expect_error(
+    add.to.cleaning.log.other.recode.multiple(
+      data = test_data_l,
+      other_requests = other_requests_f[4,],
+      is.loop = T,
+      tool.survey = tool.survey,
+      tool.choices = tool.choices)
+  )
 
-  clog <- data.frame()
+  # test 7, multiple choices from select_multiple fit our requirements
 
-  old.response <- data %>%
-    dplyr::filter(uniqui == other_requests$uniqui) %>%
-    dplyr::pull(!!rlang::sym(other_requests$name))
-  # remove text of the response
-  df <- data.frame(uuid=other_requests$uuid, loop_index = other_requests$loop_index,
-                   variable=other_requests$name, issue=issue,
-                   old.value=old.response, new.value=NA)
-  clog <- rbind(clog, df)
-  # get list of choices from other response
-  if (stringr::str_detect(other_requests[[existing]], ";")) {
-    choices <- stringr::str_trim(stringr::str_split(other_requests[[existing]], ";")[[1]])
-  } else {
-    choices <- stringr::str_trim(stringr::str_split(other_requests[[existing]], "\r\n")[[1]])
-  }
-  choices <- choices[choices!=""]
-  # set variable/other to "0"
-  df <- data.frame(uuid=other_requests$uuid, loop_index = other_requests$loop_index,
-                   variable=paste0(other_requests$ref.name, "/other"), issue=issue,
-                   old.value="1", new.value="0")
-  clog <- rbind(clog, df)
-  # get list of choices already selected
-  old.value <- as.character(data[data$uniqui==other_requests$uniqui[1], other_requests$ref.name[1]])
-  l <- stringr::str_split(old.value, " ")[[1]]
-  l.cumulative <- l[l!="other"]
-  # add to the cleaning log each choice in the other response
-  for (choice in choices){
-    # set corresponding variable to "1" if not already "1"
-    list.name <- dplyr::filter(tool.survey, name==other_requests$ref.name[1])$list_name
-    new.code <- dplyr::filter(tool.choices, list_name==list.name & !!rlang::sym(label_colname)==choice)
-    if (nrow(new.code)!=1){
-      stop(paste0("Choice is not in the list. UUID: ", other_requests$uuid,"; recode.into: ", choice))
-    }
-    variable.name <- paste0(other_requests$ref.name, "/", new.code$name)
-    if (variable.name %in% colnames(data)){
-      old.boolean <- data[[variable.name]][data$uniqui==other_requests$uniqui[1]]
-    } else{
-      stop(paste("Column", variable.name,"not found in data"))}
-    if (old.boolean=="0"){
-      df <- data.frame(uuid=other_requests$uuid, loop_index = other_requests$loop_index,
-                       variable=variable.name, issue=issue,
-                       old.value=old.boolean, new.value="1")
-      clog <- rbind(clog, df)
-    }
-    l.cumulative <- unique(c(l.cumulative, new.code$name))
-  }
-  # update cumulative variable
-  new.value <- stringr::str_squish(paste(sort(l.cumulative), collapse=" "))
-  df <- data.frame(uuid=other_requests$uuid, loop_index = other_requests$loop_index,
-                   variable=other_requests$ref.name, issue=issue,
-                   old.value=old.value, new.value=new.value)
-  clog <- rbind(clog, df)
-  return(clog)
-}
+  other_requests_f <- other_requests
+  other_requests_f[4,]$existing.v <- paste0(other_requests_f[4,]$existing.v,'; Older person')
+
+  actual_output <- add.to.cleaning.log.other.recode.multiple(
+    data = test_data_l,
+    other_requests = other_requests_f[4,],
+    is.loop = T,
+    tool.survey = tool.survey,
+    tool.choices = tool.choices)
+
+  expected_output <- data.frame(
+    uuid = 'efab8f40-dcb4-47c6-ba3f-fd89237a6f14',
+    loop_index = '1168',
+    variable = c('q2_1_4_1_members_vulnerabilities_other','q2_1_4_members_vulnerabilities/other',
+                 'q2_1_4_members_vulnerabilities/person_with_disabilities',
+                 'q2_1_4_members_vulnerabilities/older_person',
+                 'q2_1_4_members_vulnerabilities'
+    ),
+    issue = "Recoding other response",
+    old.value = c('Оформлюють інвалідність','1','0','0','chronic_illness_which_affects_the_quality_of_life other'),
+    new.value = c(NA,'0','1','1','chronic_illness_which_affects_the_quality_of_life older_person person_with_disabilities')
+  )
+
+
+  testthat::expect_equal(actual_output,expected_output)
+
+  # test 8  - using a wrong choice name when recoding
+
+
+  other_requests_f <- other_requests
+  other_requests_f[4,]$existing.v <- 'fake'
+
+  testthat::expect_error(
+    add.to.cleaning.log.other.recode.multiple(
+      data = test_data_l,
+      other_requests = other_requests_f[4,],
+      is.loop = T,
+      tool.survey = tool.survey,
+      tool.choices = tool.choices)
+  )
+
+
+  # test 9  - wrong 'existing column
+  other_requests_f <- other_requests
+  other_requests_f <- other_requests_f %>%  dplyr::rename(existing = existing.v)
+
+  testthat::expect_error(
+    add.to.cleaning.log.other.recode.multiple(
+      data = test_data_l,
+      other_requests = other_requests_f[4,],
+      is.loop = T,
+      tool.survey = tool.survey,
+      tool.choices = tool.choices)
+  )
+
+})
+
 
 
 
