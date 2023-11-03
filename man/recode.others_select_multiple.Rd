@@ -9,7 +9,7 @@ recode.others_select_multiple(
   or.select_multiple,
   orig_response_col = "response.uk",
   print_debug = T,
-  is.loop = F,
+  is.loop,
   tool.survey_others = tool.survey,
   tool.choices_others = tool.choices,
   label_colname = "label::English",

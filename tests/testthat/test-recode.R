@@ -175,11 +175,11 @@ testthat::test_that("recode.multiple.set.NA works", {
                                              rep("b7_vehicle_fuel/gas_vehicles",10),rep("b7_vehicle_fuel/electricity_vehicles",10),
                                              rep("b7_vehicle_fuel/none_vehicles",10),rep("b7_vehicle_fuel/none",10) ),
                                 old.value = c(as.vector(as.matrix(test_data[,c("b7_vehicle_fuel","b7_vehicle_fuel/petrol_vehicles","b7_vehicle_fuel/diesel_vehicles",
-                                                                                  "b7_vehicle_fuel/gas_vehicles","b7_vehicle_fuel/electricity_vehicles",
-                                                                                  "b7_vehicle_fuel/none_vehicles","b7_vehicle_fuel/none")]))),
+                                                                               "b7_vehicle_fuel/gas_vehicles","b7_vehicle_fuel/electricity_vehicles",
+                                                                               "b7_vehicle_fuel/none_vehicles","b7_vehicle_fuel/none")]))),
                                 new.value = rep(NA,70),
                                 issue = rep('test_issue',70)
-                                ) %>%
+  ) %>%
     dplyr::tibble()
 
 
@@ -192,17 +192,17 @@ testthat::test_that("recode.multiple.set.NA works", {
   actual_output2 <- recode.multiple.set.NA(test_data, 'b18_financial_factors', issue = 'test_issue', other_var_name = 'b18_1_financial_factors_other')
 
   expected_output2 <- data.frame(uuid = unlist(rep(test_data[,'uuid'],11)),
-                                loop_index = rep(1:10,11),
-                                variable = c(rep("b18_financial_factors",10) ,rep("b18_financial_factors/not_affect",10) ,rep("b18_financial_factors/items_not_available",10) ,
-                                rep("b18_financial_factors/not_afford",10) ,rep("b18_financial_factors/not_enough_cash",10) ,rep("b18_financial_factors/public_transportation",10) ,
-                                rep("b18_financial_factors/fuel_expensive",10) ,rep("b18_financial_factors/prices_increased",10) ,rep("b18_financial_factors/other",10) ,
-                                rep("b18_1_financial_factors_other",10),rep("b18_financial_factors/prefer_not_answer",10)),
-                                old.value = c(as.vector(as.matrix(test_data[,c("b18_financial_factors","b18_financial_factors/not_affect","b18_financial_factors/items_not_available",
-                                                                               "b18_financial_factors/not_afford","b18_financial_factors/not_enough_cash","b18_financial_factors/public_transportation",
-                                                                               "b18_financial_factors/fuel_expensive","b18_financial_factors/prices_increased","b18_financial_factors/other",
-                                                                               "b18_1_financial_factors_other","b18_financial_factors/prefer_not_answer")]))),
-                                new.value = rep(NA,110),
-                                issue = rep('test_issue',110)
+                                 loop_index = rep(1:10,11),
+                                 variable = c(rep("b18_financial_factors",10) ,rep("b18_financial_factors/not_affect",10) ,rep("b18_financial_factors/items_not_available",10) ,
+                                              rep("b18_financial_factors/not_afford",10) ,rep("b18_financial_factors/not_enough_cash",10) ,rep("b18_financial_factors/public_transportation",10) ,
+                                              rep("b18_financial_factors/fuel_expensive",10) ,rep("b18_financial_factors/prices_increased",10) ,rep("b18_financial_factors/other",10) ,
+                                              rep("b18_1_financial_factors_other",10),rep("b18_financial_factors/prefer_not_answer",10)),
+                                 old.value = c(as.vector(as.matrix(test_data[,c("b18_financial_factors","b18_financial_factors/not_affect","b18_financial_factors/items_not_available",
+                                                                                "b18_financial_factors/not_afford","b18_financial_factors/not_enough_cash","b18_financial_factors/public_transportation",
+                                                                                "b18_financial_factors/fuel_expensive","b18_financial_factors/prices_increased","b18_financial_factors/other",
+                                                                                "b18_1_financial_factors_other","b18_financial_factors/prefer_not_answer")]))),
+                                 new.value = rep(NA,110),
+                                 issue = rep('test_issue',110)
   ) %>%
     dplyr::tibble() %>%
     dplyr::filter(!is.na(old.value))
@@ -227,7 +227,7 @@ testthat::test_that("recode.multiple.set.NA works", {
 
 
 testthat::test_that("recode.multiple.set.choices works", {
-# upload the data
+  # upload the data
 
   test_path <- testthat::test_path("fixtures","utilityR_raw_data.xlsx")
   test_data <- readxl::read_excel(test_path)[41:50,] %>%
@@ -235,88 +235,88 @@ testthat::test_that("recode.multiple.set.choices works", {
   # set up loop index to test if it works
   test_data$loop_index = 1:10
 
-# load the tool data
+  # load the tool data
 
-filename <- testthat::test_path("fixtures","tool.survey_full.xlsx")
-label_colname <- "label::English"
-tool.survey <- utilityR::load.tool.survey(filename,label_colname)
-
-
-# Test 0 - expect error with wrong names
-
-testthat::expect_error(recode.multiple.set.choices(test_data, 'b7_1_heating_fuel','fake_option',issue='test_issue', tool.survey = tool.survey,
-                                             tool.choices =tool.choices))
+  filename <- testthat::test_path("fixtures","tool.survey_full.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
 
 
-# Test 1 - test if it works as expected with 1 variable
+  # Test 0 - expect error with wrong names
+
+  testthat::expect_error(recode.multiple.set.choices(test_data, 'b7_1_heating_fuel','fake_option',issue='test_issue', tool.survey = tool.survey,
+                                                     tool.choices =tool.choices))
 
 
-# rename the tool.choices db
-tool.choices <- utilityR::utilityR_choices
+  # Test 1 - test if it works as expected with 1 variable
 
 
-expected_output <- data.frame(uuid = c(test_data[!test_data$b7_1_heating_fuel=='gas_heating',]$uuid,test_data[test_data$`b7_1_heating_fuel/gas_heating`==0,]$uuid,
-                                       test_data[test_data$`b7_1_heating_fuel/electricity_heating`==1,]$uuid),
-                              loop_index=c(test_data[!test_data$b7_1_heating_fuel=='gas_heating',]$loop_index,test_data[test_data$`b7_1_heating_fuel/gas_heating`==0,]$loop_index,
-                                           test_data[test_data$`b7_1_heating_fuel/electricity_heating`==1,]$loop_index),
-                              old.value = c(test_data[!test_data$b7_1_heating_fuel=='gas_heating',]$b7_1_heating_fuel,0,1,1),
-                              variable = c(rep('b7_1_heating_fuel',2),rep('b7_1_heating_fuel/gas_heating',1),rep('b7_1_heating_fuel/electricity_heating',2) ),
-                              new.value = c(rep('gas_heating',2),1,0,0),
-                              issue = rep('test_issue',5)
-                                ) %>% dplyr::tibble()
-actual_output <- recode.multiple.set.choices(test_data, 'b7_1_heating_fuel','gas_heating',issue='test_issue', tool.survey = tool.survey,
-                                             tool.choices =tool.choices)
+  # rename the tool.choices db
+  tool.choices <- utilityR::utilityR_choices
 
 
-testthat::expect_equal(expected_output, actual_output)
-
-# test 4 test if the function recodes multiple choices correctly + works with _other variables
-
-# set up the data
-test_data <- test_data %>%
-  dplyr::select(uuid, loop_index, b17_access_stores, `b17_access_stores/no_impact`, `b17_access_stores/road_damage`,
-                `b17_access_stores/other`, b17_1_access_stores_other) %>%
-  dplyr::mutate(`b17_access_stores/road_damage` = ifelse(loop_index < 8, 1,`b17_access_stores/road_damage`),
-                `b17_access_stores/other` = ifelse(loop_index==4, 1 ,`b17_access_stores/other`),
-                b17_1_access_stores_other = ifelse(loop_index==4, 'test' ,b17_1_access_stores_other)
-                )
-
-expected_output2 <- data.frame(uuid = c(test_data$uuid, test_data[test_data$`b17_access_stores/no_impact`==0,]$uuid,
-                                       test_data[test_data$`b17_access_stores/road_damage`==0,]$uuid,
-                                       test_data[test_data$`b17_access_stores/other`==1,]$uuid,
-                                       test_data[!is.na(test_data$b17_1_access_stores_other),]$uuid),
-                              loop_index = c(test_data$loop_index, test_data[test_data$`b17_access_stores/no_impact`==0,]$loop_index,
-                                             test_data[test_data$`b17_access_stores/road_damage`==0,]$loop_index,
-                                             test_data[test_data$`b17_access_stores/other`==1,]$loop_index,
-                                             test_data[!is.na(test_data$b17_1_access_stores_other),]$loop_index),
-                              old.value = c(test_data$b17_access_stores, test_data[test_data$`b17_access_stores/no_impact`==0,]$`b17_access_stores/no_impact`,
-                                            test_data[test_data$`b17_access_stores/road_damage`==0,]$`b17_access_stores/road_damage`,
-                                            test_data[test_data$`b17_access_stores/other`==1,]$`b17_access_stores/other`,
-                                            test_data[!is.na(test_data$b17_1_access_stores_other),]$b17_1_access_stores_other),
-                              variable = c(rep('b17_access_stores',10), rep('b17_access_stores/no_impact',4), rep('b17_access_stores/road_damage',3),
-                                           rep('b17_access_stores/other',1),'b17_1_access_stores_other'),
-                              new.value = c(rep('no_impact road_damage',10), rep(1,7),0,NA),
-                              issue = rep('test_issue',19)
-                              ) %>% dplyr::tibble()
-
-actual_output2 <- recode.multiple.set.choices(test_data, 'b17_access_stores',c('no_impact','road_damage'),issue='test_issue', tool.survey = tool.survey,
-                                              tool.choices =tool.choices)
-
-testthat::expect_equal(expected_output2, actual_output2)
+  expected_output <- data.frame(uuid = c(test_data[!test_data$b7_1_heating_fuel=='gas_heating',]$uuid,test_data[test_data$`b7_1_heating_fuel/gas_heating`==0,]$uuid,
+                                         test_data[test_data$`b7_1_heating_fuel/electricity_heating`==1,]$uuid),
+                                loop_index=c(test_data[!test_data$b7_1_heating_fuel=='gas_heating',]$loop_index,test_data[test_data$`b7_1_heating_fuel/gas_heating`==0,]$loop_index,
+                                             test_data[test_data$`b7_1_heating_fuel/electricity_heating`==1,]$loop_index),
+                                old.value = c(test_data[!test_data$b7_1_heating_fuel=='gas_heating',]$b7_1_heating_fuel,0,1,1),
+                                variable = c(rep('b7_1_heating_fuel',2),rep('b7_1_heating_fuel/gas_heating',1),rep('b7_1_heating_fuel/electricity_heating',2) ),
+                                new.value = c(rep('gas_heating',2),1,0,0),
+                                issue = rep('test_issue',5)
+  ) %>% dplyr::tibble()
+  actual_output <- recode.multiple.set.choices(test_data, 'b7_1_heating_fuel','gas_heating',issue='test_issue', tool.survey = tool.survey,
+                                               tool.choices =tool.choices)
 
 
-# test 5 - returns an empty df when no changes needed
+  testthat::expect_equal(expected_output, actual_output)
 
-test_data <- readxl::read_excel(test_path)[41:50,] %>%
-  dplyr::rename(uuid = `_uuid`)
-test_data$loop_index = 1:10
+  # test 4 test if the function recodes multiple choices correctly + works with _other variables
 
-test_data2 <- test_data[test_data$b7_1_heating_fuel=='gas_heating',]
+  # set up the data
+  test_data <- test_data %>%
+    dplyr::select(uuid, loop_index, b17_access_stores, `b17_access_stores/no_impact`, `b17_access_stores/road_damage`,
+                  `b17_access_stores/other`, b17_1_access_stores_other) %>%
+    dplyr::mutate(`b17_access_stores/road_damage` = ifelse(loop_index < 8, 1,`b17_access_stores/road_damage`),
+                  `b17_access_stores/other` = ifelse(loop_index==4, 1 ,`b17_access_stores/other`),
+                  b17_1_access_stores_other = ifelse(loop_index==4, 'test' ,b17_1_access_stores_other)
+    )
 
-actual_output3 <- recode.multiple.set.choices(test_data2, 'b7_1_heating_fuel','gas_heating',issue='test_issue', tool.survey = tool.survey,
-                                              tool.choices =tool.choices)
+  expected_output2 <- data.frame(uuid = c(test_data$uuid, test_data[test_data$`b17_access_stores/no_impact`==0,]$uuid,
+                                          test_data[test_data$`b17_access_stores/road_damage`==0,]$uuid,
+                                          test_data[test_data$`b17_access_stores/other`==1,]$uuid,
+                                          test_data[!is.na(test_data$b17_1_access_stores_other),]$uuid),
+                                 loop_index = c(test_data$loop_index, test_data[test_data$`b17_access_stores/no_impact`==0,]$loop_index,
+                                                test_data[test_data$`b17_access_stores/road_damage`==0,]$loop_index,
+                                                test_data[test_data$`b17_access_stores/other`==1,]$loop_index,
+                                                test_data[!is.na(test_data$b17_1_access_stores_other),]$loop_index),
+                                 old.value = c(test_data$b17_access_stores, test_data[test_data$`b17_access_stores/no_impact`==0,]$`b17_access_stores/no_impact`,
+                                               test_data[test_data$`b17_access_stores/road_damage`==0,]$`b17_access_stores/road_damage`,
+                                               test_data[test_data$`b17_access_stores/other`==1,]$`b17_access_stores/other`,
+                                               test_data[!is.na(test_data$b17_1_access_stores_other),]$b17_1_access_stores_other),
+                                 variable = c(rep('b17_access_stores',10), rep('b17_access_stores/no_impact',4), rep('b17_access_stores/road_damage',3),
+                                              rep('b17_access_stores/other',1),'b17_1_access_stores_other'),
+                                 new.value = c(rep('no_impact road_damage',10), rep(1,7),0,NA),
+                                 issue = rep('test_issue',19)
+  ) %>% dplyr::tibble()
 
-testthat::expect_equal(data.frame(), actual_output3)
+  actual_output2 <- recode.multiple.set.choices(test_data, 'b17_access_stores',c('no_impact','road_damage'),issue='test_issue', tool.survey = tool.survey,
+                                                tool.choices =tool.choices)
+
+  testthat::expect_equal(expected_output2, actual_output2)
+
+
+  # test 5 - returns an empty df when no changes needed
+
+  test_data <- readxl::read_excel(test_path)[41:50,] %>%
+    dplyr::rename(uuid = `_uuid`)
+  test_data$loop_index = 1:10
+
+  test_data2 <- test_data[test_data$b7_1_heating_fuel=='gas_heating',]
+
+  actual_output3 <- recode.multiple.set.choices(test_data2, 'b7_1_heating_fuel','gas_heating',issue='test_issue', tool.survey = tool.survey,
+                                                tool.choices =tool.choices)
+
+  testthat::expect_equal(data.frame(), actual_output3)
 
 
 })
@@ -324,45 +324,45 @@ testthat::expect_equal(data.frame(), actual_output3)
 
 testthat::test_that("recode.multiple.add.choices works", {
 
-test_path <- testthat::test_path("fixtures","utilityR_raw_data.xlsx")
-test_data <- readxl::read_excel(test_path)[41:50,] %>%
-  dplyr::rename(uuid = `_uuid`)
-# set up loop index to test if it works
-test_data$loop_index = 1:10
+  test_path <- testthat::test_path("fixtures","utilityR_raw_data.xlsx")
+  test_data <- readxl::read_excel(test_path)[41:50,] %>%
+    dplyr::rename(uuid = `_uuid`)
+  # set up loop index to test if it works
+  test_data$loop_index = 1:10
 
-expected_output <- data.frame(uuid = c(test_data[!test_data$b17_access_stores %in% c('air_alert power_outages','power_outages air_alert'),]$uuid,
-                                       test_data[test_data$`b17_access_stores/air_alert` ==0,]$uuid,
-                                       test_data[test_data$`b17_access_stores/power_outages` ==0,]$uuid
-                                       ),
-                              loop_index = c(test_data[!test_data$b17_access_stores %in% c('air_alert power_outages','power_outages air_alert'),]$loop_index,
-                                             test_data[test_data$`b17_access_stores/air_alert` ==0,]$loop_index,
-                                             test_data[test_data$`b17_access_stores/power_outages` ==0,]$loop_index),
-                              old.value = c(test_data[!test_data$b17_access_stores %in% c('air_alert power_outages','power_outages air_alert'),]$b17_access_stores,
-                                            rep(0,6), rep(0,6)),
-                              variable = c(rep('b17_access_stores',6), rep('b17_access_stores/air_alert',6), rep('b17_access_stores/power_outages',6)),
-                              new.value = c(paste0(test_data[!test_data$b17_access_stores %in% c('air_alert power_outages','power_outages air_alert'),]$b17_access_stores, ' air_alert power_outages'),
-                                            rep(1,6), rep(1,6)),
-                              issue = rep('test_issue',18)
-                              ) %>% dplyr::tibble()
+  expected_output <- data.frame(uuid = c(test_data[!test_data$b17_access_stores %in% c('air_alert power_outages','power_outages air_alert'),]$uuid,
+                                         test_data[test_data$`b17_access_stores/air_alert` ==0,]$uuid,
+                                         test_data[test_data$`b17_access_stores/power_outages` ==0,]$uuid
+  ),
+  loop_index = c(test_data[!test_data$b17_access_stores %in% c('air_alert power_outages','power_outages air_alert'),]$loop_index,
+                 test_data[test_data$`b17_access_stores/air_alert` ==0,]$loop_index,
+                 test_data[test_data$`b17_access_stores/power_outages` ==0,]$loop_index),
+  old.value = c(test_data[!test_data$b17_access_stores %in% c('air_alert power_outages','power_outages air_alert'),]$b17_access_stores,
+                rep(0,6), rep(0,6)),
+  variable = c(rep('b17_access_stores',6), rep('b17_access_stores/air_alert',6), rep('b17_access_stores/power_outages',6)),
+  new.value = c(paste0(test_data[!test_data$b17_access_stores %in% c('air_alert power_outages','power_outages air_alert'),]$b17_access_stores, ' air_alert power_outages'),
+                rep(1,6), rep(1,6)),
+  issue = rep('test_issue',18)
+  ) %>% dplyr::tibble()
 
-actual_output <- recode.multiple.add.choices(test_data, "b17_access_stores", c("air_alert","power_outages"),issue='test_issue' )
+  actual_output <- recode.multiple.add.choices(test_data, "b17_access_stores", c("air_alert","power_outages"),issue='test_issue' )
 
-testthat::expect_equal(expected_output, actual_output)
+  testthat::expect_equal(expected_output, actual_output)
 
 
-# test 2 - test if it breaks like its supposed to
-testthat::expect_error(recode.multiple.add.choices(test_data, "b17_access_stores", c("air_alert","fake_variable"),issue='test_issue' ))
+  # test 2 - test if it breaks like its supposed to
+  testthat::expect_error(recode.multiple.add.choices(test_data, "b17_access_stores", c("air_alert","fake_variable"),issue='test_issue' ))
 
-# test 3 - test if it breaks like its supposed to
-testthat::expect_error(recode.multiple.add.choices(test_data, "fake_column", c("air_alert"),issue='test_issue' ))
+  # test 3 - test if it breaks like its supposed to
+  testthat::expect_error(recode.multiple.add.choices(test_data, "fake_column", c("air_alert"),issue='test_issue' ))
 
-# test 4 - test that it produces an empty df when there's nothing to change
+  # test 4 - test that it produces an empty df when there's nothing to change
 
-test_data2 <- test_data[test_data$b17_access_stores == 'no_impact',]
+  test_data2 <- test_data[test_data$b17_access_stores == 'no_impact',]
 
-actual_output <- recode.multiple.add.choices(test_data2, "b17_access_stores", c("no_impact"),issue='test_issue' )
+  actual_output <- recode.multiple.add.choices(test_data2, "b17_access_stores", c("no_impact"),issue='test_issue' )
 
-testthat::expect_equal(actual_output, data.frame())
+  testthat::expect_equal(actual_output, data.frame())
 
 })
 
@@ -371,76 +371,76 @@ testthat::expect_equal(actual_output, data.frame())
 testthat::test_that("recode.multiple.remove.choices works", {
 
 
-# test 1 check if the general functionality works
+  # test 1 check if the general functionality works
 
-test_path <- testthat::test_path("fixtures","utilityR_raw_data.xlsx")
-test_data <- readxl::read_excel(test_path)[41:50,] %>%
-  dplyr::rename(uuid = `_uuid`)
-# set up loop index to test if it works
-test_data$loop_index = 1:10
-
-
-expected_output <- data.frame(uuid = c(test_data[grepl('(air_alert.*power_outages|power_outages.*air_alert)',test_data$b17_access_stores),]$uuid,
-                                       test_data[test_data$`b17_access_stores/air_alert` ==1,]$uuid,
-                                       test_data[test_data$`b17_access_stores/power_outages` ==1,]$uuid),
-loop_index = c(test_data[grepl('(air_alert.*power_outages|power_outages.*air_alert)',test_data$b17_access_stores),]$loop_index,
-               test_data[test_data$`b17_access_stores/air_alert` ==1,]$loop_index,
-               test_data[test_data$`b17_access_stores/power_outages` ==1,]$loop_index),
-old.value = c(test_data[grepl('(air_alert.*power_outages|power_outages.*air_alert)',test_data$b17_access_stores),]$b17_access_stores,
-              rep(1,4), rep(1,4)),
-variable = c(rep('b17_access_stores',4), rep('b17_access_stores/air_alert',4), rep('b17_access_stores/power_outages',4)),
-new.value = c(rep("",4),rep(0,4), rep(0,4)),
-issue = rep('test_issue',12)
-) %>% dplyr::tibble()
+  test_path <- testthat::test_path("fixtures","utilityR_raw_data.xlsx")
+  test_data <- readxl::read_excel(test_path)[41:50,] %>%
+    dplyr::rename(uuid = `_uuid`)
+  # set up loop index to test if it works
+  test_data$loop_index = 1:10
 
 
+  expected_output <- data.frame(uuid = c(test_data[grepl('(air_alert.*power_outages|power_outages.*air_alert)',test_data$b17_access_stores),]$uuid,
+                                         test_data[test_data$`b17_access_stores/air_alert` ==1,]$uuid,
+                                         test_data[test_data$`b17_access_stores/power_outages` ==1,]$uuid),
+                                loop_index = c(test_data[grepl('(air_alert.*power_outages|power_outages.*air_alert)',test_data$b17_access_stores),]$loop_index,
+                                               test_data[test_data$`b17_access_stores/air_alert` ==1,]$loop_index,
+                                               test_data[test_data$`b17_access_stores/power_outages` ==1,]$loop_index),
+                                old.value = c(test_data[grepl('(air_alert.*power_outages|power_outages.*air_alert)',test_data$b17_access_stores),]$b17_access_stores,
+                                              rep(1,4), rep(1,4)),
+                                variable = c(rep('b17_access_stores',4), rep('b17_access_stores/air_alert',4), rep('b17_access_stores/power_outages',4)),
+                                new.value = c(rep("",4),rep(0,4), rep(0,4)),
+                                issue = rep('test_issue',12)
+  ) %>% dplyr::tibble()
 
 
-actual_output <- recode.multiple.remove.choices(test_data, "b17_access_stores", c("air_alert","power_outages"),issue='test_issue' )
-
-testthat::expect_equal(expected_output,actual_output)
-
-# Test 2 - test if the functionality of 'other' works
 
 
-test_data$`b17_access_stores/other`[5] = '1'
-test_data$b17_1_access_stores_other[5] = 'test'
+  actual_output <- recode.multiple.remove.choices(test_data, "b17_access_stores", c("air_alert","power_outages"),issue='test_issue' )
+
+  testthat::expect_equal(expected_output,actual_output)
+
+  # Test 2 - test if the functionality of 'other' works
 
 
-expected_output2 <- data.frame(uuid = c(test_data[grepl('air_alert',test_data$b17_access_stores),]$uuid,
-                                       test_data[test_data$`b17_access_stores/air_alert` ==1,]$uuid,
-                                       test_data[test_data$`b17_access_stores/other` ==1,]$uuid,
-                                       test_data[test_data$`b17_access_stores/other` ==1,]$uuid),
-                              loop_index = c(test_data[grepl('air_alert',test_data$b17_access_stores),]$loop_index,
-                                             test_data[test_data$`b17_access_stores/air_alert` ==1,]$loop_index,
-                                             test_data[test_data$`b17_access_stores/other` ==1,]$loop_index,
-                                             test_data[test_data$`b17_access_stores/other` ==1,]$loop_index),
-                              old.value = c(test_data[grepl('air_alert',test_data$b17_access_stores),]$b17_access_stores,
-                                            rep(1,4), 1,'test'),
-                              variable = c(rep('b17_access_stores',4), rep('b17_access_stores/air_alert',4), rep('b17_access_stores/other',1), 'b17_1_access_stores_other'),
-                              new.value = c(rep("power_outages",4),rep(0,4), 0,NA ),
-                              issue = rep('test_issue',10)
-) %>% dplyr::tibble()
+  test_data$`b17_access_stores/other`[5] = '1'
+  test_data$b17_1_access_stores_other[5] = 'test'
 
 
-actual_output2 <- recode.multiple.remove.choices(test_data, "b17_access_stores", c("air_alert","other"),issue='test_issue' )
+  expected_output2 <- data.frame(uuid = c(test_data[grepl('air_alert',test_data$b17_access_stores),]$uuid,
+                                          test_data[test_data$`b17_access_stores/air_alert` ==1,]$uuid,
+                                          test_data[test_data$`b17_access_stores/other` ==1,]$uuid,
+                                          test_data[test_data$`b17_access_stores/other` ==1,]$uuid),
+                                 loop_index = c(test_data[grepl('air_alert',test_data$b17_access_stores),]$loop_index,
+                                                test_data[test_data$`b17_access_stores/air_alert` ==1,]$loop_index,
+                                                test_data[test_data$`b17_access_stores/other` ==1,]$loop_index,
+                                                test_data[test_data$`b17_access_stores/other` ==1,]$loop_index),
+                                 old.value = c(test_data[grepl('air_alert',test_data$b17_access_stores),]$b17_access_stores,
+                                               rep(1,4), 1,'test'),
+                                 variable = c(rep('b17_access_stores',4), rep('b17_access_stores/air_alert',4), rep('b17_access_stores/other',1), 'b17_1_access_stores_other'),
+                                 new.value = c(rep("power_outages",4),rep(0,4), 0,NA ),
+                                 issue = rep('test_issue',10)
+  ) %>% dplyr::tibble()
 
-testthat::expect_equal(expected_output2,actual_output2)
+
+  actual_output2 <- recode.multiple.remove.choices(test_data, "b17_access_stores", c("air_alert","other"),issue='test_issue' )
+
+  testthat::expect_equal(expected_output2,actual_output2)
 
 
-# test 3 - test if it breaks like its supposed to
-testthat::expect_error(recode.multiple.remove.choices(test_data, "fake_column", c("air_alert","other"),issue='test_issue' ))
+  # test 3 - test if it breaks like its supposed to
+  testthat::expect_error(recode.multiple.remove.choices(test_data, "fake_column", c("air_alert","other"),issue='test_issue' ))
 
-# test 4 - test if it breaks like its supposed to
-testthat::expect_error(recode.multiple.remove.choices(test_data, "b17_access_stores", c("fake_choice","other"),issue='test_issue' ))
+  # test 4 - test if it breaks like its supposed to
+  testthat::expect_error(recode.multiple.remove.choices(test_data, "b17_access_stores", c("fake_choice","other"),issue='test_issue' ))
 
-# test 5 - test if it produces an empty df when needed
+  # test 5 - test if it produces an empty df when needed
 
-test_data2 <- test_data[!test_data$b17_access_stores == 'no_impact',]
+  test_data2 <- test_data[!test_data$b17_access_stores == 'no_impact',]
 
-actual_output <- recode.multiple.remove.choices(test_data2, "b17_access_stores", c("no_impact"),issue='test_issue' )
+  actual_output <- recode.multiple.remove.choices(test_data2, "b17_access_stores", c("no_impact"),issue='test_issue' )
 
-testthat::expect_equal(actual_output, data.frame())
+  testthat::expect_equal(actual_output, data.frame())
 
 })
 
@@ -477,46 +477,46 @@ testthat::test_that("recode.others_select_one works", {
                                           rep(other_requests$uuid[5]),rep(other_requests$uuid[6]),
                                           rep(other_requests$uuid[11]),rep(other_requests$uuid[12]) # existing other variable
                                           # existing
-                                          ),
-                                 loop_index = c(other_requests$loop_index[1:2],other_requests$loop_index[7:8], # true
-                                                rep(other_requests$loop_index[3]),rep(other_requests$loop_index[4]),
-                                                rep(other_requests$loop_index[9]),rep(other_requests$loop_index[10]), # invalid
-                                                rep(other_requests$loop_index[3]),rep(other_requests$loop_index[4]),
-                                                rep(other_requests$loop_index[9]),rep(other_requests$loop_index[10]), # invalid other variable
-                                                rep(other_requests$loop_index[5]),rep(other_requests$loop_index[6]),
-                                                rep(other_requests$loop_index[11]),rep(other_requests$loop_index[12]), # existing
-                                                rep(other_requests$loop_index[5]),rep(other_requests$loop_index[6]),
-                                                rep(other_requests$loop_index[11]),rep(other_requests$loop_index[12]) # existing other variable
-                                                # existing
-                                                ),
-                                 variable = c(other_requests$name[1:2],other_requests$name[7:8], # true
-                                              rep(other_requests$name[3]),rep(other_requests$name[4]),
-                                              rep(other_requests$name[9]),rep(other_requests$name[10]), # invalid
-                                              rep(other_requests$ref.name[3]),rep(other_requests$ref.name[4]),
-                                              rep(other_requests$ref.name[9]),rep(other_requests$ref.name[10]), # invalid other variable
-                                              rep(other_requests$name[5]),rep(other_requests$name[6]),
-                                              rep(other_requests$name[11]),rep(other_requests$name[12]), # existing
-                                              rep(other_requests$ref.name[5]),rep(other_requests$ref.name[6]),
-                                              rep(other_requests$ref.name[11]),rep(other_requests$ref.name[12]) # existing other variable
-                                              ),
-                                 old.value = c(other_requests$response.uk[1:2],other_requests$response.uk[7:8], # true
-                                               rep(other_requests$response.uk[3]),rep(other_requests$response.uk[4]),
-                                               rep(other_requests$response.uk[9]),rep(other_requests$response.uk[10]), # invalid
-                                               rep('other',4), # invalid other variable
-                                               rep(other_requests$response.uk[5]),rep(other_requests$response.uk[6]),
-                                               rep(other_requests$response.uk[11]),rep(other_requests$response.uk[12]), # existing
-                                               rep('other',4) # existing other variable
-                                               ),
-                                 new.value = c(other_requests$true.v[1:2],other_requests$true.v[7:8], # true
-                                               rep(NA,8), # invalid  variable
-                                               rep(NA, 4), # existing
-                                               'student_not_working','officially_employed_permanen_job','UKRs006888','UKRs006888'   # existing other variable
-                                               ),
-                                 issue = c(rep('Translating other response',4), # true
-                                           rep('Invalid other response', 8 ),
-                                           rep('Recoding other response', 8 )
-                                           )
-                                 ) %>%
+  ),
+  loop_index = c(other_requests$loop_index[1:2],other_requests$loop_index[7:8], # true
+                 rep(other_requests$loop_index[3]),rep(other_requests$loop_index[4]),
+                 rep(other_requests$loop_index[9]),rep(other_requests$loop_index[10]), # invalid
+                 rep(other_requests$loop_index[3]),rep(other_requests$loop_index[4]),
+                 rep(other_requests$loop_index[9]),rep(other_requests$loop_index[10]), # invalid other variable
+                 rep(other_requests$loop_index[5]),rep(other_requests$loop_index[6]),
+                 rep(other_requests$loop_index[11]),rep(other_requests$loop_index[12]), # existing
+                 rep(other_requests$loop_index[5]),rep(other_requests$loop_index[6]),
+                 rep(other_requests$loop_index[11]),rep(other_requests$loop_index[12]) # existing other variable
+                 # existing
+  ),
+  variable = c(other_requests$name[1:2],other_requests$name[7:8], # true
+               rep(other_requests$name[3]),rep(other_requests$name[4]),
+               rep(other_requests$name[9]),rep(other_requests$name[10]), # invalid
+               rep(other_requests$ref.name[3]),rep(other_requests$ref.name[4]),
+               rep(other_requests$ref.name[9]),rep(other_requests$ref.name[10]), # invalid other variable
+               rep(other_requests$name[5]),rep(other_requests$name[6]),
+               rep(other_requests$name[11]),rep(other_requests$name[12]), # existing
+               rep(other_requests$ref.name[5]),rep(other_requests$ref.name[6]),
+               rep(other_requests$ref.name[11]),rep(other_requests$ref.name[12]) # existing other variable
+  ),
+  old.value = c(other_requests$response.uk[1:2],other_requests$response.uk[7:8], # true
+                rep(other_requests$response.uk[3]),rep(other_requests$response.uk[4]),
+                rep(other_requests$response.uk[9]),rep(other_requests$response.uk[10]), # invalid
+                rep('other',4), # invalid other variable
+                rep(other_requests$response.uk[5]),rep(other_requests$response.uk[6]),
+                rep(other_requests$response.uk[11]),rep(other_requests$response.uk[12]), # existing
+                rep('other',4) # existing other variable
+  ),
+  new.value = c(other_requests$true.v[1:2],other_requests$true.v[7:8], # true
+                rep(NA,8), # invalid  variable
+                rep(NA, 4), # existing
+                'student_not_working','officially_employed_permanen_job','UKRs006888','UKRs006888'   # existing other variable
+  ),
+  issue = c(rep('Translating other response',4), # true
+            rep('Invalid other response', 8 ),
+            rep('Recoding other response', 8 )
+  )
+  ) %>%
     dplyr::tibble()
 
   testthat::expect_equal(actual_output, expected_output)
@@ -556,7 +556,7 @@ testthat::test_that("recode.others_select_multiple works", {
     dplyr::rename(uniqui = uuid) %>%
     dplyr::mutate(check = 2)
 
-  actual_output <- recode.others_select_multiple(test_data,other_requests, tool.survey_others=tool.survey, tool.choices_others = tool.choices)
+  actual_output <- recode.others_select_multiple(test_data,other_requests, tool.survey_others=tool.survey, tool.choices_others = tool.choices, is.loop =F)
 
   expected_output <-  data.frame(uniqui = c(other_requests$uniqui[1:2], rep(c('644ec1bf-4fec-4e93-b088-676dd2ae52ec','2a6bacd0-6a4d-420f-9463-cbf8a66cdb48'), 11),
                                             rep('f79999d6-192f-4b9b-aee9-5f613bd4e770',8)),
@@ -577,14 +577,14 @@ testthat::test_that("recode.others_select_multiple works", {
                                               'q10_2_1_discrimination_idp','q10_2_1_discrimination_idp/yes_we_feel_discriminated_against_when_trying_to_access_basic_services',
                                               'q10_2_1_discrimination_idp/other','q10_2_1_1_discrimination_idp_other','q2_4_3_main_cause',
                                               'q2_4_3_main_cause/security_considerations','q2_4_3_main_cause/other','q2_4_3_1_main_cause_other'
-                                              ),
+                                 ),
                                  old.value = c(other_requests$response.uk[1:2],'other','other','0','0','0','0','0','0','0','0','0','0','0',
                                                '0','1','1','Ничего не влияет','Нет негативных факторов','0','0','0','0','other','0','1',
                                                'Так зі сторони проживаючих тут студентів','other','0','1','Окупована територія'
-                                               ),
+                                 ),
                                  new.value = c(other_requests$true.v[1:2], rep(NA,22),'yes_we_feel_discriminated_against_when_trying_to_access_basic_services',
                                                '1','0',NA,'security_considerations','1','0',NA
-                                               ),
+                                 ),
                                  issue = c(rep('Translating other response',2),rep('Invalid other response',22),
                                            rep('Recoding other response',8))
   ) %>%
@@ -596,7 +596,7 @@ testthat::test_that("recode.others_select_multiple works", {
   other_requests2 <- other_requests
   other_requests2$existing.v[5] <- 'test_fake'
 
-  testthat::expect_error(recode.others_select_multiple(test_data,other_requests2, tool.survey_others=tool.survey, tool.choices_others = tool.choices))
+  testthat::expect_error(recode.others_select_multiple(test_data,other_requests2, tool.survey_others=tool.survey, tool.choices_others = tool.choices, is.loop =F))
 
 
   # if the multiple choice also exists
@@ -636,7 +636,7 @@ testthat::test_that("recode.others_select_multiple works", {
   ) %>%
     dplyr::tibble()
 
-  actual_output <- recode.others_select_multiple(test_data,other_requests, tool.survey_others=tool.survey, tool.choices_others = tool.choices)
+  actual_output <- recode.others_select_multiple(test_data,other_requests, tool.survey_others=tool.survey, tool.choices_others = tool.choices, is.loop =F)
 
   testthat::expect_equal(actual_output, expected_output)
 
@@ -645,33 +645,33 @@ testthat::test_that("recode.others_select_multiple works", {
 
   other_requests$uniqui[4:5]= 'fake_test'
 
-  actual_output <- recode.others_select_multiple(test_data,other_requests, tool.survey_others=tool.survey, tool.choices_others = tool.choices)
+  actual_output <- recode.others_select_multiple(test_data,other_requests, tool.survey_others=tool.survey, tool.choices_others = tool.choices, is.loop =F)
 
   expected_output <-  data.frame(uniqui = c(other_requests$uniqui[1:2], rep(c('644ec1bf-4fec-4e93-b088-676dd2ae52ec'), 11),
                                             rep('f79999d6-192f-4b9b-aee9-5f613bd4e770',4)
-                                            ),
-                                 loop_index = as.character(rep(NA,17)),
-                                 variable = c(other_requests$name[1:2], 'q10_1_3_relationship_negativ_factors',
-                                              'q10_1_3_relationship_negativ_factors/a_lack_of_sense_of_trust_between_the_idps_and_the_nonidps',
-                                              'q10_1_3_relationship_negativ_factors/different_cultural_identities',
-                                              'q10_1_3_relationship_negativ_factors/different_language',
-                                              'q10_1_3_relationship_negativ_factors/stereotypes_against_each_other',
-                                              'q10_1_3_relationship_negativ_factors/a_lack_of_willingness_from_both_groups_to_interac',
-                                              'q10_1_3_relationship_negativ_factors/a_perceived_lack_of_proactivity_from_the_idps_in_trying_to_find_work',
-                                              'q10_1_3_relationship_negativ_factors/other',
-                                              'q10_1_3_1_relationship_negativ_factors_other',
-                                              'q10_1_3_relationship_negativ_factors/do_not_know',
-                                              'q10_1_3_relationship_negativ_factors/prefer_not_to_answer','q2_4_3_main_cause',
-                                              'q2_4_3_main_cause/security_considerations','q2_4_3_main_cause/other',
-                                              'q2_4_3_1_main_cause_other'
-                                 ),
-                                 old.value = c(other_requests$response.uk[1:2],'other','0','0','0','0','0','0',
-                                              '1','Ничего не влияет','0','0','other','0','1','Окупована територія'
-                                 ),
-                                 new.value = c(other_requests$true.v[1:2],rep(NA,11),'security_considerations','1','0',NA
-                                 ),
-                                 issue = c(rep('Translating other response',2),rep('Invalid other response',11),
-                                           rep('Recoding other response',4))
+  ),
+  loop_index = as.character(rep(NA,17)),
+  variable = c(other_requests$name[1:2], 'q10_1_3_relationship_negativ_factors',
+               'q10_1_3_relationship_negativ_factors/a_lack_of_sense_of_trust_between_the_idps_and_the_nonidps',
+               'q10_1_3_relationship_negativ_factors/different_cultural_identities',
+               'q10_1_3_relationship_negativ_factors/different_language',
+               'q10_1_3_relationship_negativ_factors/stereotypes_against_each_other',
+               'q10_1_3_relationship_negativ_factors/a_lack_of_willingness_from_both_groups_to_interac',
+               'q10_1_3_relationship_negativ_factors/a_perceived_lack_of_proactivity_from_the_idps_in_trying_to_find_work',
+               'q10_1_3_relationship_negativ_factors/other',
+               'q10_1_3_1_relationship_negativ_factors_other',
+               'q10_1_3_relationship_negativ_factors/do_not_know',
+               'q10_1_3_relationship_negativ_factors/prefer_not_to_answer','q2_4_3_main_cause',
+               'q2_4_3_main_cause/security_considerations','q2_4_3_main_cause/other',
+               'q2_4_3_1_main_cause_other'
+  ),
+  old.value = c(other_requests$response.uk[1:2],'other','0','0','0','0','0','0',
+                '1','Ничего не влияет','0','0','other','0','1','Окупована територія'
+  ),
+  new.value = c(other_requests$true.v[1:2],rep(NA,11),'security_considerations','1','0',NA
+  ),
+  issue = c(rep('Translating other response',2),rep('Invalid other response',11),
+            rep('Recoding other response',4))
   ) %>%
     dplyr::tibble()
 
@@ -700,44 +700,44 @@ testthat::test_that("recode.others_select_multiple works", {
 
   # expect error if uuid in the loop isn't provided
 
-  testthat::expect_error(recode.others_select_multiple(test_data,other_requests, tool.survey_others=tool.survey, tool.choices_others = tool.choices))
+  testthat::expect_error(recode.others_select_multiple(test_data,other_requests, tool.survey_others=tool.survey, tool.choices_others = tool.choices, is.loop =F))
 
   # test if it runs well if everything is correct
 
   test_data <- test_data %>%
     dplyr::rename(uuid = `_submission__uuid`)
 
-  actual_output <- recode.others_select_multiple(test_data,other_requests, tool.survey_others=tool.survey, tool.choices_others = tool.choices)
+  actual_output <- recode.others_select_multiple(test_data,other_requests, tool.survey_others=tool.survey, tool.choices_others = tool.choices, is.loop =F)
 
 
   expected_output <-  data.frame(uuid = c(other_requests$uuid[1:2], rep(c('2a7ab223-bc9e-4f15-ace2-feb857ac7742','e489957a-65d5-4777-b40b-6084a9559b82'), 13),
-                                            rep('5f5bac4d-b250-41dc-93de-1b27043a2869',4),rep('efab8f40-dcb4-47c6-ba3f-fd89237a6f14',4)
-                                            ),
-                                 uniqui = c(other_requests$uniqui[1:2], rep(c(670,1210), 13),
-                                                rep(494,4),rep(1168,4)
-                                 ),
-                                 variable = c(other_requests$name[1:2], rep('q2_1_4_members_vulnerabilities',2),
-                                              rep('q2_1_4_members_vulnerabilities/none',2), rep('q2_1_4_members_vulnerabilities/chronic_illness_which_affects_the_quality_of_life',2),
-                                              rep('q2_1_4_members_vulnerabilities/mental_health_concerns',2), rep('q2_1_4_members_vulnerabilities/person_with_disabilities',2),
-                                              rep('q2_1_4_members_vulnerabilities/older_person',2), rep('q2_1_4_members_vulnerabilities/ethnic_minorities',2),
-                                              rep('q2_1_4_members_vulnerabilities/pregnant_or_lactating',2),rep('q2_1_4_members_vulnerabilities/seperated_or_orphan_child',2),
-                                              rep('q2_1_4_members_vulnerabilities/other',2), rep('q2_1_4_1_members_vulnerabilities_other',2),
-                                              rep('q2_1_4_members_vulnerabilities/dont_know',2), rep('q2_1_4_members_vulnerabilities/prefer_not_to_answer',2),
-                                              'q2_1_4_members_vulnerabilities','q2_1_4_members_vulnerabilities/person_with_disabilities',
-                                              'q2_1_4_members_vulnerabilities/other','q2_1_4_1_members_vulnerabilities_other',
-                                              'q2_1_4_members_vulnerabilities','q2_1_4_members_vulnerabilities/person_with_disabilities',
-                                              'q2_1_4_members_vulnerabilities/other','q2_1_4_1_members_vulnerabilities_other'
-                                 ),
-                                 old.value = c(other_requests$response.uk[1:2],'other','other','0','0','0','0','0','0','0','0','0','0',
-                                               '0','0','0','0','0','0','1','1','Важке інфікційне захворювання','У лікарні не був дуже давно',
-                                               '0','0','0','0','other','0','1','3 група інвалідності',
-                                               'chronic_illness_which_affects_the_quality_of_life other','0','1','Оформлюють інвалідність'
-                                               ),
-                                 new.value = c('IDP cannot run the business because of the war','There is a disease, can not work',rep(NA,26),'person_with_disabilities','1','0',NA,
-                                               'chronic_illness_which_affects_the_quality_of_life person_with_disabilities','1','0',NA
-                                 ),
-                                 issue = c(rep('Translating other response',2),rep('Invalid other response',26),rep('Recoding other response',8))
-                                 ) %>%
+                                          rep('5f5bac4d-b250-41dc-93de-1b27043a2869',4),rep('efab8f40-dcb4-47c6-ba3f-fd89237a6f14',4)
+  ),
+  uniqui = c(other_requests$uniqui[1:2], rep(c(670,1210), 13),
+             rep(494,4),rep(1168,4)
+  ),
+  variable = c(other_requests$name[1:2], rep('q2_1_4_members_vulnerabilities',2),
+               rep('q2_1_4_members_vulnerabilities/none',2), rep('q2_1_4_members_vulnerabilities/chronic_illness_which_affects_the_quality_of_life',2),
+               rep('q2_1_4_members_vulnerabilities/mental_health_concerns',2), rep('q2_1_4_members_vulnerabilities/person_with_disabilities',2),
+               rep('q2_1_4_members_vulnerabilities/older_person',2), rep('q2_1_4_members_vulnerabilities/ethnic_minorities',2),
+               rep('q2_1_4_members_vulnerabilities/pregnant_or_lactating',2),rep('q2_1_4_members_vulnerabilities/seperated_or_orphan_child',2),
+               rep('q2_1_4_members_vulnerabilities/other',2), rep('q2_1_4_1_members_vulnerabilities_other',2),
+               rep('q2_1_4_members_vulnerabilities/dont_know',2), rep('q2_1_4_members_vulnerabilities/prefer_not_to_answer',2),
+               'q2_1_4_members_vulnerabilities','q2_1_4_members_vulnerabilities/person_with_disabilities',
+               'q2_1_4_members_vulnerabilities/other','q2_1_4_1_members_vulnerabilities_other',
+               'q2_1_4_members_vulnerabilities','q2_1_4_members_vulnerabilities/person_with_disabilities',
+               'q2_1_4_members_vulnerabilities/other','q2_1_4_1_members_vulnerabilities_other'
+  ),
+  old.value = c(other_requests$response.uk[1:2],'other','other','0','0','0','0','0','0','0','0','0','0',
+                '0','0','0','0','0','0','1','1','Важке інфікційне захворювання','У лікарні не був дуже давно',
+                '0','0','0','0','other','0','1','3 група інвалідності',
+                'chronic_illness_which_affects_the_quality_of_life other','0','1','Оформлюють інвалідність'
+  ),
+  new.value = c('IDP cannot run the business because of the war','There is a disease, can not work',rep(NA,26),'person_with_disabilities','1','0',NA,
+                'chronic_illness_which_affects_the_quality_of_life person_with_disabilities','1','0',NA
+  ),
+  issue = c(rep('Translating other response',2),rep('Invalid other response',26),rep('Recoding other response',8))
+  ) %>%
     dplyr::tibble()
 
   testthat::expect_equal(actual_output, expected_output)
@@ -773,7 +773,7 @@ testthat::test_that("recode.others works", {
     dplyr::mutate(check = 2)
 
 
-  actual_output <- recode.others(test_data,other_requests, tool.choices = tool.choices, tool.survey=tool.survey)
+  actual_output <- recode.others(test_data,other_requests, tool.choices = tool.choices, tool.survey=tool.survey, is.loop =F)
 
   expected_output <-  data.frame(uuid = c('2343f19e-819c-4f1f-b827-cff4d9c7a953','db187669-7f5d-4d8b-9cba-aa212fd44da9',
                                           rep(c('bd005032-6f63-455f-8202-313583a128b1','f903166e-abc9-4258-848b-77ada6987d31'),2),
@@ -781,47 +781,47 @@ testthat::test_that("recode.others works", {
                                           '10cef1b0-82ab-4cc2-bd59-bf9ade4fd1b6','7a526721-e59d-4bef-aa69-d80f9a9558b5',
                                           rep(c('644ec1bf-4fec-4e93-b088-676dd2ae52ec','2a6bacd0-6a4d-420f-9463-cbf8a66cdb48'),11),
                                           rep('f79999d6-192f-4b9b-aee9-5f613bd4e770',8)
-                                          ),
-                                 uniqui = c('2343f19e-819c-4f1f-b827-cff4d9c7a953','db187669-7f5d-4d8b-9cba-aa212fd44da9',
-                                            rep(c('bd005032-6f63-455f-8202-313583a128b1','f903166e-abc9-4258-848b-77ada6987d31'),2),
-                                            rep(c('a46a1c10-bf18-4594-a0be-99447fa22116','51862558-1b68-466a-8e71-be2817dce5aa'),2),
-                                            '10cef1b0-82ab-4cc2-bd59-bf9ade4fd1b6','7a526721-e59d-4bef-aa69-d80f9a9558b5',
-                                            rep(c('644ec1bf-4fec-4e93-b088-676dd2ae52ec','2a6bacd0-6a4d-420f-9463-cbf8a66cdb48'),11),
-                                            rep('f79999d6-192f-4b9b-aee9-5f613bd4e770',8)
-                                 ),
-                                 variable = c(rep('q0_4_2_1_center_idp_other',2),rep('q7_2_2_1_initiate_compensation_other',2),
-                                              rep('q7_2_2_initiate_compensation',2), rep('q0_4_2_1_center_idp_other',2),
-                                              rep('q0_4_2_center_idp',2), rep('q2_4_3_1_main_cause_other',2),
-                                              rep('q10_1_3_relationship_negativ_factors',2),
-                                              rep('q10_1_3_relationship_negativ_factors/a_lack_of_sense_of_trust_between_the_idps_and_the_nonidps',2),
-                                              rep('q10_1_3_relationship_negativ_factors/different_cultural_identities',2),
-                                              rep('q10_1_3_relationship_negativ_factors/different_language',2),
-                                              rep('q10_1_3_relationship_negativ_factors/stereotypes_against_each_other',2),
-                                              rep('q10_1_3_relationship_negativ_factors/a_lack_of_willingness_from_both_groups_to_interac',2),
-                                              rep('q10_1_3_relationship_negativ_factors/a_perceived_lack_of_proactivity_from_the_idps_in_trying_to_find_work',2),
-                                              rep('q10_1_3_relationship_negativ_factors/other',2),rep('q10_1_3_1_relationship_negativ_factors_other',2),
-                                              rep('q10_1_3_relationship_negativ_factors/do_not_know',2),rep('q10_1_3_relationship_negativ_factors/prefer_not_to_answer',2),
-                                              'q10_2_1_discrimination_idp','q10_2_1_discrimination_idp/yes_we_feel_discriminated_against_when_trying_to_access_basic_services',
-                                              'q10_2_1_discrimination_idp/other','q10_2_1_1_discrimination_idp_other',
-                                              'q2_4_3_main_cause','q2_4_3_main_cause/security_considerations',
-                                              'q2_4_3_main_cause/other','q2_4_3_1_main_cause_other'
-                                 ),
-                                 old.value = c('Релігійна громада першої християнської церкви живого Бога м. Мукачево',
-                                               'Релігійна громада першої Християнської Євангельської церкви Живого Бога у м.Мукачева',
-                                               'Ніхто не знає чи хтось там живе','Респондент не верит в помощь от государства','other',
-                                               'other','29','29','other','other','Евакуировали из-за травмы','В целях обследования','other',
-                                               'other','0','0','0','0','0','0','0','0','0','0','0','0','1','1','Ничего не влияет',
-                                               'Нет негативных факторов','0','0','0','0','other','0','1',
-                                               'Так зі сторони проживаючих тут студентів','other','0','1','Окупована територія'),
-                                 new.value = c('Religious community of the First Christian Church of the Living God in Mukachevo',
-                                               'Religious community of the First Christian Evangelical Church of the Living God in Mukachevo',
-                                               rep(NA,6),'UKRs006888','UKRs006888','evacuated due to injury','For the purpose of the survey',
-                                               rep(NA,22),'yes_we_feel_discriminated_against_when_trying_to_access_basic_services','1','0',
-                                               NA,'security_considerations','1','0',NA),
-                                 issue = c(rep('Translating other response',2),rep('Invalid other response',4),rep('Recoding other response',4),
-                                           rep('Translating other response',2),rep('Invalid other response',22),rep('Recoding other response',8)
-                                           )
-                                 ) %>%
+  ),
+  uniqui = c('2343f19e-819c-4f1f-b827-cff4d9c7a953','db187669-7f5d-4d8b-9cba-aa212fd44da9',
+             rep(c('bd005032-6f63-455f-8202-313583a128b1','f903166e-abc9-4258-848b-77ada6987d31'),2),
+             rep(c('a46a1c10-bf18-4594-a0be-99447fa22116','51862558-1b68-466a-8e71-be2817dce5aa'),2),
+             '10cef1b0-82ab-4cc2-bd59-bf9ade4fd1b6','7a526721-e59d-4bef-aa69-d80f9a9558b5',
+             rep(c('644ec1bf-4fec-4e93-b088-676dd2ae52ec','2a6bacd0-6a4d-420f-9463-cbf8a66cdb48'),11),
+             rep('f79999d6-192f-4b9b-aee9-5f613bd4e770',8)
+  ),
+  variable = c(rep('q0_4_2_1_center_idp_other',2),rep('q7_2_2_1_initiate_compensation_other',2),
+               rep('q7_2_2_initiate_compensation',2), rep('q0_4_2_1_center_idp_other',2),
+               rep('q0_4_2_center_idp',2), rep('q2_4_3_1_main_cause_other',2),
+               rep('q10_1_3_relationship_negativ_factors',2),
+               rep('q10_1_3_relationship_negativ_factors/a_lack_of_sense_of_trust_between_the_idps_and_the_nonidps',2),
+               rep('q10_1_3_relationship_negativ_factors/different_cultural_identities',2),
+               rep('q10_1_3_relationship_negativ_factors/different_language',2),
+               rep('q10_1_3_relationship_negativ_factors/stereotypes_against_each_other',2),
+               rep('q10_1_3_relationship_negativ_factors/a_lack_of_willingness_from_both_groups_to_interac',2),
+               rep('q10_1_3_relationship_negativ_factors/a_perceived_lack_of_proactivity_from_the_idps_in_trying_to_find_work',2),
+               rep('q10_1_3_relationship_negativ_factors/other',2),rep('q10_1_3_1_relationship_negativ_factors_other',2),
+               rep('q10_1_3_relationship_negativ_factors/do_not_know',2),rep('q10_1_3_relationship_negativ_factors/prefer_not_to_answer',2),
+               'q10_2_1_discrimination_idp','q10_2_1_discrimination_idp/yes_we_feel_discriminated_against_when_trying_to_access_basic_services',
+               'q10_2_1_discrimination_idp/other','q10_2_1_1_discrimination_idp_other',
+               'q2_4_3_main_cause','q2_4_3_main_cause/security_considerations',
+               'q2_4_3_main_cause/other','q2_4_3_1_main_cause_other'
+  ),
+  old.value = c('Релігійна громада першої християнської церкви живого Бога м. Мукачево',
+                'Релігійна громада першої Християнської Євангельської церкви Живого Бога у м.Мукачева',
+                'Ніхто не знає чи хтось там живе','Респондент не верит в помощь от государства','other',
+                'other','29','29','other','other','Евакуировали из-за травмы','В целях обследования','other',
+                'other','0','0','0','0','0','0','0','0','0','0','0','0','1','1','Ничего не влияет',
+                'Нет негативных факторов','0','0','0','0','other','0','1',
+                'Так зі сторони проживаючих тут студентів','other','0','1','Окупована територія'),
+  new.value = c('Religious community of the First Christian Church of the Living God in Mukachevo',
+                'Religious community of the First Christian Evangelical Church of the Living God in Mukachevo',
+                rep(NA,6),'UKRs006888','UKRs006888','evacuated due to injury','For the purpose of the survey',
+                rep(NA,22),'yes_we_feel_discriminated_against_when_trying_to_access_basic_services','1','0',
+                NA,'security_considerations','1','0',NA),
+  issue = c(rep('Translating other response',2),rep('Invalid other response',4),rep('Recoding other response',4),
+            rep('Translating other response',2),rep('Invalid other response',22),rep('Recoding other response',8)
+  )
+  ) %>%
     dplyr::tibble()
 
   testthat::expect_equal(actual_output, expected_output)
@@ -832,7 +832,7 @@ testthat::test_that("recode.others works", {
   other_requests <- other_requests %>%
     dplyr::rename(fake_column = existing.v)
 
-  testthat::expect_error(recode.others(test_data,other_requests, tool.choices = tool.choices, tool.survey=tool.survey))
+  testthat::expect_error(recode.others(test_data,other_requests, tool.choices = tool.choices, tool.survey=tool.survey, is.loop = F))
 
 
   # test if renaming works
@@ -842,7 +842,7 @@ testthat::test_that("recode.others works", {
                   invalid.other = invalid.v,
                   true.other = true.v)
 
-  actual_output <- recode.others(test_data,other_requests, tool.choices = tool.choices, tool.survey=tool.survey)
+  actual_output <- recode.others(test_data,other_requests, tool.choices = tool.choices, tool.survey=tool.survey, is.loop =F)
 
   testthat::expect_equal(actual_output, expected_output)
 
@@ -852,7 +852,7 @@ testthat::test_that("recode.others works", {
   other_requests_test <- other_requests %>%
     dplyr::select(-check)
 
-  testthat::expect_error(recode.others(test_data,other_requests_test, tool.choices = tool.choices, tool.survey=tool.survey))
+  testthat::expect_error(recode.others(test_data,other_requests_test, tool.choices = tool.choices, tool.survey=tool.survey, is.loop = F))
 
 
   # check if it works with fake IDs
@@ -860,7 +860,7 @@ testthat::test_that("recode.others works", {
 
   other_requests$uuid[10:11] <- c('fake_id','fake_id_2')
 
-  actual_output <- suppressWarnings(recode.others(test_data,other_requests, tool.choices = tool.choices, tool.survey=tool.survey))
+  actual_output <- suppressWarnings(recode.others(test_data,other_requests, tool.choices = tool.choices, tool.survey=tool.survey, is.loop = F))
 
   expected_output <-  data.frame(uuid = c('2343f19e-819c-4f1f-b827-cff4d9c7a953','db187669-7f5d-4d8b-9cba-aa212fd44da9',
                                           rep(c('bd005032-6f63-455f-8202-313583a128b1','f903166e-abc9-4258-848b-77ada6987d31'),2),
@@ -868,42 +868,42 @@ testthat::test_that("recode.others works", {
                                           '10cef1b0-82ab-4cc2-bd59-bf9ade4fd1b6','7a526721-e59d-4bef-aa69-d80f9a9558b5',
                                           rep(c('644ec1bf-4fec-4e93-b088-676dd2ae52ec'),11),
                                           rep('f79999d6-192f-4b9b-aee9-5f613bd4e770',4)
-                                          ),
-                                 uniqui = c('2343f19e-819c-4f1f-b827-cff4d9c7a953','db187669-7f5d-4d8b-9cba-aa212fd44da9',
-                                            rep(c('bd005032-6f63-455f-8202-313583a128b1','f903166e-abc9-4258-848b-77ada6987d31'),2),
-                                            rep(c('a46a1c10-bf18-4594-a0be-99447fa22116','51862558-1b68-466a-8e71-be2817dce5aa'),2),
-                                            '10cef1b0-82ab-4cc2-bd59-bf9ade4fd1b6','7a526721-e59d-4bef-aa69-d80f9a9558b5',
-                                            rep(c('644ec1bf-4fec-4e93-b088-676dd2ae52ec'),11),
-                                            rep('f79999d6-192f-4b9b-aee9-5f613bd4e770',4)
-                                            ),
-                                 variable = c(rep('q0_4_2_1_center_idp_other',2),rep('q7_2_2_1_initiate_compensation_other',2),
-                                              rep('q7_2_2_initiate_compensation',2), rep('q0_4_2_1_center_idp_other',2),
-                                              rep('q0_4_2_center_idp',2), rep('q2_4_3_1_main_cause_other',2),
-                                              'q10_1_3_relationship_negativ_factors',
-                                              'q10_1_3_relationship_negativ_factors/a_lack_of_sense_of_trust_between_the_idps_and_the_nonidps',
-                                              'q10_1_3_relationship_negativ_factors/different_cultural_identities',
-                                              'q10_1_3_relationship_negativ_factors/different_language',
-                                              'q10_1_3_relationship_negativ_factors/stereotypes_against_each_other',
-                                              'q10_1_3_relationship_negativ_factors/a_lack_of_willingness_from_both_groups_to_interac',
-                                              'q10_1_3_relationship_negativ_factors/a_perceived_lack_of_proactivity_from_the_idps_in_trying_to_find_work',
-                                              'q10_1_3_relationship_negativ_factors/other','q10_1_3_1_relationship_negativ_factors_other',
-                                              'q10_1_3_relationship_negativ_factors/do_not_know','q10_1_3_relationship_negativ_factors/prefer_not_to_answer',
-                                              'q2_4_3_main_cause','q2_4_3_main_cause/security_considerations',
-                                              'q2_4_3_main_cause/other','q2_4_3_1_main_cause_other'
-                                 ),
-                                 old.value = c('Релігійна громада першої християнської церкви живого Бога м. Мукачево','Релігійна громада першої Християнської Євангельської церкви Живого Бога у м.Мукачева',
-                                               'Ніхто не знає чи хтось там живе','Респондент не верит в помощь от государства','other','other','29','29','other',
-                                               'other','Евакуировали из-за травмы','В целях обследования','other','0','0','0','0','0','0','1','Ничего не влияет','0',
-                                               '0','other','0','1','Окупована територія'),
-                                 new.value = c('Religious community of the First Christian Church of the Living God in Mukachevo',
-                                               'Religious community of the First Christian Evangelical Church of the Living God in Mukachevo',
-                                               rep(NA,6),'UKRs006888','UKRs006888','evacuated due to injury','For the purpose of the survey',
-                                               rep(NA,11),'security_considerations','1','0',NA
-                                               ),
-                                 issue = c(rep('Translating other response',2),rep('Invalid other response',4),rep('Recoding other response',4),
-                                           rep('Translating other response',2),rep('Invalid other response',11),rep('Recoding other response',4)
-                                           )
-                                 ) %>%
+  ),
+  uniqui = c('2343f19e-819c-4f1f-b827-cff4d9c7a953','db187669-7f5d-4d8b-9cba-aa212fd44da9',
+             rep(c('bd005032-6f63-455f-8202-313583a128b1','f903166e-abc9-4258-848b-77ada6987d31'),2),
+             rep(c('a46a1c10-bf18-4594-a0be-99447fa22116','51862558-1b68-466a-8e71-be2817dce5aa'),2),
+             '10cef1b0-82ab-4cc2-bd59-bf9ade4fd1b6','7a526721-e59d-4bef-aa69-d80f9a9558b5',
+             rep(c('644ec1bf-4fec-4e93-b088-676dd2ae52ec'),11),
+             rep('f79999d6-192f-4b9b-aee9-5f613bd4e770',4)
+  ),
+  variable = c(rep('q0_4_2_1_center_idp_other',2),rep('q7_2_2_1_initiate_compensation_other',2),
+               rep('q7_2_2_initiate_compensation',2), rep('q0_4_2_1_center_idp_other',2),
+               rep('q0_4_2_center_idp',2), rep('q2_4_3_1_main_cause_other',2),
+               'q10_1_3_relationship_negativ_factors',
+               'q10_1_3_relationship_negativ_factors/a_lack_of_sense_of_trust_between_the_idps_and_the_nonidps',
+               'q10_1_3_relationship_negativ_factors/different_cultural_identities',
+               'q10_1_3_relationship_negativ_factors/different_language',
+               'q10_1_3_relationship_negativ_factors/stereotypes_against_each_other',
+               'q10_1_3_relationship_negativ_factors/a_lack_of_willingness_from_both_groups_to_interac',
+               'q10_1_3_relationship_negativ_factors/a_perceived_lack_of_proactivity_from_the_idps_in_trying_to_find_work',
+               'q10_1_3_relationship_negativ_factors/other','q10_1_3_1_relationship_negativ_factors_other',
+               'q10_1_3_relationship_negativ_factors/do_not_know','q10_1_3_relationship_negativ_factors/prefer_not_to_answer',
+               'q2_4_3_main_cause','q2_4_3_main_cause/security_considerations',
+               'q2_4_3_main_cause/other','q2_4_3_1_main_cause_other'
+  ),
+  old.value = c('Релігійна громада першої християнської церкви живого Бога м. Мукачево','Релігійна громада першої Християнської Євангельської церкви Живого Бога у м.Мукачева',
+                'Ніхто не знає чи хтось там живе','Респондент не верит в помощь от государства','other','other','29','29','other',
+                'other','Евакуировали из-за травмы','В целях обследования','other','0','0','0','0','0','0','1','Ничего не влияет','0',
+                '0','other','0','1','Окупована територія'),
+  new.value = c('Religious community of the First Christian Church of the Living God in Mukachevo',
+                'Religious community of the First Christian Evangelical Church of the Living God in Mukachevo',
+                rep(NA,6),'UKRs006888','UKRs006888','evacuated due to injury','For the purpose of the survey',
+                rep(NA,11),'security_considerations','1','0',NA
+  ),
+  issue = c(rep('Translating other response',2),rep('Invalid other response',4),rep('Recoding other response',4),
+            rep('Translating other response',2),rep('Invalid other response',11),rep('Recoding other response',4)
+  )
+  ) %>%
     dplyr::tibble()
 
 
@@ -915,7 +915,7 @@ testthat::test_that("recode.others works", {
   other_requests$uuid <- 'fake_id_3'
 
 
-  testthat::expect_error(recode.others(test_data,other_requests, tool.choices = tool.choices, tool.survey=tool.survey))
+  testthat::expect_error(recode.others(test_data,other_requests, tool.choices = tool.choices, tool.survey=tool.survey, is.loop = F))
 
 
 
@@ -955,48 +955,48 @@ testthat::test_that("recode.others works", {
                                           'fa786ce0-df19-4af9-bca1-8b2d6f520589','fbc3020e-04f2-4ab5-b644-0d6934a947b7',
                                           rep(c('2a7ab223-bc9e-4f15-ace2-feb857ac7742','e489957a-65d5-4777-b40b-6084a9559b82'),13),
                                           rep('5f5bac4d-b250-41dc-93de-1b27043a2869',4), rep('efab8f40-dcb4-47c6-ba3f-fd89237a6f14',4)
-                                          ),
-                                 uniqui = c(1040,95, rep(c(331,241),2), rep(c(2802,486),2), 2718,666, rep(c(670,1210),13),
-                                            rep(494,4), rep(1168,4)
-                                            ),
-                                 loop_index = c(1040,95, rep(c(331,241),2), rep(c(2802,486),2), 2718,666, rep(c(670,1210),13),
-                                                  rep(494,4), rep(1168,4)
-                                                ),
-                                 variable = c(rep('q2_3_4_1_employment_situation_last_week_other',2),
-                                              'q2_3_7_1_sector_working_other','q2_3_8_1_sector_working_currently_other','q2_3_7_sector_working',
-                                              'q2_3_8_sector_working_currently',rep('q2_3_3_1_employment_situation_other',2),
-                                              rep('q2_3_3_employment_situation',2),'q2_3_5_1_unemployed_reasons_other','q2_3_6_1_underemployment_other',
-                                              rep('q2_1_4_members_vulnerabilities',2),rep('q2_1_4_members_vulnerabilities/none',2),
-                                              rep('q2_1_4_members_vulnerabilities/chronic_illness_which_affects_the_quality_of_life',2),
-                                              rep('q2_1_4_members_vulnerabilities/mental_health_concerns',2),
-                                              rep('q2_1_4_members_vulnerabilities/person_with_disabilities',2),
-                                              rep('q2_1_4_members_vulnerabilities/older_person',2),
-                                              rep('q2_1_4_members_vulnerabilities/ethnic_minorities',2),
-                                              rep('q2_1_4_members_vulnerabilities/pregnant_or_lactating',2),
-                                              rep('q2_1_4_members_vulnerabilities/seperated_or_orphan_child',2),
-                                              rep('q2_1_4_members_vulnerabilities/other',2),
-                                              rep('q2_1_4_1_members_vulnerabilities_other',2),
-                                              rep('q2_1_4_members_vulnerabilities/dont_know',2),rep('q2_1_4_members_vulnerabilities/prefer_not_to_answer',2),
-                                              'q2_1_4_members_vulnerabilities','q2_1_4_members_vulnerabilities/person_with_disabilities',
-                                              'q2_1_4_members_vulnerabilities/other','q2_1_4_1_members_vulnerabilities_other','q2_1_4_members_vulnerabilities',
-                                              'q2_1_4_members_vulnerabilities/person_with_disabilities','q2_1_4_members_vulnerabilities/other',
-                                              'q2_1_4_1_members_vulnerabilities_other'
-                                              ),
-                                 old.value = c('Працевлаштований, але зараз підприємство знаходиться на простої','Числиться за місцем проживання офіційно',
-                                               'В декретном отпуске','Не працюю','other','other','17 років, навчання в школі','Часний підприємиць','other','other',
-                                               'Не може вести свій бізнес через війну','Є захворювання не може працювати','other','other',
-                                               rep('0',16),'1','1','Важке інфікційне захворювання','У лікарні не був дуже давно',
-                                               '0','0','0','0','other','0','1','3 група інвалідності',
-                                               'chronic_illness_which_affects_the_quality_of_life other','0','1','Оформлюють інвалідність'),
-                                 new.value = c('Employed, but now the enterprise is idle','listed at the place of residence officially',
-                                               rep(NA,6),'student_not_working','officially_employed_permanen_job','IDP cannot run the business because of the war',
-                                               'There is a disease, can not work',rep(NA,26),'person_with_disabilities','1','0',NA,
-                                               'chronic_illness_which_affects_the_quality_of_life person_with_disabilities','1','0',NA
-                                               ),
-                                 issue = c(rep('Translating other response',2),rep('Invalid other response',4),rep('Recoding other response',4),
-                                           rep('Translating other response',2),rep('Invalid other response',26),rep('Recoding other response',8)
-                                 )
-                                 ) %>%
+  ),
+  uniqui = c(1040,95, rep(c(331,241),2), rep(c(2802,486),2), 2718,666, rep(c(670,1210),13),
+             rep(494,4), rep(1168,4)
+  ),
+  loop_index = c(1040,95, rep(c(331,241),2), rep(c(2802,486),2), 2718,666, rep(c(670,1210),13),
+                 rep(494,4), rep(1168,4)
+  ),
+  variable = c(rep('q2_3_4_1_employment_situation_last_week_other',2),
+               'q2_3_7_1_sector_working_other','q2_3_8_1_sector_working_currently_other','q2_3_7_sector_working',
+               'q2_3_8_sector_working_currently',rep('q2_3_3_1_employment_situation_other',2),
+               rep('q2_3_3_employment_situation',2),'q2_3_5_1_unemployed_reasons_other','q2_3_6_1_underemployment_other',
+               rep('q2_1_4_members_vulnerabilities',2),rep('q2_1_4_members_vulnerabilities/none',2),
+               rep('q2_1_4_members_vulnerabilities/chronic_illness_which_affects_the_quality_of_life',2),
+               rep('q2_1_4_members_vulnerabilities/mental_health_concerns',2),
+               rep('q2_1_4_members_vulnerabilities/person_with_disabilities',2),
+               rep('q2_1_4_members_vulnerabilities/older_person',2),
+               rep('q2_1_4_members_vulnerabilities/ethnic_minorities',2),
+               rep('q2_1_4_members_vulnerabilities/pregnant_or_lactating',2),
+               rep('q2_1_4_members_vulnerabilities/seperated_or_orphan_child',2),
+               rep('q2_1_4_members_vulnerabilities/other',2),
+               rep('q2_1_4_1_members_vulnerabilities_other',2),
+               rep('q2_1_4_members_vulnerabilities/dont_know',2),rep('q2_1_4_members_vulnerabilities/prefer_not_to_answer',2),
+               'q2_1_4_members_vulnerabilities','q2_1_4_members_vulnerabilities/person_with_disabilities',
+               'q2_1_4_members_vulnerabilities/other','q2_1_4_1_members_vulnerabilities_other','q2_1_4_members_vulnerabilities',
+               'q2_1_4_members_vulnerabilities/person_with_disabilities','q2_1_4_members_vulnerabilities/other',
+               'q2_1_4_1_members_vulnerabilities_other'
+  ),
+  old.value = c('Працевлаштований, але зараз підприємство знаходиться на простої','Числиться за місцем проживання офіційно',
+                'В декретном отпуске','Не працюю','other','other','17 років, навчання в школі','Часний підприємиць','other','other',
+                'Не може вести свій бізнес через війну','Є захворювання не може працювати','other','other',
+                rep('0',16),'1','1','Важке інфікційне захворювання','У лікарні не був дуже давно',
+                '0','0','0','0','other','0','1','3 група інвалідності',
+                'chronic_illness_which_affects_the_quality_of_life other','0','1','Оформлюють інвалідність'),
+  new.value = c('Employed, but now the enterprise is idle','listed at the place of residence officially',
+                rep(NA,6),'student_not_working','officially_employed_permanen_job','IDP cannot run the business because of the war',
+                'There is a disease, can not work',rep(NA,26),'person_with_disabilities','1','0',NA,
+                'chronic_illness_which_affects_the_quality_of_life person_with_disabilities','1','0',NA
+  ),
+  issue = c(rep('Translating other response',2),rep('Invalid other response',4),rep('Recoding other response',4),
+            rep('Translating other response',2),rep('Invalid other response',26),rep('Recoding other response',8)
+  )
+  ) %>%
     dplyr::tibble() %>%
     dplyr::mutate(uniqui = as.character(uniqui),
                   loop_index = as.character(loop_index))
@@ -1022,28 +1022,28 @@ testthat::test_that("recode.others works", {
 
 
 
-  actual_output <- recode.others(test_data,other_requests, tool.choices = tool.choices, tool.survey=tool.survey)
+  actual_output <- recode.others(test_data,other_requests, tool.choices = tool.choices, tool.survey=tool.survey, is.loop = F)
 
   expected_output <- data.frame(uuid = c('2343f19e-819c-4f1f-b827-cff4d9c7a953','db187669-7f5d-4d8b-9cba-aa212fd44da9',
                                          rep(c('bd005032-6f63-455f-8202-313583a128b1','f903166e-abc9-4258-848b-77ada6987d31'),2),
                                          rep(c('a46a1c10-bf18-4594-a0be-99447fa22116','51862558-1b68-466a-8e71-be2817dce5aa'),2)
-                                         ),
-                                uniqui = c('2343f19e-819c-4f1f-b827-cff4d9c7a953','db187669-7f5d-4d8b-9cba-aa212fd44da9',
-                                           rep(c('bd005032-6f63-455f-8202-313583a128b1','f903166e-abc9-4258-848b-77ada6987d31'),2),
-                                           rep(c('a46a1c10-bf18-4594-a0be-99447fa22116','51862558-1b68-466a-8e71-be2817dce5aa'),2)
-                                           ),
-                                variable = c(rep('q0_4_2_1_center_idp_other',2),rep('q7_2_2_1_initiate_compensation_other',2),
-                                             rep('q7_2_2_initiate_compensation',2), rep('q0_4_2_1_center_idp_other',2),
-                                             rep('q0_4_2_center_idp',2)
-                                             ),
-                                old.value = c('Релігійна громада першої християнської церкви живого Бога м. Мукачево','Релігійна громада першої Християнської Євангельської церкви Живого Бога у м.Мукачева',
-                                              'Ніхто не знає чи хтось там живе','Респондент не верит в помощь от государства','other','other','29',
-                                              '29','other','other'
-                                              ),
-                                new.value = c('Religious community of the First Christian Church of the Living God in Mukachevo','Religious community of the First Christian Evangelical Church of the Living God in Mukachevo',
-                                              rep(NA,6),'UKRs006888','UKRs006888'),
-                                issue = c(rep('Translating other response',2),rep('Invalid other response',4),rep('Recoding other response',4))
-                                ) %>%
+  ),
+  uniqui = c('2343f19e-819c-4f1f-b827-cff4d9c7a953','db187669-7f5d-4d8b-9cba-aa212fd44da9',
+             rep(c('bd005032-6f63-455f-8202-313583a128b1','f903166e-abc9-4258-848b-77ada6987d31'),2),
+             rep(c('a46a1c10-bf18-4594-a0be-99447fa22116','51862558-1b68-466a-8e71-be2817dce5aa'),2)
+  ),
+  variable = c(rep('q0_4_2_1_center_idp_other',2),rep('q7_2_2_1_initiate_compensation_other',2),
+               rep('q7_2_2_initiate_compensation',2), rep('q0_4_2_1_center_idp_other',2),
+               rep('q0_4_2_center_idp',2)
+  ),
+  old.value = c('Релігійна громада першої християнської церкви живого Бога м. Мукачево','Релігійна громада першої Християнської Євангельської церкви Живого Бога у м.Мукачева',
+                'Ніхто не знає чи хтось там живе','Респондент не верит в помощь от государства','other','other','29',
+                '29','other','other'
+  ),
+  new.value = c('Religious community of the First Christian Church of the Living God in Mukachevo','Religious community of the First Christian Evangelical Church of the Living God in Mukachevo',
+                rep(NA,6),'UKRs006888','UKRs006888'),
+  issue = c(rep('Translating other response',2),rep('Invalid other response',4),rep('Recoding other response',4))
+  ) %>%
     dplyr::tibble()
 
   testthat::expect_equal(actual_output,expected_output)
@@ -1060,42 +1060,42 @@ testthat::test_that("recode.others works", {
     dplyr::mutate(check = 2)
 
 
-  actual_output <- recode.others(test_data,other_requests, tool.choices = tool.choices, tool.survey=tool.survey)
+  actual_output <- recode.others(test_data,other_requests, tool.choices = tool.choices, tool.survey=tool.survey, is.loop =F)
 
 
   expected_output <- data.frame(uuid = c('10cef1b0-82ab-4cc2-bd59-bf9ade4fd1b6','7a526721-e59d-4bef-aa69-d80f9a9558b5',
                                          rep(c('644ec1bf-4fec-4e93-b088-676dd2ae52ec','2a6bacd0-6a4d-420f-9463-cbf8a66cdb48'),11),
                                          rep('f79999d6-192f-4b9b-aee9-5f613bd4e770',8)
-                                         ),
-                                uniqui = c('10cef1b0-82ab-4cc2-bd59-bf9ade4fd1b6','7a526721-e59d-4bef-aa69-d80f9a9558b5',
-                                           rep(c('644ec1bf-4fec-4e93-b088-676dd2ae52ec','2a6bacd0-6a4d-420f-9463-cbf8a66cdb48'),11),
-                                           rep('f79999d6-192f-4b9b-aee9-5f613bd4e770',8)
-                                           ),
-                                variable = c(rep('q2_4_3_1_main_cause_other',2),
-                                             rep('q10_1_3_relationship_negativ_factors',2),
-                                             rep('q10_1_3_relationship_negativ_factors/a_lack_of_sense_of_trust_between_the_idps_and_the_nonidps',2),
-                                             rep('q10_1_3_relationship_negativ_factors/different_cultural_identities',2),
-                                             rep('q10_1_3_relationship_negativ_factors/different_language',2),
-                                             rep('q10_1_3_relationship_negativ_factors/stereotypes_against_each_other',2),
-                                             rep('q10_1_3_relationship_negativ_factors/a_lack_of_willingness_from_both_groups_to_interac',2),
-                                             rep('q10_1_3_relationship_negativ_factors/a_perceived_lack_of_proactivity_from_the_idps_in_trying_to_find_work',2),
-                                             rep('q10_1_3_relationship_negativ_factors/other',2),rep('q10_1_3_1_relationship_negativ_factors_other',2),
-                                             rep('q10_1_3_relationship_negativ_factors/do_not_know',2),rep('q10_1_3_relationship_negativ_factors/prefer_not_to_answer',2),
-                                             'q10_2_1_discrimination_idp','q10_2_1_discrimination_idp/yes_we_feel_discriminated_against_when_trying_to_access_basic_services',
-                                             'q10_2_1_discrimination_idp/other','q10_2_1_1_discrimination_idp_other',
-                                             'q2_4_3_main_cause','q2_4_3_main_cause/security_considerations',
-                                             'q2_4_3_main_cause/other','q2_4_3_1_main_cause_other'
-                                             ),
-                                old.value = c('Евакуировали из-за травмы','В целях обследования','other',
-                                              'other','0','0','0','0','0','0','0','0','0','0','0','0','1','1','Ничего не влияет',
-                                              'Нет негативных факторов','0','0','0','0','other','0','1',
-                                              'Так зі сторони проживаючих тут студентів','other','0','1','Окупована територія'),
-                                new.value = c('evacuated due to injury','For the purpose of the survey',
-                                              rep(NA,22),'yes_we_feel_discriminated_against_when_trying_to_access_basic_services','1','0',
-                                              NA,'security_considerations','1','0',NA),
-                                issue = c(rep('Translating other response',2),rep('Invalid other response',22),rep('Recoding other response',8)
-                                          )
-                                ) %>%
+  ),
+  uniqui = c('10cef1b0-82ab-4cc2-bd59-bf9ade4fd1b6','7a526721-e59d-4bef-aa69-d80f9a9558b5',
+             rep(c('644ec1bf-4fec-4e93-b088-676dd2ae52ec','2a6bacd0-6a4d-420f-9463-cbf8a66cdb48'),11),
+             rep('f79999d6-192f-4b9b-aee9-5f613bd4e770',8)
+  ),
+  variable = c(rep('q2_4_3_1_main_cause_other',2),
+               rep('q10_1_3_relationship_negativ_factors',2),
+               rep('q10_1_3_relationship_negativ_factors/a_lack_of_sense_of_trust_between_the_idps_and_the_nonidps',2),
+               rep('q10_1_3_relationship_negativ_factors/different_cultural_identities',2),
+               rep('q10_1_3_relationship_negativ_factors/different_language',2),
+               rep('q10_1_3_relationship_negativ_factors/stereotypes_against_each_other',2),
+               rep('q10_1_3_relationship_negativ_factors/a_lack_of_willingness_from_both_groups_to_interac',2),
+               rep('q10_1_3_relationship_negativ_factors/a_perceived_lack_of_proactivity_from_the_idps_in_trying_to_find_work',2),
+               rep('q10_1_3_relationship_negativ_factors/other',2),rep('q10_1_3_1_relationship_negativ_factors_other',2),
+               rep('q10_1_3_relationship_negativ_factors/do_not_know',2),rep('q10_1_3_relationship_negativ_factors/prefer_not_to_answer',2),
+               'q10_2_1_discrimination_idp','q10_2_1_discrimination_idp/yes_we_feel_discriminated_against_when_trying_to_access_basic_services',
+               'q10_2_1_discrimination_idp/other','q10_2_1_1_discrimination_idp_other',
+               'q2_4_3_main_cause','q2_4_3_main_cause/security_considerations',
+               'q2_4_3_main_cause/other','q2_4_3_1_main_cause_other'
+  ),
+  old.value = c('Евакуировали из-за травмы','В целях обследования','other',
+                'other','0','0','0','0','0','0','0','0','0','0','0','0','1','1','Ничего не влияет',
+                'Нет негативных факторов','0','0','0','0','other','0','1',
+                'Так зі сторони проживаючих тут студентів','other','0','1','Окупована територія'),
+  new.value = c('evacuated due to injury','For the purpose of the survey',
+                rep(NA,22),'yes_we_feel_discriminated_against_when_trying_to_access_basic_services','1','0',
+                NA,'security_considerations','1','0',NA),
+  issue = c(rep('Translating other response',2),rep('Invalid other response',22),rep('Recoding other response',8)
+  )
+  ) %>%
     dplyr::tibble()
 
   testthat::expect_equal(actual_output,expected_output)
@@ -1160,47 +1160,43 @@ testthat::test_that("recode.others works", {
   expected_output <-  data.frame(uuid = c('fa786ce0-df19-4af9-bca1-8b2d6f520589','fbc3020e-04f2-4ab5-b644-0d6934a947b7',
                                           rep(c('2a7ab223-bc9e-4f15-ace2-feb857ac7742','e489957a-65d5-4777-b40b-6084a9559b82'),13),
                                           rep('5f5bac4d-b250-41dc-93de-1b27043a2869',4), rep('efab8f40-dcb4-47c6-ba3f-fd89237a6f14',4)
-                                          ),
-                                 uniqui = c(2718,666, rep(c(670,1210),13),rep(494,4), rep(1168,4)),
-                                 loop_index = c(2718,666, rep(c(670,1210),13),rep(494,4), rep(1168,4)),
-                                 variable = c('q2_3_5_1_unemployed_reasons_other','q2_3_6_1_underemployment_other',
-                                              rep('q2_1_4_members_vulnerabilities',2),rep('q2_1_4_members_vulnerabilities/none',2),
-                                              rep('q2_1_4_members_vulnerabilities/chronic_illness_which_affects_the_quality_of_life',2),
-                                              rep('q2_1_4_members_vulnerabilities/mental_health_concerns',2),
-                                              rep('q2_1_4_members_vulnerabilities/person_with_disabilities',2),
-                                              rep('q2_1_4_members_vulnerabilities/older_person',2),
-                                              rep('q2_1_4_members_vulnerabilities/ethnic_minorities',2),
-                                              rep('q2_1_4_members_vulnerabilities/pregnant_or_lactating',2),
-                                              rep('q2_1_4_members_vulnerabilities/seperated_or_orphan_child',2),
-                                              rep('q2_1_4_members_vulnerabilities/other',2),
-                                              rep('q2_1_4_1_members_vulnerabilities_other',2),
-                                              rep('q2_1_4_members_vulnerabilities/dont_know',2),rep('q2_1_4_members_vulnerabilities/prefer_not_to_answer',2),
-                                              'q2_1_4_members_vulnerabilities','q2_1_4_members_vulnerabilities/person_with_disabilities',
-                                              'q2_1_4_members_vulnerabilities/other','q2_1_4_1_members_vulnerabilities_other','q2_1_4_members_vulnerabilities',
-                                              'q2_1_4_members_vulnerabilities/person_with_disabilities','q2_1_4_members_vulnerabilities/other',
-                                              'q2_1_4_1_members_vulnerabilities_other'
-                                              ),
-                                 old.value = c('Не може вести свій бізнес через війну','Є захворювання не може працювати','other','other',
-                                               rep('0',16),'1','1','Важке інфікційне захворювання','У лікарні не був дуже давно',
-                                               '0','0','0','0','other','0','1','3 група інвалідності',
-                                               'chronic_illness_which_affects_the_quality_of_life other','0','1','Оформлюють інвалідність'),
-                                 new.value = c('IDP cannot run the business because of the war',
-                                               'There is a disease, can not work',rep(NA,26),'person_with_disabilities','1','0',NA,
-                                               'chronic_illness_which_affects_the_quality_of_life person_with_disabilities','1','0',NA
-                                               ),
-                                 issue = c(rep('Translating other response',2),rep('Invalid other response',26),rep('Recoding other response',8))
-                                 ) %>%
+  ),
+  uniqui = c(2718,666, rep(c(670,1210),13),rep(494,4), rep(1168,4)),
+  loop_index = c(2718,666, rep(c(670,1210),13),rep(494,4), rep(1168,4)),
+  variable = c('q2_3_5_1_unemployed_reasons_other','q2_3_6_1_underemployment_other',
+               rep('q2_1_4_members_vulnerabilities',2),rep('q2_1_4_members_vulnerabilities/none',2),
+               rep('q2_1_4_members_vulnerabilities/chronic_illness_which_affects_the_quality_of_life',2),
+               rep('q2_1_4_members_vulnerabilities/mental_health_concerns',2),
+               rep('q2_1_4_members_vulnerabilities/person_with_disabilities',2),
+               rep('q2_1_4_members_vulnerabilities/older_person',2),
+               rep('q2_1_4_members_vulnerabilities/ethnic_minorities',2),
+               rep('q2_1_4_members_vulnerabilities/pregnant_or_lactating',2),
+               rep('q2_1_4_members_vulnerabilities/seperated_or_orphan_child',2),
+               rep('q2_1_4_members_vulnerabilities/other',2),
+               rep('q2_1_4_1_members_vulnerabilities_other',2),
+               rep('q2_1_4_members_vulnerabilities/dont_know',2),rep('q2_1_4_members_vulnerabilities/prefer_not_to_answer',2),
+               'q2_1_4_members_vulnerabilities','q2_1_4_members_vulnerabilities/person_with_disabilities',
+               'q2_1_4_members_vulnerabilities/other','q2_1_4_1_members_vulnerabilities_other','q2_1_4_members_vulnerabilities',
+               'q2_1_4_members_vulnerabilities/person_with_disabilities','q2_1_4_members_vulnerabilities/other',
+               'q2_1_4_1_members_vulnerabilities_other'
+  ),
+  old.value = c('Не може вести свій бізнес через війну','Є захворювання не може працювати','other','other',
+                rep('0',16),'1','1','Важке інфікційне захворювання','У лікарні не був дуже давно',
+                '0','0','0','0','other','0','1','3 група інвалідності',
+                'chronic_illness_which_affects_the_quality_of_life other','0','1','Оформлюють інвалідність'),
+  new.value = c('IDP cannot run the business because of the war',
+                'There is a disease, can not work',rep(NA,26),'person_with_disabilities','1','0',NA,
+                'chronic_illness_which_affects_the_quality_of_life person_with_disabilities','1','0',NA
+  ),
+  issue = c(rep('Translating other response',2),rep('Invalid other response',26),rep('Recoding other response',8))
+  ) %>%
     dplyr::tibble() %>%
     dplyr::mutate(uniqui = as.character(uniqui),
                   loop_index = as.character(loop_index))
 
   testthat::expect_equal(actual_output, expected_output)
 
-  })
-
-
-
-
+})
 
 
 
