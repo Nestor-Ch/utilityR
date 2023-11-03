@@ -12,6 +12,8 @@ LazyData: true
 Suggests: 
     dplyr,
     data.table,
+    plyr,
+    purrr,
     readxl,
     stringr,
     svDialogs,

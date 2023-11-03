@@ -8,7 +8,7 @@ recode.others(
   data,
   or.edited,
   orig_response_col = "response.uk",
-  is.loop = F,
+  is.loop,
   print_debug = T,
   tool.survey,
   tool.choices

@@ -10,6 +10,8 @@
 #' @param ignore_case Whether `code` should be matched case-insensitively. Defaults to True.
 #' @param CL_COLS string of columns of the cleaning log defauls to c("uuid","uniqui", "loop_index", "variable", "old.value", "new.value", "issue")
 #'
+#' @export
+#'
 #' @returns Dataframe containing cleaning log entries constructed from `data`.
 #'
 #' @examples
@@ -54,6 +56,8 @@ recode.set.NA.if <- function(data, variables, code, issue, ignore_case = T,
 #'
 #' @returns Dataframe containing cleaning log entries constructed from `data`.
 #'
+#' @export
+#'
 #' @examples
 #' \dontrun{
 #'  recode.set.NA.regex(data = dplyr::filter(raw.main, condition),
@@ -88,6 +92,8 @@ recode.set.NA.regex <- function(data, variables, pattern, issue,
 #'
 #' @returns Dataframe containing cleaning log entries constructed from `data`.
 #'
+#' @export
+#'
 #' @examples
 #' \dontrun{
 #'  recode.set.NA(data = dplyr::filter(raw.main, condition),
@@ -116,6 +122,8 @@ recode.set.NA <- function(data, variables, issue){
 #' @param CL_COLS string of columns of the cleaning log defauls to c("uuid","uniqui", "loop_index", "variable", "old.value", "new.value", "issue")
 #'
 #' @return Dataframe containing cleaning log entries constructed from `data`.
+#'
+#' @export
 #'
 #' @examples
 #' \dontrun{
@@ -159,6 +167,8 @@ recode.set.value.regex <- function(data, variables, pattern, new.value, issue, a
 #'
 #' @return Dataframe containing cleaning log entries constructed from `data`.
 #'
+#' @export
+#'
 #' @examples
 #' \dontrun{
 #' recode.multiple.set.NA(data = filter(raw.main, condition),
@@ -173,42 +183,42 @@ recode.multiple.set.NA <- function(data, variable, issue, other_var_name = NULL,
                 paste0(dplyr::setdiff(variable,names(data)),collapse=', ')))
   }else{
 
-  ccols <- colnames(data)[stringr::str_starts(colnames(data), paste0(variable, "/"))]
+    ccols <- colnames(data)[stringr::str_starts(colnames(data), paste0(variable, "/"))]
 
-  # filter out cases that already are NA
-  data <- data %>% dplyr::filter(!dplyr::if_all(dplyr::all_of(ccols), ~is.na(.)))
-  if(nrow(data)>0){
-    cl_cummulative <- data %>% dplyr::select(dplyr::any_of(c("uuid", 'uniqui',"loop_index", variable))) %>%
-      dplyr::mutate(variable = variable, old.value = !!rlang::sym(variable), new.value = NA, issue = issue) %>%
-      dplyr::select(dplyr::any_of(CL_COLS))
+    # filter out cases that already are NA
+    data <- data %>% dplyr::filter(!dplyr::if_all(dplyr::all_of(ccols), ~is.na(.)))
+    if(nrow(data)>0){
+      cl_cummulative <- data %>% dplyr::select(dplyr::any_of(c("uuid", 'uniqui',"loop_index", variable))) %>%
+        dplyr::mutate(variable = variable, old.value = !!rlang::sym(variable), new.value = NA, issue = issue) %>%
+        dplyr::select(dplyr::any_of(CL_COLS))
 
-    cl_choices <- data.frame()
-    for(col in ccols){
-      df <- data %>% dplyr::filter(!is.na(!!rlang::sym(col)))
-      if(nrow(df)>0){
-        cl <- df %>%
-          dplyr::mutate(variable = col, old.value = !!rlang::sym(col), new.value = NA, issue = issue) %>%
-          dplyr::select(dplyr::any_of(CL_COLS))
-
-        cl_choices <- rbind(cl_choices, cl)
-        # remove text from text other response if present
-        if(stringr::str_ends(col, "/other")){
-          other_var_name <- ifelse(is.null(other_var_name), paste0(variable, "_other"), other_var_name)
-          cl_other_text <- df %>% dplyr::filter(!is.na(!!rlang::sym(other_var_name))) %>%
-            dplyr::mutate(variable = other_var_name, old.value = !!rlang::sym(other_var_name),
-                   new.value = NA, issue = issue) %>%
+      cl_choices <- data.frame()
+      for(col in ccols){
+        df <- data %>% dplyr::filter(!is.na(!!rlang::sym(col)))
+        if(nrow(df)>0){
+          cl <- df %>%
+            dplyr::mutate(variable = col, old.value = !!rlang::sym(col), new.value = NA, issue = issue) %>%
             dplyr::select(dplyr::any_of(CL_COLS))
 
-          cl_choices <- rbind(cl_choices, cl_other_text)
+          cl_choices <- rbind(cl_choices, cl)
+          # remove text from text other response if present
+          if(stringr::str_ends(col, "/other")){
+            other_var_name <- ifelse(is.null(other_var_name), paste0(variable, "_other"), other_var_name)
+            cl_other_text <- df %>% dplyr::filter(!is.na(!!rlang::sym(other_var_name))) %>%
+              dplyr::mutate(variable = other_var_name, old.value = !!rlang::sym(other_var_name),
+                            new.value = NA, issue = issue) %>%
+              dplyr::select(dplyr::any_of(CL_COLS))
+
+            cl_choices <- rbind(cl_choices, cl_other_text)
+          }
         }
       }
+      return(rbind(cl_cummulative, cl_choices))
+
     }
-    return(rbind(cl_cummulative, cl_choices))
+    return(data.frame())
 
   }
-  return(data.frame())
-
-}
 }
 
 
@@ -229,6 +239,8 @@ recode.multiple.set.NA <- function(data, variable, issue, other_var_name = NULL,
 #'
 #' @return Dataframe containing cleaning log entries constructed from `data`.
 #'
+#' @export
+#'
 #' @examples
 #' \dontrun{
 #' recode.multiple.set.choices(data = filter(raw.main, condition),
@@ -243,7 +255,7 @@ recode.multiple.set.choices <- function(data, variable, choices, issue, other_va
 
   ls_name <- get.choice.list.from.name(variable, label_colname = 'label::English', tool.survey)
 
-    # find the new value for the cumulative variable (get the proper order from tool.choices)
+  # find the new value for the cumulative variable (get the proper order from tool.choices)
   newvalue <- tool.choices %>% dplyr::filter(list_name == ls_name & name %in% choices) %>%
     dplyr::pull(name) %>% paste(collapse = " ")
   anychoice_pattern <- paste0("(",choices,")", collapse = "|")
@@ -299,6 +311,8 @@ recode.multiple.set.choices <- function(data, variable, choices, issue, other_va
 #'
 #' @return Dataframe containing cleaning log entries constructed from `data`.
 #'
+#' @export
+#'
 #' @examples
 #' \dontrun{
 #' recode.multiple.add.choices(data = filter(raw.main, condition), variable = "question_name",
@@ -351,6 +365,8 @@ recode.multiple.add.choices <- function(data, variable, choices, issue){
 #'
 #' @return Dataframe containing cleaning log entries constructed from `data`
 #'
+#' @export
+#'
 #' @examples
 #' \dontrun{
 #' recode.multiple.remove.choices(data = filter(raw.main, condition), variable = "question_name",
@@ -367,7 +383,7 @@ recode.multiple.remove.choices <- function(data, variable, choices, issue, other
   # filter to include only rows that are not NA, and that have at least one of the choices selected
   anychoice_pattern <- paste0("(",choices,")", collapse = "|")
 
-    data_1 <- data %>% dplyr::filter(!is.na(!!rlang::sym(variable)) & stringr::str_detect(!!rlang::sym(variable), anychoice_pattern))
+  data_1 <- data %>% dplyr::filter(!is.na(!!rlang::sym(variable)) & stringr::str_detect(!!rlang::sym(variable), anychoice_pattern))
 
   if(nrow(data_1) > 0){
     # remove the choices from cumulative column using a combined regex pattern
@@ -410,6 +426,7 @@ recode.multiple.remove.choices <- function(data, variable, choices, issue, other
 #'
 #' @note  _others suffix is added to the kobo tool dataframes to avoid recursion
 #'
+#' @export
 #'
 #' @return A dataframe for the changes that need to be applied to the data
 #'
@@ -495,7 +512,7 @@ recode.others_select_one <- function(or.select_one, orig_response_col = "respons
 #' @param CL_COLS CL_COLS string of columns of the cleaning log. Defauls to c("uuid","uniqui" ,"loop_index", "variable", "old.value", "new.value", "issue")
 #'
 #' @return A dataframe for the changes that need to be applied to the data
-#'
+#' @export
 #' @note When running loop data, make sure to have a uuid column in your dataframe. This ensures that the resulting tables are uniform
 #'
 #' @examples
@@ -504,24 +521,23 @@ recode.others_select_one <- function(or.select_one, orig_response_col = "respons
 #' tool.choices_others = tool.choices)
 #' }
 
-recode.others_select_multiple <- function(data, or.select_multiple, orig_response_col = "response.uk", print_debug = T, is.loop = F,
+recode.others_select_multiple <- function(data, or.select_multiple, orig_response_col = "response.uk", print_debug = T, is.loop ,
                                           tool.survey_others=tool.survey, tool.choices_others =tool.choices,label_colname = "label::English",
                                           CL_COLS = c("uuid",'uniqui', "loop_index", "variable",
                                                       "old.value", "new.value", "issue")){
 
 
   if(!'uuid' %in% names(data) & is.loop){
-stop(print('Your loop data doesnt have the uuid variable, please check the data and rename uuid appropriately'))
-}
+    stop(print('Your loop data doesnt have the uuid variable, please check the data and rename uuid appropriately'))
+  }
 
 
-
-# filter out uuids not in the data
+  # filter out uuids not in the data
 
   if(any(! or.select_multiple$uniqui %in% data$uniqui)){
     cat(paste0('The following unique IDs from your requests file were not found in the data provided: ',
                paste0(dplyr::setdiff(or.select_multiple$uniqui,data$uniqui),collapse=', '), '. Please double check '
-               ))
+    ))
     or.select_multiple <- or.select_multiple[or.select_multiple$uniqui %in% data$uniqui,]
   }
 
@@ -547,7 +563,7 @@ stop(print('Your loop data doesnt have the uuid variable, please check the data 
       cl_only_other <- thisvar_data %>%
         dplyr::filter(!!rlang::sym(variable) == "other") %>%
         recode.multiple.set.NA( variable, "Invalid other response", other_var_name = other_variable,
-                               CL_COLS = CL_COLS)
+                                CL_COLS = CL_COLS)
       cl_notjust_other <- thisvar_data %>%
         dplyr::filter(!!rlang::sym(variable) != "other") %>%
         recode.multiple.remove.choices(variable, "other", "Invalid other response", other_var_name = other_variable,
@@ -594,7 +610,7 @@ stop(print('Your loop data doesnt have the uuid variable, please check the data 
         # in this case, simply add new choices
         cl_sm_recode <- rbind(cl_sm_recode, or.row %>%
                                 dplyr::mutate(variable = name, old.value = !!rlang::sym(orig_response_col), new.value = true.v,
-                                                              issue = "Translating other response") %>%
+                                              issue = "Translating other response") %>%
                                 dplyr::select(any_of(CL_COLS)))
 
         cl_sm_recode_add_choice <- recode.multiple.add.choices(data.row, or.row$ref.name, choices, "Recoding other response")
@@ -672,12 +688,14 @@ stop(print('Your loop data doesnt have the uuid variable, please check the data 
 #'
 #' @return Dataframe containing cleaning log entries covering recoding others, constructed from `data` and `or.edited`
 #'
+#' @export
+#'
 #' @examples
 #' \dontrun{
 #' recode.others(data, or.edited = other_requests_file, orig_response_col = "response.uk",tool.survey=tool.survey,
 #' tool.choices = tool.choices)
 #' }
-recode.others <- function(data, or.edited, orig_response_col = "response.uk", is.loop = F, print_debug = T,
+recode.others <- function(data, or.edited, orig_response_col = "response.uk", is.loop , print_debug = T,
                           tool.survey, tool.choices){
 
   # a new thing: UNIQUI - universal unique identifier (either loop_index or uuid)
@@ -755,7 +773,7 @@ recode.others <- function(data, or.edited, orig_response_col = "response.uk", is
   if(nrow(sm_data) == 0){
     cl_select_multiple <- dplyr::tibble()
   }else {
-    cl_select_multiple <- recode.others_select_multiple(sm_data, or.select_multiple, orig_response_col, print_debug, tool.survey_others = tool.survey, tool.choices_others = tool.choices)
+    cl_select_multiple <- recode.others_select_multiple(sm_data, or.select_multiple, orig_response_col, print_debug, tool.survey_others = tool.survey, tool.choices_others = tool.choices,is.loop=is.loop)
   }
   # works fine for non-loops
 
@@ -764,18 +782,6 @@ recode.others <- function(data, or.edited, orig_response_col = "response.uk", is
 
   return(cl_all_others)
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
