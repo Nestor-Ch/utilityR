@@ -7,6 +7,7 @@
 vectorized.add.to.cleaning.log.other.remove(
   data,
   other_requests,
+  is.loop,
   issue = "Invalid other response",
   invalid = "invalid.v"
 )
@@ -16,6 +17,8 @@ vectorized.add.to.cleaning.log.other.remove(
 
 \item{other_requests}{your other_requests - make sure that you're inputing the requests that are available in the `data`
 If one of the variables in the `name` column of `other_requests` isn't present in the `data` object, it will be removed from the resuls}
+
+\item{is.loop}{Whether your data is a loop}
 
 \item{issue}{the reason that the entries were deemed invalid for the cleaning log entry, "Invalid other response" by default}
 

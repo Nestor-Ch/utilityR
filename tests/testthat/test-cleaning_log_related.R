@@ -672,7 +672,7 @@ testthat::test_that("vectorized.add.to.cleaning.log.other.remove works", {
 
   # test 1 - basic functionality - non-loop data
 
-  actual_output <- vectorized.add.to.cleaning.log.other.remove(data = test_data,
+  actual_output <- vectorized.add.to.cleaning.log.other.remove(data = test_data,is.loop=F,
                                                                other_requests = other_requests%>% dplyr::filter(is.na(loop_index)))
 
 
@@ -694,9 +694,16 @@ testthat::test_that("vectorized.add.to.cleaning.log.other.remove works", {
 
   testthat::expect_equal(actual_output,expected_output)
 
-  # test 2 - basic functionality - loop data
+  # test 2 - called loop functionality on non-loop data
 
-  actual_output <- vectorized.add.to.cleaning.log.other.remove(data = test_data_l,
+  testthat::expect_error(
+  vectorized.add.to.cleaning.log.other.remove(data = test_data,is.loop=T,
+                                              other_requests = other_requests%>% dplyr::filter(is.na(loop_index)))
+  )
+
+  # test 3 - basic functionality - loop data
+
+  actual_output <- vectorized.add.to.cleaning.log.other.remove(data = test_data_l,is.loop=T,
                                                                other_requests = other_requests%>% dplyr::filter(!is.na(loop_index)))
 
 
@@ -717,22 +724,22 @@ testthat::test_that("vectorized.add.to.cleaning.log.other.remove works", {
     new.value = NA
   )
 
-  testthat::expect_equal(actual_output,expected_output)
+   testthat::expect_equal(actual_output,expected_output)
 
-  # test 3 - expect error if out other.requests file was not good enough
+  # test 4 - expect error if out other.requests file was not good enough
   other_requests_f <- other_requests
   other_requests_f[1,]$invalid.v <- ''
 
   testthat::expect_error(
-    vectorized.add.to.cleaning.log.other.remove(data = test_data_l,
+    vectorized.add.to.cleaning.log.other.remove(data = test_data_l, is.loop = T,
                                                 other_requests = other_requests_f%>% dplyr::filter(!is.na(loop_index)))
 
   )
 
-  # test 4 - expect a warning when we run the file with an incorrect other.requests. But it should still give is a correct result
+  # test 5 - expect a warning when we run the file with an incorrect other.requests. But it should still give is a correct result
 
   testthat::expect_warning(
-    actual_output <- vectorized.add.to.cleaning.log.other.remove(data = test_data_l,
+    actual_output <- vectorized.add.to.cleaning.log.other.remove(data = test_data_l,is.loop =T,
                                                                  other_requests = other_requests)
   )
 
@@ -755,6 +762,12 @@ testthat::test_that("vectorized.add.to.cleaning.log.other.remove works", {
 
   testthat::expect_equal(actual_output,expected_output)
 
+  # test 6 - provided non-loop data as a loop
+
+  testthat::expect_error(
+    vectorized.add.to.cleaning.log.other.remove(data = test_data,is.loop=T,
+                                                other_requests = other_requests%>% dplyr::filter(!is.na(loop_index)))
+  )
 
 })
 
@@ -1126,4 +1139,254 @@ testthat::test_that("add.to.cleaning.log.other.recode.multiple works", {
 
 
 
+testthat::test_that("add.to.cleaning.log.other.recode works", {
+
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
+
+  test_data_l <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`,
+                  uuid = `_submission__uuid`)
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::filter(!is.na(existing.v))
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices', col_types = 'text')
+
+  # test 1 - select_one loop
+
+  actual_output <- add.to.cleaning.log.other.recode(
+    data = test_data_l, other_requests= other_requests[1,],
+    is.loop = T,
+    tool.survey=tool.survey,tool.choices=tool.choices
+  )
+
+  expected_output <- data.frame(
+    uuid = rep('3dc15f20-8964-419c-9ab0-f7b9d367120e',2),
+    loop_index = rep('2802',2),
+    variable = c('q2_3_3_1_employment_situation_other','q2_3_3_employment_situation'),
+    issue = rep('Recoding other response',2),
+    old.value = c('17 років, навчання в школі', 'other'),
+    new.value = c(NA,'student_not_working')
+  )
+
+
+  testthat::expect_equal(actual_output,expected_output)
+
+  # test 2 - select_multiple loop
+
+
+  actual_output <- add.to.cleaning.log.other.recode(
+    data = test_data_l, other_requests= other_requests[7,],
+    is.loop = T,
+    tool.survey=tool.survey,tool.choices=tool.choices
+  )
+
+  expected_output <- data.frame(
+    uuid = '5f5bac4d-b250-41dc-93de-1b27043a2869',
+    loop_index = '494',
+    variable = c('q2_1_4_1_members_vulnerabilities_other','q2_1_4_members_vulnerabilities/other',
+                 'q2_1_4_members_vulnerabilities/person_with_disabilities',
+                 'q2_1_4_members_vulnerabilities'
+    ),
+    issue = "Recoding other response",
+    old.value = c('3 група інвалідності','1','0','other'),
+    new.value = c(NA,'0','1','person_with_disabilities')
+  )
+  testthat::expect_equal(actual_output,expected_output)
+
+  # test 3 - non-loop data select_one
+
+  actual_output <- add.to.cleaning.log.other.recode(
+    data = test_data, other_requests= other_requests[3,],
+    is.loop = F,
+    tool.survey=tool.survey,tool.choices=tool.choices
+  )
+
+  expected_output <- data.frame(
+    uuid = 'a46a1c10-bf18-4594-a0be-99447fa22116',
+    loop_index = NA_character_,
+    variable = c('q0_4_2_1_center_idp_other','q0_4_2_center_idp'),
+    issue= "Recoding other response",
+    old.value = c('29','other'),
+    new.value = c(NA,'UKRs006888')
+  )
+
+  testthat::expect_equal(actual_output,expected_output)
+
+  # test 4 - non-loop data select_one
+
+  actual_output <- add.to.cleaning.log.other.recode(
+    data = test_data, other_requests= other_requests[5,],
+    is.loop = F,
+    tool.survey=tool.survey,tool.choices=tool.choices
+  )
+
+  expected_output <- data.frame(
+    uuid = 'f79999d6-192f-4b9b-aee9-5f613bd4e770',
+    loop_index = NA_character_,
+    variable = c('q10_2_1_1_discrimination_idp_other','q10_2_1_discrimination_idp/other',
+                 'q10_2_1_discrimination_idp/yes_we_feel_discriminated_against_when_trying_to_access_basic_services',
+                 'q10_2_1_discrimination_idp'
+    ),
+    issue = "Recoding other response",
+    old.value = c('Так зі сторони проживаючих тут студентів','1','0','other'),
+    new.value = c(NA,'0','1','yes_we_feel_discriminated_against_when_trying_to_access_basic_services')
+  )
+
+  testthat::expect_equal(actual_output,expected_output)
+
+})
+
+
+
+testthat::test_that("add.to.cleaning.log.other.recode works", {
+
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
+
+  test_data_l <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`,
+                  uuid = `_submission__uuid`)
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::filter(!is.na(existing.v))
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices', col_types = 'text')
+
+  # test 1 - loop
+
+  actual_output <- vectorized.add.to.cleaning.log.other.recode(
+    data = test_data_l,
+    other_requests= other_requests[c(1,2,7,8),],
+    is.loop = T,
+    tool.survey=tool.survey,
+    tool.choices=tool.choices
+  )
+
+
+  expected_output <- data.frame(
+    uuid = c(rep('3dc15f20-8964-419c-9ab0-f7b9d367120e',2),rep('3402ebff-f400-478b-a77e-0153eeb67a86',2),
+             rep('5f5bac4d-b250-41dc-93de-1b27043a2869',4),rep('efab8f40-dcb4-47c6-ba3f-fd89237a6f14',4)),
+    loop_index = c(rep('2802',2),rep('486',2),rep('494',4),rep('1168',4)),
+    variable = c(rep(c('q2_3_3_1_employment_situation_other','q2_3_3_employment_situation'),2),
+                 rep(c('q2_1_4_1_members_vulnerabilities_other','q2_1_4_members_vulnerabilities/other',
+                 'q2_1_4_members_vulnerabilities/person_with_disabilities',
+                 'q2_1_4_members_vulnerabilities'),2)),
+    issue= "Recoding other response",
+    old.value = c('17 років, навчання в школі','other','Часний підприємиць','other','3 група інвалідності',
+                  '1','0','other','Оформлюють інвалідність','1','0','chronic_illness_which_affects_the_quality_of_life other'),
+    new.value = c(NA,'student_not_working',NA,'officially_employed_permanen_job',NA,'0','1','person_with_disabilities',
+                  NA,'0','1','chronic_illness_which_affects_the_quality_of_life person_with_disabilities')
+  )
+
+  testthat::expect_equal(actual_output,expected_output)
+
+  # test 2
+  testthat::expect_warning(
+    actual_output2 <- vectorized.add.to.cleaning.log.other.recode(
+    data = test_data_l,
+    other_requests= other_requests[c(1,2,7,8),],
+    is.loop = F,
+    tool.survey=tool.survey,
+    tool.choices=tool.choices
+  ))
+  # but still equal to the output we need
+  testthat::expect_equal(actual_output2,expected_output)
+
+
+  # test 3 - non_loop
+
+  actual_output <- vectorized.add.to.cleaning.log.other.recode(
+    data = test_data,
+    other_requests= other_requests[c(3:6),],
+    is.loop = F,
+    tool.survey=tool.survey,
+    tool.choices=tool.choices
+  )
+
+
+  expected_output <- data.frame(
+    uuid = c(rep('a46a1c10-bf18-4594-a0be-99447fa22116',2),rep('51862558-1b68-466a-8e71-be2817dce5aa',2),
+             rep('f79999d6-192f-4b9b-aee9-5f613bd4e770',8)),
+    loop_index = NA_character_,
+    variable = c(rep(c('q0_4_2_1_center_idp_other','q0_4_2_center_idp'),2),
+                 'q10_2_1_1_discrimination_idp_other',"q10_2_1_discrimination_idp/other" ,
+                 "q10_2_1_discrimination_idp/yes_we_feel_discriminated_against_when_trying_to_access_basic_services",
+                 'q10_2_1_discrimination_idp',
+                 'q2_4_3_1_main_cause_other',"q2_4_3_main_cause/other","q2_4_3_main_cause/security_considerations",
+                 'q2_4_3_main_cause'
+                 ),
+    issue= "Recoding other response",
+    old.value = c('29','other','29','other','Так зі сторони проживаючих тут студентів','1','0','other',
+                  'Окупована територія','1','0','other'),
+    new.value = c(NA,'UKRs006888',NA,'UKRs006888',NA,'0','1',
+                  'yes_we_feel_discriminated_against_when_trying_to_access_basic_services',
+                  NA,'0','1','security_considerations'
+                  )
+  )
+
+  testthat::expect_equal(actual_output,expected_output)
+
+  # test 4 - calling loop on non loop data
+  testthat::expect_error(
+  vectorized.add.to.cleaning.log.other.recode(
+    data = test_data,
+    other_requests= other_requests[c(3:6),],
+    is.loop = T,
+    tool.survey=tool.survey,
+    tool.choices=tool.choices
+  ))
+
+  # test 5 - some of the rows of the existing variable are empty
+  other_requests_f <- other_requests
+  other_requests_f[3,'existing.v'] <- NA
+
+  testthat::expect_error(
+    vectorized.add.to.cleaning.log.other.recode(
+      data = test_data,
+      other_requests= other_requests_f[c(3:6),],
+      is.loop = T,
+      tool.survey=tool.survey,
+      tool.choices=tool.choices
+    )
+    )
+
+  # test 6 some of the columns provided in the other_requests are not in the data
+
+  testthat::expect_warning(
+  actual_output3 <- vectorized.add.to.cleaning.log.other.recode(
+    data = test_data,
+    other_requests= other_requests[c(2:6),],
+    is.loop = F,
+    tool.survey=tool.survey,
+    tool.choices=tool.choices
+  ))
+  # but still it should give us the correct resuls
+
+  testthat::expect_equal(actual_output3,expected_output)
+
+
+
+})
 

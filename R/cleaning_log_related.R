@@ -365,7 +365,9 @@ add.to.cleaning.log.other.remove <- function(data, other_requests, is.loop, issu
 #' @param other_requests your other_requests - make sure that you're inputing the requests that are available in the `data`
 #' If one of the variables in the `name` column of `other_requests` isn't present in the `data` object, it will be removed from the resuls
 #' @param issue the reason that the entries were deemed invalid for the cleaning log entry, "Invalid other response" by default
+#' @param is.loop Whether your data is a loop
 #' @param invalid the name of your invalid column - 'invalid.v' by default
+#'
 #' @export
 #' @return a cleaning log file
 #'
@@ -374,12 +376,20 @@ add.to.cleaning.log.other.remove <- function(data, other_requests, is.loop, issu
 #' vectorized.add.to.cleaning.log.other.remove(data = data, other_requests = other.requests)
 #' }
 
-vectorized.add.to.cleaning.log.other.remove <-  function(data, other_requests, issue = "Invalid other response",
+vectorized.add.to.cleaning.log.other.remove <-  function(data, other_requests, is.loop, issue = "Invalid other response",
                                                          invalid = 'invalid.v'){
 
   if(!all(other_requests[[invalid]] == 'yes')){
     stop("Not all of the rows in the invalid column are equal to 'yes', are you sure you're uploading only invalid entries?")
   }
+
+  if(!is.loop && "loop_index" %in% colnames(data)){
+    warning("Parameter is.loop is = False, but data contains column 'loop_index'. It will be assumed that this data is, actually, a loop!")
+    is.loop <- T
+  }else if(is.loop && (!"loop_index" %in% colnames(data))) {
+    stop("Parameter is.loop is = True, but data does not contain column 'loop_index'!\n")
+  }
+
 
   if(length(setdiff(other_requests$name,colnames(data)))>0){
     warning(paste0(
@@ -391,10 +401,11 @@ vectorized.add.to.cleaning.log.other.remove <-  function(data, other_requests, i
 
   }
 
+
   clog <- lapply(1:nrow(other_requests),function(row){
     add.to.cleaning.log.other.remove(data = data,
                                      other_requests=other_requests[row,],
-                                     is.loop = !is.na(other_requests[row,]$loop_index),
+                                     is.loop = is.loop,
                                      issue = issue
     )
   })
@@ -643,6 +654,128 @@ add.to.cleaning.log.other.recode.multiple <- function(data, other_requests, is.l
   clog <- rbind(clog, df)
   return(clog)
 }
+
+
+
+
+#' Add recoded other requests to the cleaning log
+#'
+#' @param data The dataframe
+#' @param other_requests Other_requests file
+#' @param is.loop Whether the dataframe and the request line is a loop
+#' @param tool.survey The 'survey' sheet of the KOBO tool
+#' @param tool.choices The 'choices' sheet of the KOBO tool
+#' @param issue The reason you're recoding this entry, "Recoding other response" by default
+#' @param label_colname the column with the choice label in your tool.choices. 'label::English' by default
+#' @param existing your 'existing' column - 'existing.v' by default
+#' @param ref.type your 'ref.type' column - 'ref.type' by default
+#'
+#' @return a filled out cleaning log file
+#'
+#' @note This function is not vectorized. It only works 1 row of `other_requests` at a time.
+#' For the vectorization functionality, please use `vectorized.add.to.cleaning.log.other.recode`
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' add.to.cleaning.log.other.recode(data = data, other_requests = other_requests, is.loop = F,
+#' tool.survey = tool.survey, tool.choices=tool.choices)
+#' }
+add.to.cleaning.log.other.recode <- function(data, other_requests,is.loop,
+                                             tool.survey,tool.choices,
+                                             issue = "Recoding other response",
+                                             label_colname = 'label::English',
+                                             existing = 'existing.v',
+                                             ref.type = 'ref.type'){
+  if (other_requests[[ref.type]][1]=="select_one"){
+    res <- add.to.cleaning.log.other.recode.one(data = data, other_requests= other_requests,
+                                                is.loop = is.loop,
+                                                tool.survey=tool.survey,tool.choices=tool.choices)
+  }else if(other_requests[[ref.type]][1]=="select_multiple"){
+    res <- add.to.cleaning.log.other.recode.multiple(data = data, other_requests= other_requests,
+                                                     is.loop = is.loop,
+                                                     tool.survey=tool.survey,tool.choices=tool.choices)
+  }
+  return(res)
+}
+
+
+
+
+
+#' Vectorized add recoded other requests to the cleaning log
+#'
+#' @param data The dataframe
+#' @param other_requests  Other_requests file
+#' @param tool.survey The 'survey' sheet of the KOBO tool
+#' @param tool.choices The 'choices' sheet of the KOBO tool
+#' @param is.loop Whether the dataframe and the request line is a loop
+#' @param issue The reason you're recoding this entry, "Recoding other response" by default
+#' @param label_colname the column with the choice label in your tool.choices. 'label::English' by default
+#' @param existing your 'existing' column - 'existing.v' by default
+#' @param ref.type your 'ref.type' column - 'ref.type' by default
+#'
+#' @return a filled out cleaning log file
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' vectorized.add.to.cleaning.log.other.recode(data = data, other_requests = other_requests, is.loop = F,
+#' tool.survey = tool.survey, tool.choices=tool.choices)
+#' }
+vectorized.add.to.cleaning.log.other.recode <-  function(data, other_requests,
+                                                         tool.survey,tool.choices,
+                                                         is.loop,
+                                                         issue = "Recoding other response",
+                                                         label_colname = 'label::English',
+                                                         existing = 'existing.v',
+                                                         ref.type = 'ref.type'){
+
+  if(any(is.na(other_requests[[existing]]))){
+    stop("Some of the rows in the existing column are NA, are you sure you're uploading only existing entries?")
+  }
+
+  if(length(setdiff(other_requests$name,colnames(data)))>0){
+    warning(paste0(
+      'Some of the entries in your name column in the other_requests file are not present in the columns of the dataframe:\n',
+      paste0(setdiff(other_requests$name,colnames(data)), collapse = '\n'), 'Make sure to run them for the correct dataframe'
+    ))
+    other_requests <- other_requests[other_requests$name %in% colnames(data),]
+  }
+
+  if(!is.loop && "loop_index" %in% colnames(data)){
+    warning("Parameter is.loop is = False, but data contains column 'loop_index'. It will be assumed that this data is, actually, a loop!")
+    is.loop <- T
+  }else if(is.loop && (!"loop_index" %in% colnames(data))) {
+    stop("Parameter is.loop is = True, but data does not contain column 'loop_index'!\n")
+  }
+
+
+
+
+  clog <- lapply(1:nrow(other_requests),function(row){
+    add.to.cleaning.log.other.recode(data = data,
+                                     other_requests=other_requests[row,],
+                                     is.loop = is.loop,
+                                     tool.survey = tool.survey,
+                                     tool.choices = tool.choices,
+                                     label_colname= label_colname,
+                                     existing = existing,
+                                     ref.type = ref.type,
+                                     issue = issue
+    )
+  })
+
+  clog <- do.call(rbind, clog)
+  return(clog)
+
+}
+
+
+
+
+
 
 
 
