@@ -12,7 +12,9 @@ LazyData: true
 Suggests: 
     dplyr,
     data.table,
+    openxlsx,
     plyr,
+    readr,
     purrr,
     readxl,
     stringr,
