@@ -167,3 +167,90 @@ load.requests <- function(dir, filename.pattern, sheet=NULL, validate=FALSE){
 }
 
 
+
+#' Load Audit files
+#'
+#' Loads all audit files from a selected folder into 1 large dataframe
+#'
+#' @param dir.audits  The directory in which to look for audit files (path resembling .../data/audits/...)
+#' @param uuids The uuids of surveys that are to be loaded. If NULL is provided here (and by default) all uuids from dir.audits will be loaded.
+#' @param track.changes Whether the survey has the parameter track-changes set to `true`
+#' @param add.uuid2 Whether the function should add uuid2. If TRUE, this'll allow the user a better control over error messages in proccess uuid
+#'
+#' @return Returns a dataframe with contents of all `audit.csv` files from `dir.audits` or its subdirectories.
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' load.audit.files(dir.audits = 'your_path', uuids = data$uuid)
+#' }
+load.audit.files <- function(dir.audits, uuids=NULL, track.changes=F, add.uuid2=T){
+
+  audit.filenames <- list.files(dir.audits, pattern="audit.csv", recursive=TRUE, full.names=TRUE)
+  cat("Loading audit logs from",dir.audits,"...\n")
+
+  counter <- 0
+  res <- data.frame()
+  for (filename in audit.filenames){
+    # get uuid from filename
+    sp <- stringr::str_split(filename, "\\/")[[1]]  # could throw an error on Unix?
+    uuid <- sp[length(sp)-1]
+    if(is.null(uuids) | uuid %in% uuids){
+      # load file
+      audit <- readr::read_csv(filename, show_col_types = FALSE, locale = readr::locale(encoding = "UTF-8")) %>%
+        dplyr::mutate(uuid=uuid, .before=1)
+
+      # TODO: make sure that the below is correctly done (probably not)
+      if(track.changes & "old-value" %in% colnames(audit)) {
+        audit <- audit %>%
+          dplyr::rename("old.value" = `old-value`, "new.value" = `new-value`)
+      } else {
+        audit <- audit %>%
+          dplyr::mutate(old.value = NA, new.value = NA)
+      }
+      if(add.uuid2==T){
+        audit$uuid2 = uuid
+      }
+      audit <- audit %>%
+        dplyr::mutate(across(dplyr::ends_with('value'),~ as.character(.x))) %>%
+        dplyr::mutate(across(dplyr::ends_with('value'),~ ifelse(.x == '' |.x == ' '|.x == '\n',NA_character_, .x )))
+      counter <- counter + 1
+      res <- dplyr::bind_rows(res, audit)
+      cat("...")
+    }
+  }
+  if(nrow(res) > 0){
+    res <- res  %>%
+      dplyr::group_by(uuid) %>%
+      dplyr::mutate(inter_q_duration = (start-dplyr::lag(end))/1000) %>%
+      dplyr::ungroup() %>%
+      dplyr::mutate(duration=(end-start)/1000,
+             group=sapply(stringr::str_split(node, '\\/'), function(x){
+               id.group <- ifelse("G_survey" %in% x, 4, 3)
+               return(x[id.group])}),
+             question=sapply(stringr::str_split(node, '\\/'), function(x){return(x[length(x)])})) %>%
+      dplyr::mutate(event=stringr::str_replace_all(event, " ", ".")) %>%
+      dplyr::tibble()
+
+    # if there are large differences
+
+
+    cat("\n...Done\n")
+    cat(paste("Loaded", counter, "audit logs.\n"))
+  }else{
+    warning("No relevant audit logs found!")
+  }
+  return(res)
+}
+
+
+
+
+
+
+
+
+
+
+
+

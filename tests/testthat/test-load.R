@@ -218,3 +218,115 @@ testthat::test_that("load.requests works", {
 })
 
 
+
+testthat::test_that('load.audit.files works',{
+
+  test_audit_path <- testthat::test_path('fixtures/audits_test')
+
+  test_path <- testthat::test_path('fixtures',"data_others.xlsx")
+  test_data <-  readxl::read_excel(test_path, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
+
+  actual_result <- load.audit.files(dir.audits = test_audit_path,
+                                    uuids = test_data$uuid,add.uuid2=F)
+
+  # expected result is a bit difficult to get, tbh. Have to kinda mimic the function itself.
+
+  ls <- list.files(test_audit_path, pattern="audit.csv", recursive=TRUE, full.names=TRUE)
+  data_test <- data.frame()
+  for (link in ls){
+    sp <- stringr::str_split(link, "\\/")[[1]]
+    uuid <- sp[length(sp)-1]
+    tata_temp <- readr::read_csv(link, show_col_types = FALSE, locale = readr::locale(encoding = "UTF-8")) %>%
+      dplyr::mutate(uuid=uuid, .before=1)
+    data_test = rbind(data_test,tata_temp)
+  }
+
+
+  expected_output <- data_test %>%
+    dplyr::mutate(dplyr::across(uuid:`new-value`,~ ifelse(.x=="",NA_character_,.x)),
+                  dplyr::across(`old-value`:`new-value`,~ stringr::str_squish(.x))) %>%
+    dplyr::mutate(old.value = NA_character_,
+                  new.value = NA_character_) %>%
+    dplyr::group_by(uuid) %>%
+    dplyr::mutate(inter_q_duration = (start-dplyr::lag(end))/1000) %>%
+    dplyr::ungroup() %>%
+    dplyr::mutate(duration = (end-start)/1000,
+                  group = sapply(stringr::str_split(node, '\\/'), function(x){
+                    id.group <- ifelse("G_survey" %in% x, 4, 3)
+                    return(x[id.group])}),
+                  question = gsub(".*/([^/]+)$", "\\1", node),
+                  event=stringr::str_replace_all(event, " ", ".")
+    ) %>%
+    dplyr::mutate(across(dplyr::ends_with('value'),~ ifelse(.x == '' |.x == ' '|.x == '\n',NA_character_, .x )))
+  testthat::expect_equal(actual_result,expected_output)
+
+  # test 2
+
+  actual_result <- load.audit.files(dir.audits = test_audit_path,
+                                    uuids = test_data$uuid, track.changes = T,add.uuid2=F)
+
+  expected_output <- data_test %>%
+    dplyr::mutate(dplyr::across(uuid:`new-value`,~ ifelse(.x=="",NA_character_,.x)),
+                  dplyr::across(`old-value`:`new-value`,~ stringr::str_squish(.x))) %>%
+    dplyr::rename("old.value" = `old-value`, "new.value" = `new-value`) %>%
+    dplyr::group_by(uuid) %>%
+    dplyr::mutate(inter_q_duration = (start-dplyr::lag(end))/1000) %>%
+    dplyr::ungroup() %>%
+    dplyr::mutate(duration = (end-start)/1000,
+                  group = sapply(stringr::str_split(node, '\\/'), function(x){
+                    id.group <- ifelse("G_survey" %in% x, 4, 3)
+                    return(x[id.group])}),
+                  question = gsub(".*/([^/]+)$", "\\1", node),
+                  event=stringr::str_replace_all(event, " ", ".")
+    ) %>%
+    dplyr::mutate(across(dplyr::ends_with('value'),~ ifelse(.x == '' |.x == ' '|.x == '\n',NA_character_, .x )))
+  testthat::expect_equal(actual_result,expected_output)
+
+  # test 3 - throw a warning if I didn't provide the correct dir
+  test_audit_path <- testthat::test_path('fixtures/audits_test/empty_test')
+  testthat::expect_warning(
+  load.audit.files(dir.audits = test_audit_path,add.uuid2=F,
+                   uuids = test_data$uuid)
+  )
+
+
+  # test 4 if add uuid2
+  test_audit_path <- testthat::test_path('fixtures/audits_test')
+
+  actual_result <- load.audit.files(dir.audits = test_audit_path, track.changes = T,
+                                    uuids = test_data$uuid, add.uuid2 =T)
+
+
+  expected_output <- data_test %>%
+    dplyr::mutate(dplyr::across(uuid:`new-value`,~ ifelse(.x=="",NA_character_,.x)),
+                  dplyr::across(`old-value`:`new-value`,~ stringr::str_squish(.x))) %>%
+    dplyr::rename("old.value" = `old-value`, "new.value" = `new-value`) %>%
+    dplyr::mutate(uuid2 = uuid) %>%
+    dplyr::group_by(uuid) %>%
+    dplyr::mutate(inter_q_duration = (start-dplyr::lag(end))/1000) %>%
+    dplyr::ungroup() %>%
+    dplyr::mutate(duration = (end-start)/1000,
+                  group = sapply(stringr::str_split(node, '\\/'), function(x){
+                    id.group <- ifelse("G_survey" %in% x, 4, 3)
+                    return(x[id.group])}),
+                  question = gsub(".*/([^/]+)$", "\\1", node),
+                  event=stringr::str_replace_all(event, " ", ".")
+    ) %>%
+    dplyr::mutate(across(dplyr::ends_with('value'),~ ifelse(.x == '' |.x == ' '|.x == '\n',NA_character_, .x )))
+  testthat::expect_equal(actual_result,expected_output)
+
+
+})
+
+
+
+
+
+
+
+
+
+
+
+
