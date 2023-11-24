@@ -201,7 +201,7 @@ get.select.db <- function(tool.choices = NULL,
            list_name=as.character(lapply(type, get.choice.list.from.type)))
   select.questions <- select.questions[select.questions$list_name!="NA" & select.questions$list_name!="group" & select.questions$list_name!="repeat",] %>%
     dplyr::left_join(list.choices, by="list_name")
-  select.questions <- select.questions[!is.na(select.questions$choices)]
+  select.questions <- select.questions[!is.na(select.questions$choices),]
   return(select.questions)
 }
 
