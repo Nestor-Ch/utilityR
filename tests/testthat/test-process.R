@@ -63,7 +63,7 @@ testthat::test_that('process.uuid works',{
   )
 
   # test 3 - if one form.exit is followed by another form.exit without form.resume - should give warning
-  test_loaded2 <- test_loaded
+  test_loaded2 <- test_loaded %>% dplyr::select(-uuid2)
   test_loaded2[93,]$event = 'form.exit'
   test_loaded2[93,]$start = test_loaded2[93,]$start+10
 
@@ -104,7 +104,7 @@ testthat::test_that('process.uuid works',{
 })
 
 
-testthat::test_that('process.uuid works',{
+testthat::test_that('pre.process.audits works',{
   test_audit_path <- testthat::test_path('fixtures/audits_test')
   test_loaded  <- load.audit.files(dir.audits = test_audit_path, track.changes = T)
 

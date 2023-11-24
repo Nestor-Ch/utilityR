@@ -25,7 +25,7 @@ testthat::test_that('save.other.requests works',{
     wb_name = 'testo'
   )
 
-  expect_true(file.exists(paste0(temp_dir, "testo.xlsx")))
+  testthat::expect_true(file.exists(paste0(temp_dir, "testo.xlsx")))
 
   # test 2 - using the template
   save.other.requests(
@@ -36,7 +36,7 @@ testthat::test_that('save.other.requests works',{
     template_dir = testthat::test_path("fixtures","tool.xlsx")
   )
 
-  expect_true(file.exists(paste0(temp_dir, "testo2.xlsx")))
+  testthat::expect_true(file.exists(paste0(temp_dir, "testo2.xlsx")))
 
 
   unlink(paste0(temp_dir, "testo.xlsx"))
@@ -71,7 +71,7 @@ testthat::test_that('save.other.requests works',{
     wb_name = 'testo'
   )
 
-  expect_true(file.exists(paste0(temp_dir, "testo.xlsx")))
+  testthat::expect_true(file.exists(paste0(temp_dir, "testo.xlsx")))
 
   # test 2 - using the template
   save.trans.requests(
@@ -82,7 +82,7 @@ testthat::test_that('save.other.requests works',{
     template_dir = testthat::test_path("fixtures","tool.xlsx")
   )
 
-  expect_true(file.exists(paste0(temp_dir, "testo2.xlsx")))
+  testthat::expect_true(file.exists(paste0(temp_dir, "testo2.xlsx")))
 
 
   # test 3. Should break if I provide non-existent blue columns
@@ -104,7 +104,7 @@ testthat::test_that('save.other.requests works',{
       blue_cols = 'full.label'
     )
 
-    expect_true(file.exists(paste0(temp_dir, "testo3.xlsx")))
+    testthat::expect_true(file.exists(paste0(temp_dir, "testo3.xlsx")))
 
 
   unlink(paste0(temp_dir, "testo.xlsx"))
@@ -113,6 +113,36 @@ testthat::test_that('save.other.requests works',{
 
 
 })
+
+
+testthat::test_that('save.follow.up.requests works',{
+
+  test_frame <- data.frame(
+    uuid = c('uuid','uuid2'),
+    survey.date = c('start','start'),
+    check.id = '0',
+    variable = 'q2_4_3_main_cause',
+    issue = 'test',
+    old.value = c(NA_character_,'security_considerations'),
+    new.value = NA_character_,
+    invalid = NA_character_,
+    explanation = NA_character_
+  )
+
+  temp_dir <- tempdir()
+
+  save.follow.up.requests(
+    checks.df = test_frame,
+    directory = temp_dir,
+    wb_name = 'testo'
+  )
+
+  testthat::expect_true(file.exists(paste0(temp_dir, "testo.xlsx")))
+
+  unlink(paste0(temp_dir, "testo.xlsx"))
+
+})
+
 
 
 
