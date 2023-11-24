@@ -13,6 +13,7 @@ Suggests:
     dplyr,
     data.table,
     openxlsx,
+    randomcoloR,
     plyr,
     readr,
     purrr,

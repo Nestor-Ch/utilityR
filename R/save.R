@@ -157,4 +157,24 @@ save.trans.requests <- function(df, wb_name, blue_cols = NULL, use_template = F,
   openxlsx::saveWorkbook(wb, filename, overwrite=TRUE)
 }
 
+#' Save follow up requests
+#'
+#' Alias for create.follow.up.requests
+#'
+#' @param checks.df The checks file for the follow-up requests
+#' @param directory The directory for your follow-up request
+#' @param wb_name The name of your workbook
+#'
+#' @return Write a follow-up requests file
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' save.follow.up.requests(checks.df = data, wb_name = 'other_requests', directory = 'output/checking/requests/')
+#' }
+save.follow.up.requests <- function(checks.df, directory,wb_name){
+  create.follow.up.requests(checks.df, directory,wb_name)
+  }
+
+
 
