@@ -1,3 +1,76 @@
+
+#' Create deletion log
+#'
+#' Creates a deletion log for the provided data and reason.
+#'
+#' @param data Dataframe containing columns `uuid` and `col_enum`. A subset of `raw.main`, filtered to have the deleted `uuid` `loop_index`
+#' @param col_enum The name of the column which contains the enumerator's id in your main dataframe
+#' @param reason This is a string describing the reason for removing a survey from data.
+#' @param is.loop Whether the `data` argument is a loop or not
+#' @param data.main If the `data` argument is a loop, you'll need to provide the main dataframe too
+#'
+#' @note The provision of `data.main` in the case of using `is.loop` = T is needed because we're pulling up the `col_enum`
+#' from the main dataframe.
+#' @export
+#' @return A dataframe containing a deletion log with columns `uuid`, `col_enum`, `reason`, OR an empty dataframe if `data` has 0 rows.
+#'
+#' @examples
+#' \dontrun{
+#' # for non-loops
+#' create.deletion.log(data = data, col_enum = 'enum_col', reason = 'bad entry', is.loop = F)
+#' # for loops
+#' create.deletion.log(data = data_loop, col_enum = 'enum_col', reason = 'bad entry', is.loop = T, data.main = data)
+#' }
+
+create.deletion.log <- function(data, col_enum, reason, is.loop = F, data.main = NULL){
+
+  if(!'uuid' %in% colnames(data)){
+    stop("Your data doesn't have a uuid column, please add it and re-run the script")
+  }
+
+  if(!is.loop && "loop_index" %in% colnames(data)){
+    warning("Parameter is.loop is = False, but data contains column 'loop_index'. It will be assumed that this data is, actually, a loop!\n
+              N.B.: for the future, you can use apply.changes without the is.loop parameter.\n")
+    is.loop <- T
+  }else if(is.loop && (!"loop_index" %in% colnames(data))) {
+    stop("Parameter is.loop is = True, but data does not contain column 'loop_index'!\n")
+  }
+
+  if(is.loop & is.null(data.main)){
+    stop("Your data is a loop but you haven't provided the main dataframe. Please enter the data.main parameter")
+  } else if(is.loop & !is.null(data.main)){
+
+    data[,col_enum] <- plyr::mapvalues(data$uuid,
+                                       from=data.main[,'uuid'],
+                                       to=data.main[,col_enum],
+                                       warn_missing = F) %>%
+      unlist()
+
+  }
+
+  if(!col_enum %in% colnames(data)){
+    stop(paste0("\nEnumerator column (", col_enum, ") not found in the data!\nPossible matches for enum_col:\n",
+                paste0(agrep('enum', colnames(data), max.distance = 1, value = T),collapse = '\n')))
+  }
+
+  if(nrow(data) > 0){
+    # if it's a loop, then include the loop_index in the deletion log
+    if("loop_index" %in% colnames(data)){
+      data <- data %>%
+        dplyr::select(uuid, loop_index, any_of(col_enum)) %>%
+        dplyr::rename('col_enum' = dplyr::all_of(col_enum))
+    }else{
+      data <- data %>%
+        dplyr::select(uuid, any_of(col_enum))%>%
+        dplyr::rename('col_enum' = dplyr::all_of(col_enum))
+    }
+    return(data %>%
+             dplyr::mutate(reason=reason))
+  }else return(data.frame())
+}
+
+
+
 #' Create a follow-up requests file
 #'
 #' @param checks.df The checks file for the follow-up requests
@@ -91,3 +164,40 @@ create.follow.up.requests <- function(checks.df, directory,wb_name){
   filename <- ifelse(stringr::str_ends(filename, "\\.xlsx", T), paste0(filename, ".xlsx"), filename)
   openxlsx::saveWorkbook(wb, filename, overwrite = TRUE)
 }
+
+
+#' Format a translate responses file
+#'
+#' Format a dataframe containing responses to prepare for other/translate requests
+#'
+#' Relocates columns and adds the TEI columns.
+#'
+#' @param responses.j Dataframe containing responses to any questions from `questions.db`
+#' @param response_colname String containing name of the column which has the relevant response (tanslated to English in most cases) unused
+#'
+#' @return Returns a formatted recode.others dataframe
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' create.translate.requests(responses.j = responses.j, response_colname = "response.en")
+#' }
+create.translate.requests <- function(responses.j, response_colname = "response.en"){
+
+  relevant_colnames <- c("uuid", "loop_index", "name", "ref.name","full.label","ref.type","ref.response", "choices.label", "today")
+
+  response_cols <- colnames(responses.j)[stringr::str_starts(colnames(responses.j), "response")]
+  relevant_colnames <- append(relevant_colnames, response_cols)
+  responses.j <- responses.j %>%
+    dplyr::select(any_of(relevant_colnames)) %>%
+    dplyr::relocate( dplyr::all_of(response_cols), .after = last_col()) %>%
+    dplyr::mutate("TRUE other (provide a better translation if necessary)"=NA,
+           "EXISTING other (copy the exact wording from the options in column choices.label)"=NA,
+           "INVALID other (insert yes or leave blank)"=NA) %>%
+    dplyr::arrange(name, !!rlang::sym(response_cols[which(response_cols == response_colname)])) %>%
+    dplyr::tibble()
+
+  return(responses.j)
+}
+
+
