@@ -119,11 +119,7 @@ translate.responses <- function(responses, values_from = "response.uk",directory
       ## create batches
       temp_resp_batches <- split(temp_resp, factor(sort(rank(row.names(temp_resp))%%batching)))
       progress.bar.title <- as.character(Sys.time())
-      pb <- tcltk::tkProgressBar(progress.bar.title, "Number of batches executed", 0, batching, 0, width = 600)
-      prog <- 1
       for (temp_resp_batch in temp_resp_batches){
-        tcltk::setTkProgressBar(pb, prog, progress.bar.title, paste0("Number of batches executed: ", prog, " of ", batching,"\n",length(temp_resp_batch$input_vec)," responses will be translated to ",target_lang, "\nThis means ",sum(stringr::str_length(temp_resp_batch$input_vec))," utf-8 characters."))
-        prog <- prog + 1
         # actual translation:
         result_vec <- NULL
         result_vec <- try(translateR::translate(content.vec = temp_resp_batch$input_vec,
@@ -154,7 +150,6 @@ translate.responses <- function(responses, values_from = "response.uk",directory
           }
         }
       }
-      close(pb)
       if("partial success" %in% info_df$status){
         svDialogs::msgBox("translate.responses: finished - PARTIAL SUCCESS?")
       } else{

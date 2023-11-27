@@ -42,11 +42,18 @@ testthat::test_that("find.responses works", {
 
 testthat::test_that("translate.responses works", {
 
+  # test  0
+  test_data <-  data.frame(response = c("Тест","Українською","Мовою","Майже","Як","ЗНО"))
+
+  testthat::expect_error(
+    translate.responses(test_data, values_from = 'response',directory = tmp_dir)
+  )
+
+
   api_path <- Sys.getenv("API_KEY")
 
   #test 1 - normal run
 
-  test_data <-  data.frame(response = c("Тест","Українською","Мовою","Майже","Як","ЗНО"))
 
   tmp_dir <- tempdir()
 
@@ -107,6 +114,7 @@ testthat::test_that("translate.responses works", {
 
   unlink(paste0(tmp_dir, "translate_info.csv"))
 })
+
 
 
 

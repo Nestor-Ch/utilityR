@@ -20,7 +20,6 @@ Suggests:
     readxl,
     stringr,
     svDialogs,
-    tcltk,
     testthat (>= 3.0.0),
     tidyr,
     svDialogs,
