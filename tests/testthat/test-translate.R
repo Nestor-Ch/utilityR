@@ -39,3 +39,82 @@ testthat::test_that("find.responses works", {
 })
 
 
+
+testthat::test_that("translate.responses works", {
+
+  # test  0
+  test_data <-  data.frame(response = c("Тест","Українською","Мовою","Майже","Як","ЗНО"))
+
+  testthat::expect_error(
+    translate.responses(test_data, values_from = 'response',directory = tmp_dir)
+  )
+
+
+  api_path <- Sys.getenv("API_KEY")
+
+  #test 1 - normal run
+
+
+  tmp_dir <- tempdir()
+
+  actual_result <- translate.responses(test_data, values_from = 'response',directory = tmp_dir,
+                                         api.key = api_path
+  )
+
+  expected_result <- data.frame(response = c("Тест","Українською","Мовою","Майже","Як","ЗНО"),
+                                response.en = c('test','Ukrainian','Language','almost','like','ZNO')
+                                )
+
+  testthat::expect_true(file.exists(paste0(tmp_dir, "translate_info.csv")))
+
+
+  # test 2 test that the file will be appended if we run it 2 times
+
+
+  test_data <-  data.frame(response = c("Тест","два"))
+
+  actual_result <- translate.responses(test_data, values_from = 'response',directory = tmp_dir,
+                                       api.key = api_path
+  )
+
+  expected_result <- data.frame(response = c("Тест","два"),
+                                response.en = c('test','two')
+  )
+
+  unlink(paste0(tmp_dir, "translate_info.csv"))
+
+#  test 3 - empty df is fed
+  tmp_dir <- tempdir()
+
+  test_data <-  data.frame(response = NA_character_)
+
+  testthat::expect_warning(
+    translate.responses(test_data, values_from = 'response',directory = tmp_dir,
+                        api.key = api_path),
+    "Nothing to be translated"
+  )
+
+  testthat::expect_true(file.exists(paste0(tmp_dir, "translate_info.csv")))
+  unlink(paste0(tmp_dir, "translate_info.csv"))
+
+
+
+  #test X - super large vector, we'll cancel that one.
+  tmp_dir <- tempdir()
+
+  test_data <-  data.frame(response = OpenRepGrid::randomSentences(10000,nwords = 15))
+
+  actual_result <- translate.responses(test_data, values_from = 'response',directory = tmp_dir,
+                                       api.key = api_path
+  )
+
+  testthat::expect_equal(actual_result,test_data)
+
+  testthat::expect_true(file.exists(paste0(tmp_dir, "translate_info.csv")))
+
+  unlink(paste0(tmp_dir, "translate_info.csv"))
+})
+
+
+
+
