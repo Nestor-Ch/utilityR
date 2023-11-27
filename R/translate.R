@@ -63,7 +63,7 @@ find.responses <- function(.dataframe, questions.db, values_to="responses", is.l
 #' @param directory The directory where the 'translate_info.csv' will be written
 #' @param source_lang String containing a two-letter language code. The input vector will be translated from this language. Defaults to NULL - autodetect language.
 #' @param target_lang A two-letter language code. Input vector will be translated into this language. Defaults to 'en' - translation to English
-#' @param api.key The path to the file with your API key. "resources/microsoft.api.key_regional.R" by default
+#' @param api.key Your API key. Usually we store ours in "resources/microsoft.api.key_regional.R", copy it from there and insert.
 #'
 #' @return The same dataframe as `responses`, but with a new column, containing the translation.
 #' The column will be named according to the target language. By default, the output will be stored in column named 'response.en'
@@ -74,7 +74,10 @@ find.responses <- function(.dataframe, questions.db, values_to="responses", is.l
 #' translate.responses(responses = data_responses, values_from = "response.uk",directory = 'outputs/requests')
 #' }
 translate.responses <- function(responses, values_from = "response.uk",directory, source_lang = NULL, target_lang = "en",
-                                api.key = "resources/microsoft.api.key_regional.R"){
+                                api.key = NULL){
+  if(is.null(api.key)){
+    stop('Please input the api key. Usually we store ours in "resources/microsoft.api.key_regional.R", copy it from there and insert.')
+  }
 
   info_df <- data.frame()
   responses_batch <- data.frame()
@@ -124,7 +127,7 @@ translate.responses <- function(responses, values_from = "response.uk",directory
         # actual translation:
         result_vec <- NULL
         result_vec <- try(translateR::translate(content.vec = temp_resp_batch$input_vec,
-                                                microsoft.api.key = source(api.key)$value,
+                                                microsoft.api.key = api.key,
                                                 microsoft.api.region = "switzerlandnorth",
                                                 source.lang = source_lang, target.lang = target_lang))
         if(inherits(result_vec,"try-error")) break

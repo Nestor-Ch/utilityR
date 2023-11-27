@@ -42,7 +42,7 @@ testthat::test_that("find.responses works", {
 
 testthat::test_that("translate.responses works", {
 
-  api_path <- testthat::test_path('fixtures','microsoft.api.key_regional.R')
+  api_path <- Sys.getenv("API_KEY")
 
   #test 1 - normal run
 

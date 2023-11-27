@@ -10,7 +10,7 @@ translate.responses(
   directory,
   source_lang = NULL,
   target_lang = "en",
-  api.key = "resources/microsoft.api.key_regional.R"
+  api.key = NULL
 )
 }
 \arguments{
@@ -24,7 +24,7 @@ translate.responses(
 
 \item{target_lang}{A two-letter language code. Input vector will be translated into this language. Defaults to 'en' - translation to English}
 
-\item{api.key}{The path to the file with your API key. "resources/microsoft.api.key_regional.R" by default}
+\item{api.key}{Your API key. Usually we store ours in "resources/microsoft.api.key_regional.R", copy it from there and insert.}
 }
 \value{
 The same dataframe as `responses`, but with a new column, containing the translation.
