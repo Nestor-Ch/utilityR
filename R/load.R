@@ -108,6 +108,7 @@ load.tool.survey <- function(filename_tool, label_colname,  keep_cols = F){
 #' @param validate Should the file be validated (make sure that only one of TEI columns is filled.)
 #'
 #' @return Your request file in the tibble format
+#' @export
 #'
 #' @examples
 #' \dontrun{
