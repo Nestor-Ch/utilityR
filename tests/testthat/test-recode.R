@@ -736,7 +736,9 @@ testthat::test_that("recode.others_select_multiple works", {
   new.value = c('IDP cannot run the business because of the war','There is a disease, can not work',rep(NA,26),'person_with_disabilities','1','0',NA,
                 'chronic_illness_which_affects_the_quality_of_life person_with_disabilities','1','0',NA
   ),
-  issue = c(rep('Translating other response',2),rep('Invalid other response',26),rep('Recoding other response',8))
+  issue = c(rep('Translating other response',2),rep('Invalid other response',26),rep('Recoding other response',8)),
+  loop_index = NA
+
   ) %>%
     dplyr::tibble()
 
@@ -789,6 +791,7 @@ testthat::test_that("recode.others works", {
              rep(c('644ec1bf-4fec-4e93-b088-676dd2ae52ec','2a6bacd0-6a4d-420f-9463-cbf8a66cdb48'),11),
              rep('f79999d6-192f-4b9b-aee9-5f613bd4e770',8)
   ),
+  loop_index =NA_character_,
   variable = c(rep('q0_4_2_1_center_idp_other',2),rep('q7_2_2_1_initiate_compensation_other',2),
                rep('q7_2_2_initiate_compensation',2), rep('q0_4_2_1_center_idp_other',2),
                rep('q0_4_2_center_idp',2), rep('q2_4_3_1_main_cause_other',2),
@@ -876,6 +879,7 @@ testthat::test_that("recode.others works", {
              rep(c('644ec1bf-4fec-4e93-b088-676dd2ae52ec'),11),
              rep('f79999d6-192f-4b9b-aee9-5f613bd4e770',4)
   ),
+  loop_index =NA_character_,
   variable = c(rep('q0_4_2_1_center_idp_other',2),rep('q7_2_2_1_initiate_compensation_other',2),
                rep('q7_2_2_initiate_compensation',2), rep('q0_4_2_1_center_idp_other',2),
                rep('q0_4_2_center_idp',2), rep('q2_4_3_1_main_cause_other',2),
@@ -1031,7 +1035,9 @@ testthat::test_that("recode.others works", {
   uniqui = c('2343f19e-819c-4f1f-b827-cff4d9c7a953','db187669-7f5d-4d8b-9cba-aa212fd44da9',
              rep(c('bd005032-6f63-455f-8202-313583a128b1','f903166e-abc9-4258-848b-77ada6987d31'),2),
              rep(c('a46a1c10-bf18-4594-a0be-99447fa22116','51862558-1b68-466a-8e71-be2817dce5aa'),2)
+
   ),
+  loop_index = NA_character_,
   variable = c(rep('q0_4_2_1_center_idp_other',2),rep('q7_2_2_1_initiate_compensation_other',2),
                rep('q7_2_2_initiate_compensation',2), rep('q0_4_2_1_center_idp_other',2),
                rep('q0_4_2_center_idp',2)
@@ -1071,6 +1077,7 @@ testthat::test_that("recode.others works", {
              rep(c('644ec1bf-4fec-4e93-b088-676dd2ae52ec','2a6bacd0-6a4d-420f-9463-cbf8a66cdb48'),11),
              rep('f79999d6-192f-4b9b-aee9-5f613bd4e770',8)
   ),
+  loop_index = NA_character_,
   variable = c(rep('q2_4_3_1_main_cause_other',2),
                rep('q10_1_3_relationship_negativ_factors',2),
                rep('q10_1_3_relationship_negativ_factors/a_lack_of_sense_of_trust_between_the_idps_and_the_nonidps',2),
