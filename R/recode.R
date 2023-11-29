@@ -655,12 +655,14 @@ recode.others_select_multiple <- function(data, or.select_multiple, orig_respons
   # loop data will have columns uniqui and uuid. Main will only have uniqui
 
 
-
-  if(! 'uuid' %in% names(cl_sm_remove) & !'loop_index' %in% names(cl_sm_remove) ){
+  if(!'loop_index' %in% names(cl_sm_remove) ){
     cl_sm_remove$loop_index = NA
   }
-  if(! 'uuid' %in% names(cl_sm_remove) & !'loop_index' %in% names(cl_sm_remove) ){
+  if(!'loop_index' %in% names(cl_sm_true) ){
     cl_sm_true$loop_index = NA
+  }
+  if(!'loop_index' %in% names(cl_sm_recode) ){
+    cl_sm_recode$loop_index = NA
   }
 
   return(rbind(cl_sm_true, cl_sm_remove, cl_sm_recode))
@@ -702,7 +704,7 @@ recode.others <- function(data, or.edited, orig_response_col = "response.uk", is
   # it will be used for matching records to or.edited entries :)
   if(!is.loop) {
     or.edited <- or.edited %>%
-      dplyr::select(-any_of("loop_index")) %>%
+#      dplyr::select(-any_of("loop_index")) %>%
       dplyr::mutate(uniqui = uuid)
     data <- data %>%
       dplyr::mutate(uniqui = uuid)
