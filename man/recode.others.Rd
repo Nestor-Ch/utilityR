@@ -11,7 +11,8 @@ recode.others(
   is.loop,
   print_debug = T,
   tool.survey,
-  tool.choices
+  tool.choices,
+  label_colname = "label::English"
 )
 }
 \arguments{
@@ -30,6 +31,8 @@ as well as column `check`. Please use the ```load.requests``` function to load t
 \item{tool.survey}{The survey sheet of your kobo tool}
 
 \item{tool.choices}{The choices sheet of your kobo tool}
+
+\item{label_colname}{The name of your english label column. "label::English" by default}
 }
 \value{
 Dataframe containing cleaning log entries covering recoding others, constructed from `data` and `or.edited`

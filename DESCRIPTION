@@ -22,7 +22,6 @@ Suggests:
     svDialogs,
     testthat (>= 3.0.0),
     tidyr,
-    svDialogs,
     OpenRepGrid,
     translateR
 Remotes:
