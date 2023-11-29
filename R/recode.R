@@ -687,6 +687,7 @@ recode.others_select_multiple <- function(data, or.select_multiple, orig_respons
 #' @param print_debug Whether debugging information will be printed to screen (about how many responses will be recoded/translated etc.).
 #' @param tool.survey The survey sheet of your kobo tool
 #' @param tool.choices The choices sheet of your kobo tool
+#' @param label_colname The name of your english label column. "label::English" by default
 #'
 #' @return Dataframe containing cleaning log entries covering recoding others, constructed from `data` and `or.edited`
 #'
@@ -698,7 +699,7 @@ recode.others_select_multiple <- function(data, or.select_multiple, orig_respons
 #' tool.choices = tool.choices)
 #' }
 recode.others <- function(data, or.edited, orig_response_col = "response.uk", is.loop , print_debug = T,
-                          tool.survey, tool.choices){
+                          tool.survey, tool.choices, label_colname  = "label::English"){
 
   # a new thing: UNIQUI - universal unique identifier (either loop_index or uuid)
   # it will be used for matching records to or.edited entries :)
@@ -762,7 +763,10 @@ recode.others <- function(data, or.edited, orig_response_col = "response.uk", is
   if(nrow(s1_data) == 0) {
     cl_select_one <- dplyr::tibble()
   }else {
-    cl_select_one <- recode.others_select_one(or.select_one, tool.survey_others = tool.survey, tool.choices_others = tool.choices)
+    cl_select_one <- recode.others_select_one(or.select_one,
+                                              print_debug = print_debug,
+                                              tool.survey_others = tool.survey, tool.choices_others = tool.choices,
+                                              orig_response_col = orig_response_col,label_colname =label_colname )
   }
   # HANDLE SELECT_MULTIPLES:
   or.select_multiple <- or.edited %>%
@@ -775,7 +779,11 @@ recode.others <- function(data, or.edited, orig_response_col = "response.uk", is
   if(nrow(sm_data) == 0){
     cl_select_multiple <- dplyr::tibble()
   }else {
-    cl_select_multiple <- recode.others_select_multiple(sm_data, or.select_multiple, orig_response_col, print_debug, tool.survey_others = tool.survey, tool.choices_others = tool.choices,is.loop=is.loop)
+    cl_select_multiple <- recode.others_select_multiple(data=sm_data,or.select_multiple= or.select_multiple,
+                                                        orig_response_col=orig_response_col, print_debug = print_debug,
+                                                        tool.survey_others = tool.survey, tool.choices_others = tool.choices,
+                                                        is.loop=is.loop,
+                                                        label_colname = label_colname )
   }
   # works fine for non-loops
 
