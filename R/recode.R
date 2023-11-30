@@ -794,3 +794,78 @@ recode.others <- function(data, or.edited, orig_response_col = "response.uk", is
 }
 
 
+#' Recode translated columns
+#'
+#' Recode translate requests into a cleaning log file
+#'
+#' @param requests The file with the translated requests loaded with the `load.requests` function
+#' @param response_col The original untranslated response column. "response.uk" by default
+#'
+#' @return Returns a cleaning log file
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' recode.trans.requests(requests = requests_file, response_col = "response.uk")
+#' }
+recode.trans.requests <- function(requests,response_col){
+
+  if(!'invalid.v' %in% names(requests)){
+    stop('invalid.v column is not in the present in your translated requests file.
+         Please double check and make sure to load it with the load.requests function')
+  }
+
+  if(!'true.v' %in% names(requests)){
+    stop('true.v column is not in the present in your translated requests file.
+         Please double check and make sure to load it with the load.requests function')
+  }
+
+  trans.invalid <- requests %>%
+    dplyr::filter(!is.na(invalid.v))
+
+  if(nrow(trans.invalid)>0){
+    result_invalid <- trans.invalid %>%
+      dplyr::rename(variable = name,
+                    old.value = rlang::sym(response_col)) %>%
+      dplyr::mutate(new.value = NA,
+                    issue = 'Invalid response') %>%
+      dplyr::select(uuid,loop_index, variable, old.value, new.value, issue)
+  }else{
+    result_invalid <- data.frame()
+  }
+
+  trans.valid <- requests %>%
+    dplyr::filter(!is.na(true.v))
+
+  if(nrow(trans.valid)>0){
+    result_valid <- trans.valid %>%
+      dplyr::rename(variable = name,
+                    old.value = rlang::sym(response_col)) %>%
+      dplyr::mutate(new.value = true.v,
+                    issue = 'Translating other response') %>%
+      dplyr::select(uuid,loop_index, variable, old.value, new.value, issue)
+  }else{
+    result_valid <- data.frame()
+  }
+
+
+  result <- rbind(result_invalid,result_valid)
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
