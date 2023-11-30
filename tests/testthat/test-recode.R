@@ -1205,7 +1205,135 @@ testthat::test_that("recode.others works", {
 
 })
 
+testthat::test_that('recode.trans.requests works',{
 
+  test_data <- data.frame(uuid = c("a0d73ff7-7f8c-4b0e-b13b-a909fe9b0aa7",
+                                       "b231339d-1b74-4e5a-bfad-037028fb71d8", "e2a71393-61a1-48bb-bc10-a061c2ec98cc",
+                                       "7faf7bf1-a52b-4011-8590-e972b2fa0d0d", "3d5e12e7-c269-4fd6-8162-ce17342b9ca8",
+                                       "3495679e-0d16-4658-ae9b-caf0e283f736", "a0d73ff7-7f8c-4b0e-b13b-a909fe9b0aa7",
+                                       "9c0ddcef-fef8-4f8f-9f72-59292187090c", "9c4b2e89-1ec7-4b3c-aeee-1395b960b5be",
+                                       "27e07fda-fffd-4abe-9dad-ebcc03a7f84f"),
+                          loop_index = c(NA, NA, NA, NA, NA, "loop1_1247", NA, NA, NA, NA),
+                          name = c("conditions_to_pursue_option_other",
+                                   "conditions_to_pursue_option_other", "conditions_to_pursue_option_other",
+                                   "conditions_to_pursue_option_other", "conditions_to_pursue_option_other",
+                                   "ed_barriers", "reasons_feeling_of_safety", "reasons_feeling_of_safety",
+                                   "reasons_feeling_of_safety", "reasons_feeling_of_safety"),
+                          responses = c("999",
+                                        "мешкає за кордоном ДГ", "на милицях мусить ходити до туалету на інше крило",
+                                        "нет порогов, удобно завозить инвалидную коляску ребенка",
+                                        "Є робрта і спокійно", "В ДХ нет ноутбука, компьютера для выполнения домашних заданий,",
+                                        "999", "в н.п. ви чувствуете спокойно",
+                                        "Здатне трещит", "Порівняно з домом 5"),
+                          response.en = c("999", "Lives abroad DG", "On crutches he has to go to the toilet on the other wing",
+                                          "There are no thresholds, it is convenient to bring a child's wheelchair",
+                                          "There is a robrta and calm", "There is no laptop in the house, a computer for homework,",
+                                          "999", "In the n.p. vi you feel calm", "It's crackling", "compared to house 5"),
+                          true.v = c(NA, "Lives abroad", "He moves with the help of crutches, but he has to go to the toilet on the other wing",
+                                        "There are no thresholds(doorstep, first step of a porch) it is convenient to bring in and out a child's wheelchair",
+                                        "There's work here and it's quiet", "HH has no laptop to do hometasks.",
+                                        NA, "In the inhabited locality (settlement) you feel yourself calm",
+                                        "The building is cracking", "in comparison with the 5th house"),
+                          invalid.v = c("yes", NA, NA, NA, NA, NA, "yes", NA, NA, NA))
+#Test 1 works fine on it's own
+
+  actual_output <- recode.trans.requests(requests = test_data, response_col = 'responses')
+  expected_output <- data.frame(
+    uuid = c("a0d73ff7-7f8c-4b0e-b13b-a909fe9b0aa7","a0d73ff7-7f8c-4b0e-b13b-a909fe9b0aa7",
+             "b231339d-1b74-4e5a-bfad-037028fb71d8", "e2a71393-61a1-48bb-bc10-a061c2ec98cc",
+             "7faf7bf1-a52b-4011-8590-e972b2fa0d0d", "3d5e12e7-c269-4fd6-8162-ce17342b9ca8",
+             "3495679e-0d16-4658-ae9b-caf0e283f736",
+             "9c0ddcef-fef8-4f8f-9f72-59292187090c", "9c4b2e89-1ec7-4b3c-aeee-1395b960b5be",
+             "27e07fda-fffd-4abe-9dad-ebcc03a7f84f"),
+    loop_index = c(NA, NA, NA, NA, NA, NA, "loop1_1247", NA, NA, NA),
+    variable = c("conditions_to_pursue_option_other","reasons_feeling_of_safety",
+                 "conditions_to_pursue_option_other", "conditions_to_pursue_option_other",
+                 "conditions_to_pursue_option_other", "conditions_to_pursue_option_other",
+                 "ed_barriers", "reasons_feeling_of_safety",
+                 "reasons_feeling_of_safety", "reasons_feeling_of_safety"),
+    old.value = c("999","999",
+                  "мешкає за кордоном ДГ", "на милицях мусить ходити до туалету на інше крило",
+                  "нет порогов, удобно завозить инвалидную коляску ребенка",
+                  "Є робрта і спокійно", "В ДХ нет ноутбука, компьютера для выполнения домашних заданий,",
+                  "в н.п. ви чувствуете спокойно",
+                  "Здатне трещит", "Порівняно з домом 5"),
+    new.value = c(NA,NA, "Lives abroad", "He moves with the help of crutches, but he has to go to the toilet on the other wing",
+                  "There are no thresholds(doorstep, first step of a porch) it is convenient to bring in and out a child's wheelchair",
+                  "There's work here and it's quiet", "HH has no laptop to do hometasks.",
+                  "In the inhabited locality (settlement) you feel yourself calm",
+                  "The building is cracking", "in comparison with the 5th house"),
+    issue = c('Invalid response', 'Invalid response',rep('Translating other response',8))
+  )
+  testthat::expect_equal(actual_output,expected_output)
+
+  # test 2 should work fine without any invalid entries
+
+  test_data2 <- test_data[is.na(test_data$invalid.v),]
+
+  actual_output <- recode.trans.requests(requests = test_data2, response_col = 'responses')
+  expected_output <- data.frame(
+    uuid = c(
+             "b231339d-1b74-4e5a-bfad-037028fb71d8", "e2a71393-61a1-48bb-bc10-a061c2ec98cc",
+             "7faf7bf1-a52b-4011-8590-e972b2fa0d0d", "3d5e12e7-c269-4fd6-8162-ce17342b9ca8",
+             "3495679e-0d16-4658-ae9b-caf0e283f736",
+             "9c0ddcef-fef8-4f8f-9f72-59292187090c", "9c4b2e89-1ec7-4b3c-aeee-1395b960b5be",
+             "27e07fda-fffd-4abe-9dad-ebcc03a7f84f"),
+    loop_index = c( NA, NA, NA, NA, "loop1_1247", NA, NA, NA),
+    variable = c(
+                 "conditions_to_pursue_option_other", "conditions_to_pursue_option_other",
+                 "conditions_to_pursue_option_other", "conditions_to_pursue_option_other",
+                 "ed_barriers", "reasons_feeling_of_safety",
+                 "reasons_feeling_of_safety", "reasons_feeling_of_safety"),
+    old.value = c(
+                  "мешкає за кордоном ДГ", "на милицях мусить ходити до туалету на інше крило",
+                  "нет порогов, удобно завозить инвалидную коляску ребенка",
+                  "Є робрта і спокійно", "В ДХ нет ноутбука, компьютера для выполнения домашних заданий,",
+                  "в н.п. ви чувствуете спокойно",
+                  "Здатне трещит", "Порівняно з домом 5"),
+    new.value = c("Lives abroad", "He moves with the help of crutches, but he has to go to the toilet on the other wing",
+                  "There are no thresholds(doorstep, first step of a porch) it is convenient to bring in and out a child's wheelchair",
+                  "There's work here and it's quiet", "HH has no laptop to do hometasks.",
+                  "In the inhabited locality (settlement) you feel yourself calm",
+                  "The building is cracking", "in comparison with the 5th house"),
+    issue = c(rep('Translating other response',8))
+  )
+  testthat::expect_equal(actual_output,expected_output)
+
+  # test 3 should work fine without any valid entries
+
+  test_data2 <- test_data[!is.na(test_data$invalid.v),]
+
+  actual_output <- recode.trans.requests(requests = test_data2, response_col = 'responses')
+  expected_output <- data.frame(
+    uuid = c("a0d73ff7-7f8c-4b0e-b13b-a909fe9b0aa7","a0d73ff7-7f8c-4b0e-b13b-a909fe9b0aa7"),
+    loop_index = c(NA_character_, NA_character_),
+    variable = c("conditions_to_pursue_option_other","reasons_feeling_of_safety"),
+    old.value = c("999","999"),
+    new.value = c(NA,NA ),
+    issue = c('Invalid response', 'Invalid response')
+  )
+  testthat::expect_equal(actual_output,expected_output)
+
+  # test 4 - throws an error if we pass an incomplete frame
+
+  test_data2 <- test_data[, -which(names(test_data) %in% c('invalid.v'))]
+  testthat::expect_error(
+    recode.trans.requests(requests = test_data2, response_col = 'responses'),
+    'invalid.v column is not in the present in your translated requests file.
+         Please double check and make sure to load it with the load.requests function'
+  )
+
+  # test 5 - throws another error if we pass an incomplete frame
+
+  test_data2 <- test_data[, -which(names(test_data) %in% c('true.v'))]
+  testthat::expect_error(
+    recode.trans.requests(requests = test_data2, response_col = 'responses'),
+    'true.v column is not in the present in your translated requests file.
+         Please double check and make sure to load it with the load.requests function'
+  )
+
+
+})
 
 
 
