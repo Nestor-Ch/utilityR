@@ -579,8 +579,8 @@ recode.others_select_multiple <- function(data, or.select_multiple, orig_respons
     dplyr::mutate(list_name = sapply(ref.name,function(x){get.choice.list.from.name(x, tool.survey=tool.survey_others, label_colname=label_colname)}),
                   existing.v = stringr::str_split(stringr::str_squish(existing.v), " *; *", simplify = T))
 
-  if(nrow(or.select_multiple.recode) > 0){
     cl_sm_recode <- dplyr::tibble()
+  if(nrow(or.select_multiple.recode) > 0){
     if(print_debug) {
       cat(paste("Number of select_multiple responses to be recoded:", nrow(or.select_multiple.recode)), "\n")
     }
