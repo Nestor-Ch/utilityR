@@ -18,7 +18,7 @@ lookup_columns <- function(id, id_column, column,clean.data,raw.data) {
   old_value <- raw.data[raw.data[[id_column]] == id, ][[column]]
   new_value <- clean.data[clean.data[[id_column]] == id, ][[column]]
 
-  data.frame(id = id, column = column, old.value = old_value, new.value = new_value)
+  data.frame(id = id, variable = column, old.value = old_value, new.value = new_value)
 }
 
 
@@ -26,8 +26,10 @@ lookup_columns <- function(id, id_column, column,clean.data,raw.data) {
 #'
 #' @param clean_data Clean data
 #' @param raw_data Raw dataframe
-#' @param uuid_col The name of your uuid column
+#' @param id_col The name of your uuid column
 #' @param columns_to_check Which columns should be checked
+#' @param is.loop Whether your data is a loop
+#' @param issue Why did you recode them
 #'
 #' @return A cleaning log
 #' @export
@@ -36,14 +38,31 @@ lookup_columns <- function(id, id_column, column,clean.data,raw.data) {
 #' \dontrun{
 #' compare_columns(clean_data = clean.data, raw_data = raw.main, uuid_col ='uuid', columns_to_check = col_list)
 #' }
-compare_columns <- function(clean_data, raw_data, uuid_col, columns_to_check){
+compare_columns <- function(clean_data, raw_data, id_col, is.loop=F, columns_to_check, issue){
 
-  diff_ids <- setdiff(clean_data[[uuid_col]] , raw_data[[uuid_col]])
+  if(is.loop & !id_col =='loop_index'){
+    stop("You've indicated that the data is a loop but didn't choose loop_index as the id_col")
+  }
+
+  if(is.loop==F & id_col =='loop_index'){
+    stop("You've indicated that the data is not a loop but choose loop_index as the id_col")
+  }
+
+  if('loop_index'%in% names(clean_data) & is.loop==F){
+    stop("You've indicated that the data is not a loop but your dataframe contains loop_index column")
+  }
+
+  if(!id_col %in% names(raw_data) | !id_col %in% names(clean_data)){
+    stop('Your id_col is not present in one of the dataframes')
+  }
+
+
+  diff_ids <- setdiff(clean_data[[id_col]] , raw_data[[id_col]])
 
   if(length(diff_ids)>0){
-    warning(paste0('Some of the uuids in your clean data are not present in your raw data and will be excluded: ',
+    warning(paste0('Some of the ids in your clean data are not present in your raw data and will be excluded: ',
                    paste0(diff_ids,collapse = ',\n')))
-    clean_data <- clean_data[!clean_data[[uuid_col]] %in% diff_ids,]
+    clean_data <- clean_data[!clean_data[[id_col]] %in% diff_ids,]
   }
 
   diff_cols <- setdiff(columns_to_check,names(clean_data) )
@@ -54,17 +73,33 @@ compare_columns <- function(clean_data, raw_data, uuid_col, columns_to_check){
   }
 
 
-
-  comparison_results <- expand.grid(id = unique(clean_data[[uuid_col]]), column = columns_to_check)
+  comparison_results <- expand.grid(id = unique(clean_data[[id_col]]), variable = columns_to_check)
 
   comparison_results <- apply(comparison_results,1,function(x){
-    lookup_columns(x[['id']], x[['column']], id_column = uuid_col,clean.data=clean_data, raw.data=raw_data)
+    lookup_columns(x[['id']], x[['variable']], id_column = id_col,clean.data=clean_data, raw.data=raw_data)
   })
   comparison_results <- do.call(rbind,comparison_results)
 
   # Filter out rows where values are the same
   comparison_results <- comparison_results[!comparison_results$old.value %==na% comparison_results$new.value, ]
   rownames(comparison_results) <- NULL
+
+  if(is.loop == F){
+    comparison_results <- comparison_results %>%
+      dplyr::rename(uuid = id) %>%
+      dplyr::mutate(loop_index = NA,
+                    issue = issue)
+  }else{
+    comparison_results <- comparison_results %>%
+      dplyr::rename(loop_index = id) %>%
+      dplyr::left_join(
+        clean_data %>%  dplyr::select(loop_index, uuid)
+      ) %>%
+      dplyr::mutate(issue = issue)
+  }
+
+  comparison_results <- comparison_results %>% dplyr::select(uuid, loop_index, variable, old.value, new.value, issue)
+
   return(comparison_results)
 }
 

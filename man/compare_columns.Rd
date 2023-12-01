@@ -4,16 +4,27 @@
 \alias{compare_columns}
 \title{Compare columns of clean and old dataframes and build a cleaning log}
 \usage{
-compare_columns(clean_data, raw_data, uuid_col, columns_to_check)
+compare_columns(
+  clean_data,
+  raw_data,
+  id_col,
+  is.loop = F,
+  columns_to_check,
+  issue
+)
 }
 \arguments{
 \item{clean_data}{Clean data}
 
 \item{raw_data}{Raw dataframe}
 
-\item{uuid_col}{The name of your uuid column}
+\item{id_col}{The name of your uuid column}
+
+\item{is.loop}{Whether your data is a loop}
 
 \item{columns_to_check}{Which columns should be checked}
+
+\item{issue}{Why did you recode them}
 }
 \value{
 A cleaning log
