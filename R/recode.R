@@ -531,7 +531,6 @@ recode.others_select_multiple <- function(data, or.select_multiple, orig_respons
     stop(print('Your loop data doesnt have the uuid variable, please check the data and rename uuid appropriately'))
   }
 
-
   # filter out uuids not in the data
 
   if(any(! or.select_multiple$uniqui %in% data$uniqui)){
