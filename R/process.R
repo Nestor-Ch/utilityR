@@ -121,7 +121,7 @@ process.uuid <- function(df){
 #' pre.process.audits(df, 10)
 #' }
 pre.process.audits <- function(df,threshold){
-  threshold <- as.numeric(threshold)
+  threshold <- as.numeric(threshold)*60
   df$duration <- as.numeric(df$duration)
   group_means <- df %>%
     dplyr::filter(duration  %_<_% threshold) %>%
