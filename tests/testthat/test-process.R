@@ -110,10 +110,10 @@ testthat::test_that('pre.process.audits works',{
 
   test_loaded2 <- test_loaded[1:10,]
 
-  actual_output <- pre.process.audits(test_loaded2,10)
+  actual_output <- pre.process.audits(test_loaded2,1)
 
   expected_output <- test_loaded2
-  expected_output[expected_output$duration %_>_% 10,'duration'] <- 0
+  expected_output[expected_output$duration %_>_% 60,'duration'] <- 0
 
   testthat::expect_equal(actual_output,expected_output)
 
