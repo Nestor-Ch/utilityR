@@ -73,7 +73,7 @@ detect.outliers <- function(df, id, n.sd, method="o1", is.loop, colnames, ignore
     }
     df.temp <- df.temp %>%
       dplyr::mutate(col.log=log10(check.value),
-             is.outlier=case_when(
+             is.outlier=dplyr::case_when(
                method=="o1" ~ ifelse(col.log > (mean(col.log, na.rm=T) + n.sd * sd(col.log, na.rm=T)) |
                                        col.log < (mean(col.log, na.rm=T) - n.sd * sd(col.log, na.rm=T)) |
                                        value > (mean(check.value, na.rm=T) + n.sd * sd(check.value, na.rm=T)) |
@@ -160,7 +160,7 @@ generate.boxplot <- function(outliers.list, raw.data_frames.list, columns.list, 
       dplyr::mutate(across(all_of(columns), as.numeric)) %>%
       pivot_longer(cols = all_of(columns), names_to = 'variable', values_to = 'value') %>%
       dplyr::filter(!is.na(value) & value > 0) %>%
-      left_join(
+      dplyr::left_join(
         outliers.data_frame %>% dplyr::select(!!sym(id), variable, old.value, issue) %>%
           rename(is.outlier = issue,
                  value = old.value)
