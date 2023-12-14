@@ -1,5 +1,6 @@
 testthat::test_that("detect.outliers works", {
 
+
   df_all_na <- data.frame(
     uuid = c("1", "2", "3", "4", "5"),
     number_hh_member_idp = rep(NA, 5),
@@ -9,7 +10,7 @@ testthat::test_that("detect.outliers works", {
   df_non_numeric <- data.frame(
     uuid = c("1", "2", "3", "4", "5"),
     number_hh_member_idp = c("1", "2", "3", "4", "non-numeric"),
-    responcent_age_non_idp = rep("1", 5)
+     responcent_age_non_idp = rep("1", 5)
   )
 
   colnames_ <- c("non-existing_column")
@@ -17,6 +18,23 @@ testthat::test_that("detect.outliers works", {
                                          method="o1", is.loop=F, colnames=colnames_))
 
   colnames_ <- c("number_hh_member_idp", "responcent_age_non_idp")
+
+  df_empty <- data.frame(
+    uuid = as.character(),
+    number_hh_member_idp = as.character(),
+    responcent_age_non_idp = as.character()
+  )
+  testthat::expect_equal(nrow(detect.outliers(df=df_empty, id="uuid", n.sd=2, is.loop=F, colnames=colnames_)), 0)
+
+  df_zeroes <- data.frame(
+    uuid = as.character(1:100),
+    number_hh_member_idp = append(rep(0, 99), 1000000),
+    responcent_age_non_idp = rep(NA, 100)
+  )
+  testthat::expect_equal(nrow(detect.outliers(df=df_zeroes, id="uuid", n.sd=2,
+                         method="o1", is.loop=F, colnames=colnames_, ignore_0 = T)), 0)
+  testthat::expect_equal(nrow(detect.outliers(df=df_zeroes, id="uuid", n.sd=2,
+                                              method="o1", is.loop=F, colnames=colnames_, ignore_0 = F)), 1)
 
   actual_output <- detect.outliers(df=df_all_na, id="uuid", n.sd=2,
                                    method="o1", is.loop=F, colnames=colnames_)
@@ -60,18 +78,18 @@ testthat::test_that("detect.outliers works", {
     old.value = c(150),
     new.value = rep(NA, 1)
   )
-  o2_output <- data.frame(
-    uuid = c("18", "26", "57"),
-    loop_index = rep(NA, 3),
-    issue = rep("Outlier", 3),
-    variable = rep("responcent_age_non_idp", 3),
-    old.value = c(1, 8, 11),
-    new.value = rep(NA, 3)
+  o1_output <- data.frame(
+    uuid = c("18", "100"),
+    loop_index = rep(NA, 2),
+    issue = rep("Outlier", 2),
+    variable = rep("responcent_age_non_idp", 2),
+    old.value = c(1, 150),
+    new.value = rep(NA, 2)
   )
   testthat::expect_equal(detect.outliers(df=normal_df, id="uuid", n.sd=3,
-                                         method="o1", is.loop=F, colnames=colnames_), true_output)
-  testthat::expect_equal(detect.outliers(df=normal_df, id="uuid", n.sd=2,
-                                         method="o2", is.loop=F, colnames=colnames_), o2_output)
+                                         method="o2", is.loop=F, colnames=colnames_), true_output)
+  testthat::expect_equal(detect.outliers(df=normal_df, id="uuid", n.sd=3,
+                                         method="o1", is.loop=F, colnames=colnames_), o1_output)
   testthat::expect_equal(detect.outliers(df=normal_df, id="uuid", n.sd=2,
                                          method="o3", is.loop=F, colnames=colnames_), true_output)
   testthat::expect_equal(detect.outliers(df=normal_df, id="uuid", n.sd=2,
@@ -152,11 +170,15 @@ testthat::test_that("generate.boxplot works", {
   testthat::expect_no_error(generate.boxplot(raw.data_frames.list=list(raw_data_frame1),
                             outliers.list=list(outliers_data_frame1),
                             columns.list=list("test_variable"),
-                            n.sd=2, boxplot_path=""))
+                            n.sd=2, boxplot.path=""))
   if (!file.exists("2sd.pdf")) {
-    testthat::fail("Visualisation wasn't created")
+    testthat::fail("Boxplot wasn't created")
   } else {
     file.remove("2sd.pdf")
   }
 
+  testthat::expect_error(generate.boxplot(raw.data_frames.list=list(raw_data_frame1),
+                                          outliers.list=list(),
+                                          columns.list=list("test_variable"),
+                                          n.sd=2, boxplot.path=""))
 })
