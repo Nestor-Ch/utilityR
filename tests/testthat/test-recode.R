@@ -700,14 +700,17 @@ testthat::test_that("recode.others_select_multiple works", {
 
   # expect error if uuid in the loop isn't provided
 
-  testthat::expect_error(recode.others_select_multiple(test_data,other_requests, tool.survey_others=tool.survey, tool.choices_others = tool.choices, is.loop =F))
+  testthat::expect_error(recode.others_select_multiple(test_data,other_requests, tool.survey_others=tool.survey, tool.choices_others = tool.choices, is.loop =T))
 
   # test if it runs well if everything is correct
 
   test_data <- test_data %>%
     dplyr::rename(uuid = `_submission__uuid`)
 
-  actual_output <- recode.others_select_multiple(test_data,other_requests, tool.survey_others=tool.survey, tool.choices_others = tool.choices, is.loop =F)
+  actual_output <- recode.others_select_multiple(test_data,other_requests,
+                                                 tool.survey_others=tool.survey,
+                                                 tool.choices_others = tool.choices,
+                                                 is.loop =F)
 
 
   expected_output <-  data.frame(uuid = c(other_requests$uuid[1:2], rep(c('2a7ab223-bc9e-4f15-ace2-feb857ac7742','e489957a-65d5-4777-b40b-6084a9559b82'), 13),
@@ -737,7 +740,7 @@ testthat::test_that("recode.others_select_multiple works", {
                 'chronic_illness_which_affects_the_quality_of_life person_with_disabilities','1','0',NA
   ),
   issue = c(rep('Translating other response',2),rep('Invalid other response',26),rep('Recoding other response',8)),
-  loop_index = NA
+  loop_index = NA_character_
 
   ) %>%
     dplyr::tibble()

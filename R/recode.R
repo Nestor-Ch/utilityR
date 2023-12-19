@@ -614,11 +614,9 @@ recode.others_select_multiple <- function(data, or.select_multiple, orig_respons
 
         cl_sm_recode_add_choice <- recode.multiple.add.choices(data.row, or.row$ref.name, choices, "Recoding other response")
 
-        if(! 'uuid' %in% names(cl_sm_remove) & !'loop_index' %in% names(cl_sm_remove) ){
-          cl_sm_recode_add_choice$loop_index = NA
-        }
-
-        cl_sm_recode <- rbind(cl_sm_recode,cl_sm_recode_add_choice)
+        cl_sm_recode <- cl_sm_recode %>% dplyr::mutate_all(as.character)
+        cl_sm_recode_add_choice <- cl_sm_recode_add_choice %>% dplyr::mutate_all(as.character)
+        cl_sm_recode <- dplyr::bind_rows(cl_sm_recode,cl_sm_recode_add_choice)
       }else{
 
         # read the previous choices and set selection to previous + new
@@ -629,11 +627,9 @@ recode.others_select_multiple <- function(data, or.select_multiple, orig_respons
                                                            other_var_name = or.row$name, tool.survey = tool.survey_others,
                                                            tool.choices = tool.choices_others)
 
-        if(! 'uuid' %in% names(cl_sm_remove) & !'loop_index' %in% names(cl_sm_remove) ){
-          cl_sm_recode_add_ch$loop_index = NA
-        }
+        cl_sm_recode_add_ch <- cl_sm_recode_add_ch %>% dplyr::mutate_all(as.character)
 
-        cl_sm_recode <- rbind(cl_sm_recode,cl_sm_recode_add_ch)
+        cl_sm_recode <- dplyr::bind_rows(cl_sm_recode,cl_sm_recode_add_ch)
       }
     }
   }
@@ -653,18 +649,18 @@ recode.others_select_multiple <- function(data, or.select_multiple, orig_respons
   # When working with non-loop data we will have an error as loop_index column doesn't exist in the raw.main df. We add it here
   # loop data will have columns uniqui and uuid. Main will only have uniqui
 
+  cl_sm_true <- cl_sm_true %>% dplyr::mutate_all(as.character)
+  cl_sm_remove <- cl_sm_remove %>% dplyr::mutate_all(as.character)
+  cl_sm_recode <- cl_sm_recode %>% dplyr::mutate_all(as.character)
 
-  if(!'loop_index' %in% names(cl_sm_remove) ){
-    cl_sm_remove$loop_index = NA
-  }
-  if(!'loop_index' %in% names(cl_sm_true) ){
-    cl_sm_true$loop_index = NA
-  }
-  if(!'loop_index' %in% names(cl_sm_recode) ){
-    cl_sm_recode$loop_index = NA
-  }
+  result_fin <- dplyr::bind_rows(cl_sm_true, cl_sm_remove, cl_sm_recode)
 
-  return(rbind(cl_sm_true, cl_sm_remove, cl_sm_recode))
+
+
+  if(!is.loop & !'loop_index' %in% names(result_fin)){
+    result_fin$loop_index <- NA_character_
+  }
+  return(result_fin)
 
 }
 
