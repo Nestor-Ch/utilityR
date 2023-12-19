@@ -1,25 +1,4 @@
-#' Look up the values of specified columns in 2 different datasets
-#'
-#' @param id The ids you want to look up
-#' @param id_column The name of the ID column
-#' @param column The column you want to look up
-#' @param clean.data Your clean dataset
-#' @param raw.data Your raw dataset
-#'
-#' @return A lookup table comparing the old and new values of a column for the given uuid
-#'
-#' @examples
-#' \dontrun{
-#' lookup_columns(id = 'uuid_example', id_column = 'uuid', column = 'q_1_a',
-#' clean.data = clean.main, raw.data = raw.main)
-#' }
-lookup_columns <- function(id, id_column, column,clean.data,raw.data) {
 
-  old_value <- raw.data[raw.data[[id_column]] == id, ][[column]]
-  new_value <- clean.data[clean.data[[id_column]] == id, ][[column]]
-
-  data.frame(id = id, variable = column, old.value = old_value, new.value = new_value)
-}
 
 
 #' Compare columns of clean and old dataframes and build a cleaning log
@@ -72,13 +51,22 @@ compare_columns <- function(clean_data, raw_data, id_col, is.loop=F, columns_to_
     columns_to_check <- intersect(columns_to_check,names(clean_data))
   }
 
+    clean_data$uniqui <- clean_data[[id_col]]
+    raw_data$uniqui <- raw_data[[id_col]]
 
-  comparison_results <- expand.grid(id = unique(clean_data[[id_col]]), variable = columns_to_check)
 
-  comparison_results <- apply(comparison_results,1,function(x){
-    lookup_columns(x[['id']], x[['variable']], id_column = id_col,clean.data=clean_data, raw.data=raw_data)
-  })
-  comparison_results <- do.call(rbind,comparison_results)
+    comparison_results <- clean_data %>%
+      dplyr::select(uniqui, uuid, dplyr::all_of(columns_to_check)) %>%
+      dplyr::mutate_all(as.character) %>%
+      tidyr::pivot_longer(dplyr::all_of(columns_to_check), names_to = 'variable', values_to = 'new.value' )
+
+    old_results <- raw_data %>%
+      dplyr::select(uniqui, uuid, dplyr::all_of(columns_to_check)) %>%
+      dplyr::mutate_all(as.character) %>%
+      tidyr::pivot_longer(dplyr::all_of(columns_to_check), names_to = 'variable', values_to = 'old.value' )
+
+
+    comparison_results <- comparison_results %>% dplyr::left_join(old_results)
 
   # Filter out rows where values are the same
   comparison_results <- comparison_results[!comparison_results$old.value %==na% comparison_results$new.value, ]
@@ -86,15 +74,12 @@ compare_columns <- function(clean_data, raw_data, id_col, is.loop=F, columns_to_
 
   if(is.loop == F){
     comparison_results <- comparison_results %>%
-      dplyr::rename(uuid = id) %>%
+      dplyr::select(-uniqui) %>%
       dplyr::mutate(loop_index = NA,
                     issue = issue)
   }else{
     comparison_results <- comparison_results %>%
-      dplyr::rename(loop_index = id) %>%
-      dplyr::left_join(
-        clean_data %>%  dplyr::select(loop_index, uuid)
-      ) %>%
+      dplyr::rename(loop_index = uniqui) %>%
       dplyr::mutate(issue = issue)
   }
 

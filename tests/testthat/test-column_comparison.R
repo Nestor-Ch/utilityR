@@ -1,32 +1,3 @@
-testthat::test_that('lookup_columns works',{
-
-  test_frame <- data.frame(
-    uuid = c('1','2','3','4'),
-    test_col = c('test1','test2','test3','test4')
-  )
-
-  test_frame2 <- data.frame(
-    uuid = c('1','2','3','4'),
-    test_col = c('test4','test3','test2','test41')
-  )
-
-  actual_output <- lookup_columns(id = '1',
-                 id_column = 'uuid',
-                 column = 'test_col',
-                 clean.data = test_frame,
-                 raw.data = test_frame2)
-
-  expected_output <- data.frame(
-    id = '1',
-    variable = 'test_col',
-    old.value = 'test4',
-    new.value = 'test1'
-  )
-
-  testthat::expect_equal(actual_output,expected_output)
-
-})
-
 
 
 testthat::test_that('compare_columns works',{
@@ -46,17 +17,18 @@ testthat::test_that('compare_columns works',{
   raw_data[5,14] <- NA
 
   expected_output <- data.frame(
-    uuid = c("f26b0917-a095-469a-af2e-db65c61afb2c","ad166d0f-fc1e-4250-99ec-2ad040d5a871",
-           "038f21c5-c9c5-4b45-a3fa-1a4871b5763d","fb0e950a-ce6d-4ef8-9054-78cfc4905b68",
-           "4fed7425-1f7a-4c3e-8ab4-216b63091db9"),
+    uuid = c("f26b0917-a095-469a-af2e-db65c61afb2c","038f21c5-c9c5-4b45-a3fa-1a4871b5763d",
+             "ad166d0f-fc1e-4250-99ec-2ad040d5a871","4fed7425-1f7a-4c3e-8ab4-216b63091db9",
+             "fb0e950a-ce6d-4ef8-9054-78cfc4905b68"),
     loop_index = NA,
-    variable = c("q2_4_4_main_reason/relative_safety","q2_4_4_main_reason/economic_migration",
-               "q2_4_4_main_reason/availability_of_accommodation","q2_4_4_main_reason/feeling_part_of_the_community",
-               "q2_4_4_main_reason/availability_of_humanitarian_aid"),
-    old.value = c('0','1','1','1','2'),
-    new.value = c('1','0',NA,NA,'0'),
+    variable = c("q2_4_4_main_reason/relative_safety","q2_4_4_main_reason/availability_of_accommodation",
+                 "q2_4_4_main_reason/economic_migration",
+                 "q2_4_4_main_reason/availability_of_humanitarian_aid",
+               "q2_4_4_main_reason/feeling_part_of_the_community"),
+    old.value = c('0','1','1','2','1'),
+    new.value = c('1',NA,'0','0',NA),
     issue = 'test'
-  )
+  ) %>% dplyr::tibble()
   actual_output <- compare_columns(clean_data = clean_data, raw_data = raw_data, id_col = 'uuid',
                                    columns_to_check = col_names, issue = 'test')
 
@@ -69,17 +41,18 @@ testthat::test_that('compare_columns works',{
 
 
   expected_output <- data.frame(
-    uuid = c("f26b0917-a095-469a-af2e-db65c61afb2c","ad166d0f-fc1e-4250-99ec-2ad040d5a871",
-             "038f21c5-c9c5-4b45-a3fa-1a4871b5763d","fb0e950a-ce6d-4ef8-9054-78cfc4905b68",
-             "4fed7425-1f7a-4c3e-8ab4-216b63091db9"),
-    loop_index = c('loop11','loop14','loop13','loop110','loop18'),
-    variable = c("q2_4_4_main_reason/relative_safety","q2_4_4_main_reason/economic_migration",
-                 "q2_4_4_main_reason/availability_of_accommodation","q2_4_4_main_reason/feeling_part_of_the_community",
-                 "q2_4_4_main_reason/availability_of_humanitarian_aid"),
-    old.value = c('0','1','1','1','2'),
-    new.value = c('1','0',NA,NA,'0'),
+    uuid = c("f26b0917-a095-469a-af2e-db65c61afb2c","038f21c5-c9c5-4b45-a3fa-1a4871b5763d",
+             "ad166d0f-fc1e-4250-99ec-2ad040d5a871","4fed7425-1f7a-4c3e-8ab4-216b63091db9",
+             "fb0e950a-ce6d-4ef8-9054-78cfc4905b68"),
+    loop_index = c('loop11','loop13','loop14','loop18','loop110'),
+    variable = c("q2_4_4_main_reason/relative_safety","q2_4_4_main_reason/availability_of_accommodation",
+                 "q2_4_4_main_reason/economic_migration",
+                 "q2_4_4_main_reason/availability_of_humanitarian_aid",
+                 "q2_4_4_main_reason/feeling_part_of_the_community"),
+    old.value = c('0','1','1','2','1'),
+    new.value = c('1',NA,'0','0',NA),
     issue = 'test'
-  )
+  ) %>% dplyr::tibble()
   actual_output <- compare_columns(clean_data = clean_data, raw_data = raw_data, id_col = 'loop_index',is.loop = T,
                                    columns_to_check = col_names, issue = 'test')
 
