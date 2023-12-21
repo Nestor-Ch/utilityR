@@ -405,21 +405,25 @@ testthat::test_that("recode.multiple.remove.choices works", {
 
   test_data$`b17_access_stores/other`[5] = '1'
   test_data$b17_1_access_stores_other[5] = 'test'
+  test_data$b17_access_stores[5] = paste(test_data$b17_access_stores[5],'other')
 
 
   expected_output2 <- data.frame(uuid = c(test_data[grepl('air_alert',test_data$b17_access_stores),]$uuid,
+                                          test_data[grepl('other',test_data$b17_access_stores),]$uuid,
                                           test_data[test_data$`b17_access_stores/air_alert` ==1,]$uuid,
                                           test_data[test_data$`b17_access_stores/other` ==1,]$uuid,
                                           test_data[test_data$`b17_access_stores/other` ==1,]$uuid),
                                  loop_index = c(test_data[grepl('air_alert',test_data$b17_access_stores),]$loop_index,
+                                                test_data[grepl('other',test_data$b17_access_stores),]$loop_index,
                                                 test_data[test_data$`b17_access_stores/air_alert` ==1,]$loop_index,
                                                 test_data[test_data$`b17_access_stores/other` ==1,]$loop_index,
                                                 test_data[test_data$`b17_access_stores/other` ==1,]$loop_index),
                                  old.value = c(test_data[grepl('air_alert',test_data$b17_access_stores),]$b17_access_stores,
+                                               test_data[grepl('other',test_data$b17_access_stores),]$b17_access_stores,
                                                rep(1,4), 1,'test'),
-                                 variable = c(rep('b17_access_stores',4), rep('b17_access_stores/air_alert',4), rep('b17_access_stores/other',1), 'b17_1_access_stores_other'),
-                                 new.value = c(rep("power_outages",4),rep(0,4), 0,NA ),
-                                 issue = rep('test_issue',10)
+                                 variable = c(rep('b17_access_stores',5), rep('b17_access_stores/air_alert',4), rep('b17_access_stores/other',1), 'b17_1_access_stores_other'),
+                                 new.value = c(rep("power_outages",4),'no_impact',rep(0,4), 0,NA ),
+                                 issue = rep('test_issue',11)
   ) %>% dplyr::tibble()
 
 
@@ -434,11 +438,29 @@ testthat::test_that("recode.multiple.remove.choices works", {
   # test 4 - test if it breaks like its supposed to
   testthat::expect_error(recode.multiple.remove.choices(test_data, "b17_access_stores", c("fake_choice","other"),issue='test_issue' ))
 
-  # test 5 - test if it produces an empty df when needed
+  # test 5 - test if it produces a df that only has the 'other'
 
   test_data2 <- test_data[!test_data$b17_access_stores == 'no_impact',]
 
   actual_output <- recode.multiple.remove.choices(test_data2, "b17_access_stores", c("no_impact"),issue='test_issue' )
+
+  expected_output <- data.frame(
+    uuid=test_data[grepl('other',test_data$b17_access_stores),]$uuid,
+    loop_index=test_data[grepl('other',test_data$b17_access_stores),]$loop_index,
+    old.value = c('no_impact other','1'),
+    variable = c('b17_access_stores','b17_access_stores/no_impact'),
+    new.value = c('other','0'),
+    issue = 'test_issue'
+  ) %>% dplyr::tibble()
+
+  testthat::expect_equal(expected_output,actual_output)
+
+
+  # test 6 - test if it produces an empty df when needed
+
+  test_data2 <- test_data2[!test_data2$b17_access_stores == 'no_impact other',]
+  actual_output <- recode.multiple.remove.choices(test_data2, "b17_access_stores", c("no_impact"),issue='test_issue' )
+
 
   testthat::expect_equal(actual_output, data.frame())
 
