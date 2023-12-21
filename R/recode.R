@@ -393,7 +393,8 @@ recode.multiple.remove.choices <- function(data, variable, choices, issue, other
 
     cl_choices <- recode.set.value.regex(data_1, choice_columns, "1", "0", issue)
 
-    if(!"other" %in% choices) { return(rbind(cl_cummulative, cl_choices))
+    if(!"other" %in% choices) {
+      return(rbind(cl_cummulative, cl_choices))
     } else{
       basic_name_pattern <-  paste0("(",paste0(unlist(stringr::str_split(variable,'_')),collapse = ".*"),"_other)")
       other_var_name <- ifelse(is.null(other_var_name),
@@ -402,10 +403,10 @@ recode.multiple.remove.choices <- function(data, variable, choices, issue, other
 
       cl_other <- recode.set.NA(data, other_var_name, issue)
 
-      other_bin_var_name = paste0(variable,"/",'other')
-      cl_choices_other <- recode.set.value.regex(data, other_bin_var_name, "1", "0", issue)
+      # other_bin_var_name = paste0(variable,"/",'other')
+      # cl_choices_other <- recode.set.value.regex(data, other_bin_var_name, "1", "0", issue)
 
-      return(rbind(cl_cummulative, cl_choices, cl_choices_other,cl_other))
+      return(rbind(cl_cummulative, cl_choices,cl_other))
     }
   }
   return(data.frame())
