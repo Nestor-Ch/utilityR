@@ -2,45 +2,39 @@
 % Please edit documentation in R/outliers.R
 \name{generate.boxplot}
 \alias{generate.boxplot}
-\title{Create boxplot with the outliers visualisation}
+\title{Visualisation function for the outliers}
 \usage{
-generate.boxplot(outliers.list,
-               raw.data_frames.list,
-               columns.list,
-               n.sd,
-               boxplot.path = "output/checking/outliers/main_outlier_prices_analysis_")
+generate.boxplot(
+  outliers.list,
+  raw.data_frames.list,
+  columns.list,
+  n.sd,
+  boxplot.path = "output/checking/outliers/main_outlier_prices_analysis_"
+)
 }
 \arguments{
+\item{outliers.list}{List of DataFrames from the detect.outliers function}
 
-\item{
-outliers.list}{List of DataFrames from the detect.outliers function}
+\item{raw.data_frames.list}{List of raw DataFrames in which outliers were searched, such DataFrames sequence should match outliers in the outliers.list}
 
-\item{
-raw.data_frames.list}{List of raw DataFrames in which outliers were searched, such DataFrames sequence should match outliers in the outliers.list}
+\item{columns.list}{List of colnames from the detect.outliers that contains columns were observed on outliers}
 
-\item{
-columns.list}{List of colnames from the detect.outliers that contains columns which were observed on outliers}
+\item{n.sd}{number of standard deviations from the mean}
 
-\item{
-n.sd}{Number of standard deviations from the mean}
-
-\item{
-boxplot.path}{Path for saving outliers visualisation}
+\item{boxplot.path}{path for saving outliers visualisation}
 }
-
 \description{
 Visualisation function for the outliers
 }
-
-\details{
-Be carefull with the boxplot path.
+\note{
+be careful with order of your input lists, outliers and colnames should match raw.data
 }
-
 \examples{
 \dontrun{
 generate.boxplot(outliers.list=list(raw.main.outliers, raw.loop2.outliers, raw.loop3.outliers),
-               raw.data_frames.list=list(raw.main, raw.loop2, raw.loop3),
-               columns.list=list(cols.integer_raw.main, cols.integer_raw.loop2, cols.integer_raw.loop3),
-               n.sd=n.sd, boxplot.path = "output/checking/outliers/main_outlier_prices_analysis_")
+                raw.data_frames.list=list(raw.main, raw.loop2, raw.loop3),
+                columns.list=list(cols.integer_raw.main, cols.integer_raw.loop2, cols.integer_raw.loop3),
+                n.sd=n.sd, boxplot.path = "output/checking/outliers/main_outlier_prices_analysis_")
 }
+
 }
