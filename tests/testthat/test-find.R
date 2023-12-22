@@ -104,7 +104,7 @@ testthat::test_that('find.similar.surveys works',{
   test_raw.main1 <- readxl::read_excel(raw.data_test_dir)[1:1,]
   test_raw.main2 <- readxl::read_excel(raw.data_test_dir)[1:1,]
   test_raw.main3 <- readxl::read_excel(raw.data_test_dir)[1:1,]
-  test_raw.main <- bind_rows(test_raw.main1, test_raw.main2, test_raw.main3)
+  test_raw.main <- dplyr::bind_rows(test_raw.main1, test_raw.main2, test_raw.main3)
   test_raw.main$`_uuid` <- as.character(1:3)
   actual_output <- find.similar.surveys(test_raw.main, test_tool.survey, uuid="_uuid", enum.column="a2_1_enum_id")
   # correctness tests
@@ -135,4 +135,18 @@ testthat::test_that('find.similar.surveys works',{
   testthat::expect_equal(nrow(analysis), 1)
   testthat::expect_equal(nrow(outliers), 0)
   testthat::expect_equal(analysis$sum_number_different_columns[[1]], 68)
+})
+
+testthat::test_that('column.cleaner works',{
+  data <- data.frame(
+    name = c("B A", "ferDINAND"),
+    age = c("18", "20")
+  )
+  labels <- c("name")
+  actual.output <- column.cleaner(data, labels=c("name"))
+  expected.output <- data.frame(
+    name = c("a b", "ferdinand"),
+    age = c("18", "20")
+  )
+  testthat::expect_equal(actual.output, expected.output)
 })

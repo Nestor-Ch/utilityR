@@ -4,7 +4,7 @@
 \alias{recode.set.NA.regex}
 \title{Recode a question by setting variables to NA if they are matching a regex pattern.}
 \usage{
-recode.set.NA.regex(
+\method{recode}{set.NA.regex}(
   data,
   variables,
   pattern,

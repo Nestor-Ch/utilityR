@@ -4,7 +4,7 @@
 \alias{recode.multiple.set.NA}
 \title{Recode select_multiple responses: set to NA.}
 \usage{
-recode.multiple.set.NA(
+\method{recode}{multiple.set.NA}(
   data,
   variable,
   issue,

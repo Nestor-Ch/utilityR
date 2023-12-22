@@ -20,6 +20,9 @@ Suggests:
     readxl,
     stringr,
     svDialogs,
+    stringi,
+    cluster,
+    igraph,
     testthat (>= 3.0.0),
     tidyr,
     OpenRepGrid,
@@ -31,4 +34,7 @@ RoxygenNote: 7.2.3
 Imports: 
     magrittr,
     rlang,
-    tibble
+    tibble,
+    stringi,
+    cluster,
+    igraph
