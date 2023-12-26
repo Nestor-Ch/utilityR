@@ -92,8 +92,6 @@ analyse.similarity <- function(outdata, enum.column, visualise=F, boxplot.path="
 #'
 #' @export
 #'
-#' @import stringi
-#'
 #' @examples
 #' \dontrun{
 #' clean_data <- column.cleaner(data, colnames(data))
@@ -151,10 +149,6 @@ calculate.gower <- function(data, data.main, uuid, uuids, idnk_value) {
 #' @param enum.column Name of column that represent unique identifier for the enumerators
 #'
 #' @export
-#'
-#' @import cluster
-#' @import stringi
-#' @import igraph
 #'
 #' @details
 #' - Uses gower distance when finding the most similar surveys
@@ -246,6 +240,9 @@ find.similar.surveys <- function(data.main, tool.survey, uuid="_uuid",
 
   # 9) find connected components in the graph
   components <- igraph::clusters(graph)
+  if (nrow(result.outdata) != length(components$membership)) {
+    stop("Probably data contains duplicates")
+  }
   result.outdata[["group_id"]] <- components$membership
 
   return(result.outdata)
