@@ -22,6 +22,8 @@
 #'  ignore_0=T)
 #' }
 #'
+#' @export
+#'
 #' @method o1 Method based on Z score and logarithmization of the values
 #' @method o2 Modified Z score which based on the median absolute deviation, recommended n.sd
 #' @method o3 Method based on the interquartile range
@@ -110,6 +112,8 @@ detect.outliers <- function(df, id, n.sd, method="o1", is.loop, colnames, ignore
 #' @param n.sd number of standard deviations from the mean
 #' @param boxplot.path path for saving outliers visualisation
 #'
+#' @export
+#'
 #' @examples
 #' \dontrun{
 #' generate.boxplot(outliers.list=list(raw.main.outliers, raw.loop2.outliers, raw.loop3.outliers),
@@ -157,7 +161,7 @@ generate.boxplot <- function(outliers.list, raw.data_frames.list, columns.list, 
       dplyr::select(!!sym(id), all_of(columns)) %>%
       dplyr::mutate(across(all_of(columns), as.numeric)) %>%
       pivot_longer(cols = all_of(columns), names_to = 'variable', values_to = 'value') %>%
-      dplyr::filter(!is.na(value) & value > 0) %>%
+      dplyr::filter(!is.na(value) & value >= 0) %>%
       dplyr::left_join(
         outliers.data_frame %>% dplyr::select(!!sym(id), variable, old.value, issue) %>%
           rename(is.outlier = issue,

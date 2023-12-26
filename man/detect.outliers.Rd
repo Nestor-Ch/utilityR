@@ -2,48 +2,41 @@
 % Please edit documentation in R/outliers.R
 \name{detect.outliers}
 \alias{detect.outliers}
-\title{Detect outliers in given DataFrame}
+\title{Looking for outliers in the provided data}
 \usage{
-detect.outliers(df,
-  id,
-  n.sd,
-  method="o1",
-  is.loop,
-  colnames,
-  ignore_0=T)
+detect.outliers(df, id, n.sd, method = "o1", is.loop, colnames, ignore_0 = T)
 }
 \arguments{
 \item{df}{Dataframe containing columns which will be observed on outliers}
 
 \item{id}{row's unique identifier}
 
-\item{colnames}{columns which will be observed on outliers}
-
-\item{is.loop}{Is df a loop data or not}
-
 \item{n.sd}{number of standard deviations will be used in algorithm}
 
 \item{method}{method for outliers detecting: o1, o2, o3, o4. More detailed about methods below}
 
+\item{is.loop}{Is df a loop data or not}
+
+\item{colnames}{columns which will be observed on outliers}
+
 \item{ignore_0}{ignore 0 values or not, should be TRUE in o2 method, and in another too}
 }
-
 \value{
 DataFrame containing outliers
 }
-
 \description{
 Looking for outliers in the provided data
 }
-
-\details{
-There are 4 methods of finding outliers.
-}
-
 \examples{
 \dontrun{
-detect.outliers(df=raw.main, id='uuid',
-  colnames=cols.integer_raw.main, is.loop=F,n.sd=n.sd,
-  method="o1", ignore_0=T)
+raw.main.outliers <- detect.outliers(
+ df=raw.main,
+ id='uuid',
+ colnames=cols.integer_raw.main,
+ is.loop=F,
+ n.sd=n.sd,
+ method="o1",
+ ignore_0=T)
 }
+
 }

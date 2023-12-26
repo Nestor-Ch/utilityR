@@ -4,7 +4,7 @@
 \alias{recode.multiple.add.choices}
 \title{Recode select_multiple responses: add particular choices.}
 \usage{
-recode.multiple.add.choices(data, variable, choices, issue)
+\method{recode}{multiple.add.choices}(data, variable, choices, issue)
 }
 \arguments{
 \item{data}{Dataframe containing records which will be affected.}
