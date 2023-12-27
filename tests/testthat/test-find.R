@@ -149,4 +149,9 @@ testthat::test_that('column.cleaner works',{
     age = c("18", "20")
   )
   testthat::expect_equal(actual.output, expected.output)
+  temp <- data.frame(
+    name = c("vlad", "peleKh Bohdan"),
+    age = c(19, 20)
+  )
+  testthat::expect_warning(column.cleaner(temp, colnames(temp)))
 })
