@@ -59,6 +59,14 @@ find.missing.ids <- function(data, uniquis, print_warnings = T,is.loop=F){
 #'  outliers <- result.analysis$outliers
 #' }
 analyse.similarity <- function(outdata, enum.column, visualise=F, boxplot.path="") {
+  if (!(enum.column %in% colnames(outdata))) {
+    stop(paste("Column", enum.column, "does not exist in the data."))
+  }
+
+  if (nrow(outdata) <= 1) {
+    stop("Input outdata data frame is so small (0 or 1 columns)")
+  }
+
   analysis <- outdata %>%
     dplyr::group_by(!!rlang::sym(enum.column)) %>%
     dplyr::summarize(
@@ -109,7 +117,12 @@ column.cleaner <- function(df, labels) {
   }
 
   for (label in labels) {
-      output_data[[label]] <- sapply(stringi::stri_split_regex(output_data[[label]], "\\s+"), process_tokens)
+    if (!all(sapply(output_data[[label]], is.character))) {
+      output_data[[label]] <- as.character(output_data[[label]])
+      warning(paste("Column '", label, "'was not of character format"))
+    }
+
+    output_data[[label]] <- sapply(stringi::stri_split_regex(output_data[[label]], "\\s+"), process_tokens)
   }
 
   return(output_data)
@@ -168,7 +181,7 @@ find.similar.surveys <- function(data.main, tool.survey, uuid="_uuid",
   }
 
   if (nrow(data.main) <= 1) {
-    stop("Input raw data frame so small (0 or 1 columns)")
+    stop("Input raw data frame is so small (0 or 1 columns)")
   }
 
   if (nrow(tool.survey) == 0) {
@@ -233,7 +246,7 @@ find.similar.surveys <- function(data.main, tool.survey, uuid="_uuid",
     }
   }
   if (nrow(result.outdata) == 0) {
-    stop("There is not any enumerators wiht more than 1 survey")
+    stop("There is not any enumerators with more than 1 survey")
   }
   edge_list <- data.frame(from = result.outdata[[uuid]], to = result.outdata[["_id_most_similar_survey"]])
   graph <- igraph::graph_from_data_frame(d = edge_list, directed = FALSE)
