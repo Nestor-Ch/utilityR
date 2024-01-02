@@ -37,4 +37,5 @@ Imports:
     tibble,
     stringi,
     cluster,
-    igraph
+    igraph,
+    fastDummies
