@@ -34,6 +34,6 @@ Compare columns of clean and old dataframes and build a cleaning log
 }
 \examples{
 \dontrun{
-compare_columns(clean_data = clean.data, raw_data = raw.main, uuid_col ='uuid', columns_to_check = col_list)
+compare_columns(clean_data = clean.data, raw_data = raw.main, id_col ='uuid', columns_to_check = col_list)
 }
 }

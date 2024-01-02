@@ -167,7 +167,7 @@ calculate.gower <- function(data, data.main, uuid, uuids, idnk_value) {
 #' - Uses gower distance when finding the most similar surveys
 #' - Searches for similar survays in the section of the same enumerator, namely the column specified in enum.column
 #'
-#' @example
+#' @examples
 #' \dontrun{
 #' outdata <- find.similar.surveys(
 #'  data.main=raw.main,
