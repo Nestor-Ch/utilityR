@@ -57,7 +57,7 @@ find.responses <- function(.dataframe, questions.db, values_to="responses", is.l
     if (length(choice) > 1) {
       warning("Data contains duplicate uuids")
     }
-    responses.j[i, "choice"] <- choice
+    responses.j[i, "choice"] <- gsub(" ", "\n", choice)
   }
 
   return(responses.j)
