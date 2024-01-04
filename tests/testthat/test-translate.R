@@ -14,25 +14,30 @@ testthat::test_that("find.responses works", {
     suppressWarnings()
   testthat::expect_equal(actual_output,
                          data.frame())
+
   #test 3
-  q.db <- data.frame(name = c("occupation"))
-  testdata <- data.frame(age = c(21,32), occupation = c("cook","train conductor"),uuid = c("abc","def"))
+  q.db <- data.frame(name = c("occupation"), ref.name=c("age"))
+  testdata <- data.frame(age = c(21,32), occupation = c("cook","train conductor"), uuid = c("abc","def"))
   actual_output <- find.responses(testdata,q.db,"responses",is.loop = F)
   expected_output <- data.frame(uuid = c("abc","def"),
                                 loop_index =c(NA,NA),
                                 name = c("occupation","occupation"),
-                                responses=c("cook","train conductor"))
+                                responses=c("cook","train conductor"),
+                                ref.name=c("age", "age"),
+                                choice=c("21", "32"))
   testthat::expect_equal(actual_output,
                          expected_output)
   #test 4
-  q.db <- data.frame(name = c("occupation"))
+  q.db <- data.frame(name = c("occupation"), ref.name=c("age"))
   testdata <- data.frame(age = c(21,32), occupation = c("cook","train conductor"),
                          uuid = c("abc","def"), loop_index = c("loop_123","loop_456"))
   actual_output <- find.responses(testdata,q.db,"responses",is.loop = T)
   expected_output <- data.frame(uuid = c("abc","def"),
                                 loop_index =c("loop_123","loop_456"),
                                 name = c("occupation","occupation"),
-                                responses=c("cook","train conductor"))
+                                responses=c("cook","train conductor"),
+                                ref.name=c("age", "age"),
+                                choice=c("21", "32"))
   testthat::expect_equal(actual_output,
                          expected_output)
 
