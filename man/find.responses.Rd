@@ -23,7 +23,8 @@ A dataframe containing the uuid, name and the column specified by values_to.
 Look up a raw dataframe to find all responses to a given set of questions.
 }
 \examples{
-q.db <- data.frame(name = c("age","occupation"))
-raw.data <- data.frame(age = c(21,32), occupation = c("cook","train conductor"),uuid = c("abc","def"))
-find.responses(raw.data, q.db, "responses")
+q.db <- data.frame(name = c("age","occupation"), ref.name = c("age_choice", "occupation_choice"))
+raw.data <- data.frame(age = c(21,32), occupation = c("cook","train conductor"), uuid = c("abc","def"),
+                      age_choice = c("other", "other"), occupation_choice = c("other", "other"))
+res <-find.responses(raw.data, q.db, "responses")
 }

@@ -10,9 +10,10 @@
 #' @export
 #'
 #' @examples
-#' q.db <- data.frame(name = c("age","occupation"))
-#' raw.data <- data.frame(age = c(21,32), occupation = c("cook","train conductor"),uuid = c("abc","def"))
-#' find.responses(raw.data, q.db, "responses")
+#' q.db <- data.frame(name = c("age","occupation"), ref.name = c("age_choice", "occupation_choice"))
+#' raw.data <- data.frame(age = c(21,32), occupation = c("cook","train conductor"), uuid = c("abc","def"),
+#'                        age_choice = c("other", "other"), occupation_choice = c("other", "other"))
+#' res <-find.responses(raw.data, q.db, "responses")
 
 find.responses <- function(.dataframe, questions.db, values_to="responses", is.loop = F){
   if(nrow(questions.db) == 0){
@@ -32,8 +33,8 @@ find.responses <- function(.dataframe, questions.db, values_to="responses", is.l
   responses <- .dataframe %>%
     dplyr::select(c("uuid", "loop_index", any_of(questions.db$name))) %>%
     tidyr::pivot_longer(cols = any_of(questions.db$name),
-                 names_to="question.name", values_to=values_to,
-                 values_transform = as.character) %>%
+                        names_to="question.name", values_to=values_to,
+                        values_transform = as.character) %>%
     dplyr::filter(!is.na(!!rlang::sym(values_to))) %>%
     dplyr::select(uuid, loop_index, question.name, !!rlang::sym(values_to))
 
@@ -48,6 +49,17 @@ find.responses <- function(.dataframe, questions.db, values_to="responses", is.l
       dplyr::left_join(dplyr::select(.dataframe, uuid), by="uuid")%>%
       as.data.frame()
   }
+
+  responses.j <- responses.j %>%
+    dplyr::mutate(choice = NA)
+  for (i in 1:nrow(responses.j)) {
+    choice <- .dataframe[.dataframe$uuid == responses.j[i, "uuid"], responses.j[i, "ref.name"]]
+    if (length(choice) > 1) {
+      warning("Data contains duplicate uuids")
+    }
+    responses.j[i, "choice"] <- choice
+  }
+
   return(responses.j)
 }
 
