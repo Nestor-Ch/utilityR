@@ -24,7 +24,7 @@ testthat::test_that("find.responses works", {
                                 name = c("occupation","occupation"),
                                 responses=c("cook","train conductor"),
                                 ref.name=c("age", "age"),
-                                choice=c(21, 32))
+                                choice=c("21", "32"))
   testthat::expect_equal(actual_output,
                          expected_output)
   #test 4
@@ -37,7 +37,7 @@ testthat::test_that("find.responses works", {
                                 name = c("occupation","occupation"),
                                 responses=c("cook","train conductor"),
                                 ref.name=c("age", "age"),
-                                choice=c(21, 32))
+                                choice=c("21", "32"))
   testthat::expect_equal(actual_output,
                          expected_output)
 
