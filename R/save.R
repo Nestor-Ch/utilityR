@@ -61,7 +61,7 @@ save.other.requests <- function(df, wb_name, use_template = F, directory,
 
   openxlsx::setColWidths(wb, "Sheet2", cols = 1, widths = 5)
   openxlsx::setColWidths(wb, "Sheet2", cols = 2:which(colnames(df) == "choices.label")-1, widths = "auto")
-  openxlsx::setColWidths(wb, "Sheet2", cols = which(colnames(df) == "choice"), widths = 30)
+  openxlsx::setColWidths(wb, "Sheet2", cols = which(colnames(df) == "choice"), widths = 40)
   openxlsx::setColWidths(wb, "Sheet2", cols = which(colnames(df) == "choices.label"), widths = 50)
   openxlsx::setColWidths(wb, "Sheet2", cols = which(colnames(df) == "full.label"), widths = 30)
   openxlsx::setColWidths(wb, "Sheet2", cols = (ncol(df)-4):(ncol(df)), widths = 35)

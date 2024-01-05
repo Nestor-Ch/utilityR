@@ -50,15 +50,16 @@ find.responses <- function(.dataframe, questions.db, values_to="responses", is.l
       as.data.frame()
   }
 
-  responses.j <- responses.j %>%
-    dplyr::mutate(choice = NA)
-  for (i in 1:nrow(responses.j)) {
-    choice <- .dataframe[.dataframe$uuid == responses.j[i, "uuid"], responses.j[i, "ref.name"]]
-    if (length(choice) > 1) {
-      warning("Data contains duplicate uuids")
-    }
-    responses.j[i, "choice"] <- gsub(" ", "\n", choice)
+  if ("ref.name" %in% colnames(responses.j)) {
+    responses.j <- .dataframe %>%
+      dplyr::select(uuid, dplyr::all_of(na.omit(responses.j$ref.name))) %>%
+      tidyr::pivot_longer(cols = dplyr::all_of(na.omit(responses.j$ref.name)), names_to = 'ref.name', values_to = 'choice') %>%
+      dplyr::right_join(responses.j)
+  } else {
+    responses.j <- responses.j %>%
+      dplyr::mutate(choice = NA)
   }
+
 
   return(responses.j)
 }
