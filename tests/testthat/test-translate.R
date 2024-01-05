@@ -20,11 +20,12 @@ testthat::test_that("find.responses works", {
   testdata <- data.frame(age = c(21,32), occupation = c("cook","train conductor"), uuid = c("abc","def"))
   actual_output <- find.responses(testdata,q.db,"responses",is.loop = F)
   expected_output <- data.frame(uuid = c("abc","def"),
+                                ref.name=c("age", "age"),
+                                choice=c(21, 32),
                                 loop_index =c(NA,NA),
                                 name = c("occupation","occupation"),
-                                responses=c("cook","train conductor"),
-                                ref.name=c("age", "age"),
-                                choice=c("21", "32"))
+                                responses=c("cook","train conductor"))
+  actual_output <- as.data.frame(actual_output)
   testthat::expect_equal(actual_output,
                          expected_output)
   #test 4
@@ -33,11 +34,12 @@ testthat::test_that("find.responses works", {
                          uuid = c("abc","def"), loop_index = c("loop_123","loop_456"))
   actual_output <- find.responses(testdata,q.db,"responses",is.loop = T)
   expected_output <- data.frame(uuid = c("abc","def"),
+                                ref.name=c("age", "age"),
+                                choice=c(21, 32),
                                 loop_index =c("loop_123","loop_456"),
                                 name = c("occupation","occupation"),
-                                responses=c("cook","train conductor"),
-                                ref.name=c("age", "age"),
-                                choice=c("21", "32"))
+                                responses=c("cook","train conductor"))
+  actual_output <- as.data.frame(actual_output)
   testthat::expect_equal(actual_output,
                          expected_output)
 
