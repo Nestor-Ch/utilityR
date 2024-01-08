@@ -4,7 +4,7 @@
 \alias{recode.others}
 \title{Create a cleaning log for recoding other responses}
 \usage{
-\method{recode}{others}(
+recode.others(
   data,
   or.edited,
   orig_response_col = "response.uk",

@@ -4,7 +4,7 @@
 \alias{recode.multiple.remove.choices}
 \title{Recode select_multiple responses: remove particular choices.}
 \usage{
-\method{recode}{multiple.remove.choices}(
+recode.multiple.remove.choices(
   data,
   variable,
   choices,
