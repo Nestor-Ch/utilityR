@@ -4,7 +4,7 @@
 \alias{recode.multiple.set.choices}
 \title{Recode select_multiple responses: set answer to one particular choice.}
 \usage{
-\method{recode}{multiple.set.choices}(
+recode.multiple.set.choices(
   data,
   variable,
   choices,

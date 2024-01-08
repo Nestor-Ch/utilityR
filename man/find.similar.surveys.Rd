@@ -32,3 +32,11 @@ and with the minimum number of different column
 - Uses gower distance when finding the most similar surveys
 - Searches for similar survays in the section of the same enumerator, namely the column specified in enum.column
 }
+\examples{
+\dontrun{
+outdata <- find.similar.surveys(
+ data.main=raw.main,
+ tool.survey=tool.survey,
+ enum.column='a2_1_enum_id')
+}
+}
