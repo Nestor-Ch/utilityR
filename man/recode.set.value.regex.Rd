@@ -4,7 +4,7 @@
 \alias{recode.set.value.regex}
 \title{Recode a question by setting variables to some new value if they are matching a regex pattern.}
 \usage{
-recode.set.value.regex(
+\method{recode}{set.value.regex}(
   data,
   variables,
   pattern,

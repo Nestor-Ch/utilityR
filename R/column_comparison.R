@@ -15,7 +15,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' compare_columns(clean_data = clean.data, raw_data = raw.main, uuid_col ='uuid', columns_to_check = col_list)
+#' compare_columns(clean_data = clean.data, raw_data = raw.main, id_col ='uuid', columns_to_check = col_list)
 #' }
 compare_columns <- function(clean_data, raw_data, id_col, is.loop=F, columns_to_check, issue){
 

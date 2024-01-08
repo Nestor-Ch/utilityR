@@ -184,7 +184,7 @@ create.follow.up.requests <- function(checks.df, directory,wb_name){
 #' }
 create.translate.requests <- function(responses.j, response_colname = "response.en"){
 
-  relevant_colnames <- c("uuid", "loop_index", "name", "ref.name","full.label","ref.type","ref.response", "choices.label", "today")
+  relevant_colnames <- c("uuid", "loop_index", "name", "ref.name","full.label","ref.type","ref.response", "choices.label", "choice", "today")
 
   response_cols <- colnames(responses.j)[stringr::str_starts(colnames(responses.j), "response")]
   relevant_colnames <- append(relevant_colnames, response_cols)
