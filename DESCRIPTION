@@ -40,5 +40,6 @@ Imports:
     stringi,
     cluster,
     igraph,
-    fastDummies
+    fastDummies,
+    ggplot2
 VignetteBuilder: knitr

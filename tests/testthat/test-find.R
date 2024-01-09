@@ -64,6 +64,7 @@ testthat::test_that('find.similar.surveys works',{
   test_tool.survey <- readxl::read_excel(tool.survey_test_dir)
   test_raw.main <- readxl::read_excel(raw.data_test_dir)[1:100,]
 
+
   # test for the missing enum.column
   testthat::expect_error(find.similar.surveys(test_raw.main, test_tool.survey, uuid="_uuid"))
   # test for the wrong uuid
@@ -79,8 +80,20 @@ testthat::test_that('find.similar.surveys works',{
     existing_column_2 = as.character(1:5),
     check.names = FALSE
   )
+
   # test for the data without specified enum.column
   testthat::expect_error(find.similar.surveys(test_raw.main, test_tool.survey, uuid="_uuid", enum.column="a2_1_enum_id"))
+  test_raw.main <- data.frame(
+    "uuid" = as.character(1:5),
+    "start" = as.character(1:5),
+    existing_column_1 = as.character(1:5),
+    existing_column_2 = as.character(1:5),
+    check.names = FALSE
+  )
+
+  # test for the data without specified uuid column
+  testthat::expect_error(find.similar.surveys(test_raw.main, test_tool.survey, uuid="_uuid", enum.column="a2_1_enum_id"))
+
   test_raw.main <- data.frame(
     "_uuid" = as.character(1:5),
     "start" = as.character(1:5),
@@ -101,6 +114,10 @@ testthat::test_that('find.similar.surveys works',{
   # no exist enumerators with more than 1 survey
   testthat::expect_error(find.similar.surveys(test_raw.main, test_tool.survey, uuid="_uuid", enum.column="a2_1_enum_id"))
 
+  # empty tool.survey column
+  tool.survey <- data.frame()
+  testthat::expect_error(find.similar.surveys(test_raw.main, test_tool.survey, uuid="_uuid", enum.column="a2_1_enum_id"))
+
   test_raw.main1 <- readxl::read_excel(raw.data_test_dir)[1:1,]
   test_raw.main2 <- readxl::read_excel(raw.data_test_dir)[1:1,]
   test_raw.main3 <- readxl::read_excel(raw.data_test_dir)[1:1,]
@@ -110,6 +127,10 @@ testthat::test_that('find.similar.surveys works',{
   # correctness tests
   testthat::expect_equal(sum(actual_output$number_different_columns), 0)
   testthat::expect_equal(unique(actual_output$group_id), 1)
+  # test for data with duplicates
+  test_raw.main$`_uuid` <- rep(1, 3)
+  testthat::expect_error(find.similar.surveys(test_raw.main, test_tool.survey, uuid="_uuid", enum.column="a2_1_enum_id"))
+
   analysis.result <- analyse.similarity(actual_output, enum.column="a2_1_enum_id")
   analysis <- analysis.result$analysis
   outliers <- analysis.result$outliers
@@ -135,6 +156,7 @@ testthat::test_that('find.similar.surveys works',{
   testthat::expect_equal(nrow(analysis), 1)
   testthat::expect_equal(nrow(outliers), 0)
   testthat::expect_equal(analysis$sum_number_different_columns[[1]], 68)
+
 })
 
 testthat::test_that('column.cleaner works',{
