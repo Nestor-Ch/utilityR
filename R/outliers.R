@@ -96,7 +96,7 @@ detect.outliers <- function(df, id, n.sd, method="o1", is.loop, colnames, ignore
       dplyr::select(-id)
   }else{
     res <- res %>%
-      rename(loop_index = id)
+      dplyr::rename(loop_index = id)
   }
   res <- res %>%
     dplyr::select(uuid, loop_index,issue, variable, old.value, new.value)
@@ -158,30 +158,30 @@ generate.boxplot <- function(outliers.list, raw.data_frames.list, columns.list, 
     }
 
     outliers_output <- raw.data_frame %>%
-      dplyr::select(!!sym(id), all_of(columns)) %>%
+      dplyr::select(!!dplyr::sym(id), all_of(columns)) %>%
       dplyr::mutate(across(all_of(columns), as.numeric)) %>%
-      pivot_longer(cols = all_of(columns), names_to = 'variable', values_to = 'value') %>%
+      tidyr::pivot_longer(cols = all_of(columns), names_to = 'variable', values_to = 'value') %>%
       dplyr::filter(!is.na(value) & value >= 0) %>%
       dplyr::left_join(
-        outliers.data_frame %>% dplyr::select(!!sym(id), variable, old.value, issue) %>%
-          rename(is.outlier = issue,
+        outliers.data_frame %>% dplyr::select(!!dplyr::sym(id), variable, old.value, issue) %>%
+          dplyr::rename(is.outlier = issue,
                  value = old.value)
       ) %>% dplyr::mutate(is.outlier = ifelse(is.na(is.outlier), 'Regular', as.character(is.outlier)))
 
-    all_outliers <- bind_rows(all_outliers, outliers_output)
+    all_outliers <- dplyr::bind_rows(all_outliers, outliers_output)
   }
 
-  g.outliers_main <- ggplot(all_outliers) +
-    geom_boxplot(aes(x = variable, y = value), width = 0.2) + ylab("Values") +
-    geom_point(aes(x = variable, y = value, shape = is.outlier, color = is.outlier, fill = is.outlier), size = 2) +
-    facet_wrap(~variable, ncol = 4, scales = "free_y") +
-    theme(axis.text.x = element_blank(),
-          axis.ticks.x = element_blank()) +
-    scale_shape_manual(values = c(21, 16)) +
-    scale_color_manual(values = c('red', 'black')) +
-    scale_fill_manual(values = c('red', 'black'))
+  g.outliers_main <- ggplot2::ggplot(all_outliers) +
+    ggplot2::geom_boxplot(ggplot2::aes(x = variable, y = value), width = 0.2) + ggplot2::ylab("Values") +
+    ggplot2::geom_point(ggplot2::aes(x = variable, y = value, shape = is.outlier, color = is.outlier, fill = is.outlier), size = 2) +
+    ggplot2::facet_wrap(~variable, ncol = 4, scales = "free_y") +
+    ggplot2::theme(axis.text.x = ggplot2::element_blank(),
+          axis.ticks.x = ggplot2::element_blank()) +
+    ggplot2::scale_shape_manual(values = c(21, 16)) +
+    ggplot2::scale_color_manual(values = c('red', 'black')) +
+    ggplot2::scale_fill_manual(values = c('red', 'black'))
 
   # generation
-  ggsave(paste0(boxplot.path, n.sd, "sd.pdf"), g.outliers_main,
+  ggplot2::ggsave(paste0(boxplot.path, n.sd, "sd.pdf"), g.outliers_main,
          width = 40, height = 80, units = "cm", device = "pdf")
 }

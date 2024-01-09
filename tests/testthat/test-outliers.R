@@ -128,6 +128,8 @@ testthat::test_that("generate.boxplot works", {
     issue = rep("Outlier", 5)
   )
 
+  # Test Mismatching between raw data frame and outliers data frame!
+
   testthat::expect_error(generate.boxplot(
     outliers.list = list(outliers_data_frame1),
     raw.data_frames.list = list(raw_data_frame1),
@@ -148,9 +150,61 @@ testthat::test_that("generate.boxplot works", {
     issue = rep("Outlier", 5)
   )
 
+  # Test Mismatching between raw data frame and outliers data frame!
+
   testthat::expect_error(generate.boxplot(
     outliers.list = list(outliers_data_frame1),
     raw.data_frames.list = list(raw_data_frame1),
+    columns.list = list("test_variable"),
+    n.sd = 2
+  ))
+
+  raw_data_frame1 <- data.frame(
+    uuid = as.character(1:100),
+    test_variable = round(rnorm(100, 50, 25))
+  )
+  values <- sample(raw_data_frame1$uuid, 5)
+  outliers_data_frame1 <- data.frame(
+    uuid = subset(raw_data_frame1, uuid %in% values)$uuid,
+    loop_index = rep("some_loop_value", 5),
+    variable = "test_variable",
+    old.value = subset(raw_data_frame1, uuid %in% values)$test_variable,
+    issue = rep("Outlier", 5)
+  )
+  outliers_data_frame1 <- outliers_data_frame1 %>%
+    dplyr::rename(notissue=issue)
+
+  # Test Wrong outliers DataFrame format
+
+  testthat::expect_error(generate.boxplot(
+    outliers.list = list(outliers_data_frame1),
+    raw.data_frames.list = list(raw_data_frame1),
+    columns.list = list("test_variable"),
+    n.sd = 2
+  ))
+
+  raw_data_frame1 <- data.frame(
+    uuid = as.character(1:100),
+    test_variable = round(rnorm(100, 50, 25))
+  )
+  raw_data_frame2 <- data.frame(
+    uuid = as.character(1:100),
+    test_variable = round(rnorm(100, 50, 25))
+  )
+  values <- sample(raw_data_frame1$uuid, 5)
+  outliers_data_frame1 <- data.frame(
+    uuid = subset(raw_data_frame1, uuid %in% values)$uuid,
+    loop_index = rep(NA, 5),
+    variable = "test_variable",
+    old.value = subset(raw_data_frame1, uuid %in% values)$test_variable,
+    issue = rep("Outlier", 5)
+  )
+
+  # Test Length of input lists are mismatching
+
+  testthat::expect_error(generate.boxplot(
+    outliers.list = list(outliers_data_frame1),
+    raw.data_frames.list = list(raw_data_frame1, raw_data_frame1),
     columns.list = list("test_variable"),
     n.sd = 2
   ))
@@ -167,15 +221,17 @@ testthat::test_that("generate.boxplot works", {
     old.value = subset(raw_data_frame1, uuid %in% values)$test_variable,
     issue = rep("Outlier", 5)
   )
-  # testthat::expect_no_error(generate.boxplot(raw.data_frames.list=list(raw_data_frame1),
-  #                           outliers.list=list(outliers_data_frame1),
-  #                           columns.list=list("test_variable"),
-  #                           n.sd=2, boxplot.path=""))
-  # if (!file.exists("2sd.pdf")) {
-  #   testthat::fail("Boxplot wasn't created")
-  # } else {
-  #   file.remove("2sd.pdf")
-  # }
+
+  temp_dir <- tempdir()
+
+  testthat::expect_no_error(generate.boxplot(raw.data_frames.list=list(raw_data_frame1),
+                            outliers.list=list(outliers_data_frame1),
+                            columns.list=list("test_variable"),
+                            n.sd=2, boxplot.path=temp_dir))
+  if (!file.exists(paste0(temp_dir, "2sd.pdf"))) {
+    testthat::fail("Boxplot wasn't created")
+  }
+  unlink(paste0(temp_dir, "2sd.pdf"))
 
   testthat::expect_error(generate.boxplot(raw.data_frames.list=list(raw_data_frame1),
                                           outliers.list=list(),
