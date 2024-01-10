@@ -543,6 +543,47 @@ testthat::test_that("recode.others_select_one works", {
 
   testthat::expect_equal(actual_output, expected_output)
 
+  # Test that if the entry has no recode needs it doesn't break
+
+  actual_output <- recode.others_select_one(other_requests %>% dplyr::filter(is.na(existing.v)), tool.survey_others=tool.survey, tool.choices_others = tool.choices)
+
+  expected_output <-  data.frame(uuid = c(other_requests$uuid[1:2],other_requests$uuid[7:8], # true
+                                          rep(other_requests$uuid[3]),rep(other_requests$uuid[4]),
+                                          rep(other_requests$uuid[9]),rep(other_requests$uuid[10]), # invalid
+                                          rep(other_requests$uuid[3]),rep(other_requests$uuid[4]),
+                                          rep(other_requests$uuid[9]),rep(other_requests$uuid[10]) # invalid other variable
+                                          # existing
+  ),
+  loop_index = c(other_requests$loop_index[1:2],other_requests$loop_index[7:8], # true
+                 rep(other_requests$loop_index[3]),rep(other_requests$loop_index[4]),
+                 rep(other_requests$loop_index[9]),rep(other_requests$loop_index[10]), # invalid
+                 rep(other_requests$loop_index[3]),rep(other_requests$loop_index[4]),
+                 rep(other_requests$loop_index[9]),rep(other_requests$loop_index[10]) # invalid other variable
+  ),
+  variable = c(other_requests$name[1:2],other_requests$name[7:8], # true
+               rep(other_requests$name[3]),rep(other_requests$name[4]),
+               rep(other_requests$name[9]),rep(other_requests$name[10]), # invalid
+               rep(other_requests$ref.name[3]),rep(other_requests$ref.name[4]),
+               rep(other_requests$ref.name[9]),rep(other_requests$ref.name[10]) # invalid other variable
+  ),
+  old.value = c(other_requests$response.uk[1:2],other_requests$response.uk[7:8], # true
+                rep(other_requests$response.uk[3]),rep(other_requests$response.uk[4]),
+                rep(other_requests$response.uk[9]),rep(other_requests$response.uk[10]), # invalid
+                rep('other',4) # invalid other variable
+  ),
+  new.value = c(other_requests$true.v[1:2],other_requests$true.v[7:8], # true
+                rep(NA,8) # invalid  variable
+  # existing other variable
+  ),
+  issue = c(rep('Translating other response',4), # true
+            rep('Invalid other response', 8 )
+  )
+  ) %>%
+    dplyr::tibble()
+
+  testthat::expect_equal(actual_output, expected_output)
+
+
   # test if it throws an error when needed
 
   other_requests$existing.v[5] <- 'test_fake'

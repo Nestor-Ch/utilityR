@@ -128,6 +128,94 @@ testthat::test_that('compare_columns works',{
 })
 
 
+testthat::test_that('compare_rows works',{
+
+
+  test_dir <- testthat::test_path('fixtures','data_others.xlsx')
+  raw_data <- readxl::read_xlsx(test_dir) %>%
+    dplyr::rename(uuid = `_uuid`)
+  clean_data <- raw_data[3:nrow(raw_data),]
+
+  # test 1- basic functionality
+
+  actual_output <- compare_rows(data_raw = raw_data, data_clean = clean_data, id_col = 'uuid', col.enum = 'q0_2_enum_id',is.loop = F,reason = 'test')
+
+  expected_output <- data.frame(uuid = raw_data$uuid[1:2],
+                                col_enum =raw_data$q0_2_enum_id[1:2],
+                                reason = 'test') %>% dplyr::tibble()
+
+  testthat::expect_equal(actual_output,expected_output)
+
+  # test that it works with loops
+  raw_loop <- raw_data %>% dplyr::select(-q0_2_enum_id)
+  raw_loop$loop_index <- 1:nrow(raw_loop)
+
+  clean_loop <- raw_loop[3:nrow(raw_loop),]
+
+  actual_output <- compare_rows(data_raw = raw_loop, data_clean = clean_loop, id_col = 'loop_index', col.enum = 'q0_2_enum_id',is.loop = T,data.main = raw_data,reason = 'test')
+
+  expected_output <- data.frame(uuid = raw_data$uuid[1:2],
+                                loop_index=1:2,
+                                col_enum =raw_data$q0_2_enum_id[1:2],
+                                reason = 'test') %>% dplyr::tibble()
+
+  testthat::expect_equal(actual_output,expected_output)
+
+  # test 3 - make sure that the user has passed the correct columns
+
+  testthat::expect_error(
+    compare_rows(data_raw = raw_loop, data_clean = clean_loop, id_col = 'uuid', col.enum = 'q0_2_enum_id',is.loop = T,data.main = raw_data,reason = 'test'),
+    "You've indicated that the data is a loop but didn't choose loop_index as the id_col"
+  )
+
+  # test 4 - make sure that the user has passed the correct columns
+
+  testthat::expect_error(
+    compare_rows(data_raw = raw_loop, data_clean = clean_loop, id_col = 'loop_index', col.enum = 'q0_2_enum_id',is.loop = F,data.main = raw_data,reason = 'test'),
+
+    "You've indicated that the data is not a loop but choose loop_index as the id_col"
+  )
+
+
+  # test 5 - make sure that the user has passed the correct columns
+
+  testthat::expect_error(
+    compare_rows(data_raw = raw_loop, data_clean = clean_loop, id_col = 'uuid', col.enum = 'q0_2_enum_id',is.loop = F,data.main = raw_data,reason = 'test'),
+    "You've indicated that the data is not a loop but your dataframe contains loop_index column"
+  )
+
+  # test 6 - make sure that the user passed data with id columns
+
+  testthat::expect_error(
+    compare_rows(data_raw = raw_loop %>% dplyr::select(-loop_index), data_clean = clean_loop, id_col = 'loop_index', col.enum = 'q0_2_enum_id',is.loop = T,data.main = raw_data,reason = 'test'),
+    'Your id_col is not present in one of the dataframes'
+  )
+
+
+  # test 7 -more ids
+
+  clean_loop$loop_index[5] <- 'test'
+
+  testthat::expect_error(
+    compare_rows(data_raw = raw_loop , data_clean = clean_loop, id_col = 'loop_index', col.enum = 'q0_2_enum_id',is.loop = T,data.main = raw_data,reason = 'test')
+  )
+
+
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

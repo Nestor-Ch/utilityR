@@ -5,7 +5,7 @@
 #'
 #' @param clean_data Clean data
 #' @param raw_data Raw dataframe
-#' @param id_col The name of your uuid column
+#' @param id_col The name of your uuid/loop_index column
 #' @param columns_to_check Which columns should be checked
 #' @param is.loop Whether your data is a loop
 #' @param issue Why did you recode them
@@ -87,4 +87,75 @@ compare_columns <- function(clean_data, raw_data, id_col, is.loop=F, columns_to_
 
   return(comparison_results)
 }
+
+
+
+#' Compare rows of clean and old dataframes and build a deletion log
+#'
+#' @param data_raw Raw dataframe
+#' @param data_clean Clean dataframe
+#' @param id_col The name of your uuid/loop_index column
+#' @param col.enum The name of the enumerator id column
+#' @param is.loop Whether the data is a loop
+#' @param data.main If it's a loop, you'll need to feed it the main dataframe
+#' @param reason Why they were deleted
+#'
+#' @return A deletion log
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' compare_rows(data_raw = raw_data, data_clean = clean_data, id_col = 'uuid', col.enum = 'q0_2_enum_id',is.loop = F,reason = 'test')
+#' }
+compare_rows <- function(data_raw, data_clean, id_col, col.enum, is.loop, data.main = NULL , reason){
+
+  if(is.loop & !id_col =='loop_index'){
+    stop("You've indicated that the data is a loop but didn't choose loop_index as the id_col")
+  }
+
+  if(is.loop==F & id_col =='loop_index'){
+    stop("You've indicated that the data is not a loop but choose loop_index as the id_col")
+  }
+
+  if('loop_index'%in% names(data_clean) & is.loop==F){
+    stop("You've indicated that the data is not a loop but your dataframe contains loop_index column")
+  }
+
+  if(!id_col %in% names(data_raw) | !id_col %in% names(data_clean)){
+    stop('Your id_col is not present in one of the dataframes')
+  }
+
+  weird_ids <- setdiff(data_clean[[id_col]],data_raw[[id_col]])
+
+  if(length(weird_ids)>0){
+    stop(paste0('Your clean data has new ids not present in your raw data. How did you do this? Please double check the following ids:',paste0(weird_ids, collpase=', ')))
+  }
+
+  missing_ids <- setdiff(data_raw[[id_col]], data_clean[[id_col]])
+
+  if(length(missing_ids)>0){
+    dat_deleted <- data_raw %>% dplyr::filter(!!rlang::sym(id_col)%in% missing_ids)
+    del_log <- create.deletion.log(data = dat_deleted, col_enum = col.enum,
+                                   reason = reason, is.loop = is.loop,
+                                   data.main = data.main)
+    return(del_log)
+  }else{
+    print("You didn't delete any observations during cleaning")
+  }
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
