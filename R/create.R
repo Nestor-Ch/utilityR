@@ -40,11 +40,7 @@ create.deletion.log <- function(data, col_enum, reason, is.loop = F, data.main =
     stop("Your data is a loop but you haven't provided the main dataframe. Please enter the data.main parameter")
   } else if(is.loop & !is.null(data.main)){
 
-    data[,col_enum] <- plyr::mapvalues(data$uuid,
-                                       from=data.main[,'uuid'],
-                                       to=data.main[,col_enum],
-                                       warn_missing = F) %>%
-      unlist()
+    data <- data %>% dplyr::left_join(data.main %>% dplyr::select(uuid, !!rlang::sym(col_enum)),by = dplyr::join_by(uuid))
 
   }
 
@@ -199,5 +195,8 @@ create.translate.requests <- function(responses.j, response_colname = "response.
 
   return(responses.j)
 }
+
+
+
 
 

@@ -77,7 +77,7 @@ testthat::test_that("create.deletion.log works", {
   expected_output <- data.frame(
     uuid = c("9297bf6b-e35d-45c9-ae19-02e92f53a678","da2516dd-a175-4c75-b941-ffcd7fe247cb","4ee0da4f-1262-4f50-82d3-7ea66f62ca02"),
     loop_index = c("276",'904',"999"),
-    col_enum = c('9297bf6b-e35d-45c9-ae19-02e92f53a678', 'da2516dd-a175-4c75-b941-ffcd7fe247cb', '4ee0da4f-1262-4f50-82d3-7ea66f62ca02'),
+    col_enum = c("enum_17","enum_13","enum_07"),
     reason = 'test'
   )%>%
     dplyr::tibble()

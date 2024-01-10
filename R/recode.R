@@ -463,6 +463,8 @@ recode.others_select_one <- function(or.select_one, orig_response_col = "respons
   if(print_debug) {
     cat(paste("Number of select_one responses to be recoded:", nrow(or.select_one.recode)), "\n")
   }
+  if(nrow(or.select_one.recode)>0){
+
   choices_lookup <- or.select_one.recode %>%
     dplyr::select(existing.v, list_name) %>%
     dplyr::rename(label = existing.v) %>%
@@ -484,6 +486,7 @@ recode.others_select_one <- function(or.select_one, orig_response_col = "respons
       dplyr::mutate(variable = ref.name, old.value = "other", new.value = choice_name, issue = "Recoding other response") %>%
       dplyr::select(dplyr::any_of(CL_COLS))
   )
+  }else{cl_s1_recode <- data.frame()}
 
   # true select_ones:
   or.select_one.true <- dplyr::filter(or.select_one, !is.na(true.v))
