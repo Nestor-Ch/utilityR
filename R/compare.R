@@ -140,7 +140,7 @@ compare_rows <- function(data_raw, data_clean, id_col, col.enum, is.loop, data.m
                                    data.main = data.main)
     return(del_log)
   }else{
-    print("You didn't delete any observations during cleaning")
+    message("You didn't delete any observations during cleaning")
   }
 
 }

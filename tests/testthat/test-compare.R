@@ -200,6 +200,13 @@ testthat::test_that('compare_rows works',{
     compare_rows(data_raw = raw_loop , data_clean = clean_loop, id_col = 'loop_index', col.enum = 'q0_2_enum_id',is.loop = T,data.main = raw_data,reason = 'test')
   )
 
+  # test 8 - nothing was deleted
+
+  testthat::expect_message(
+    compare_rows(data_raw = clean_loop , data_clean = clean_loop, id_col = 'loop_index', col.enum = 'q0_2_enum_id',is.loop = T,data.main = raw_data,reason = 'test'),
+    "You didn't delete any observations during cleaning"
+  )
+
 
 })
 

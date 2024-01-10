@@ -81,10 +81,27 @@ It requires the user to provide the same specifications as apply.changes.
 ```{r setup3}
 # undo the cleaning log changes applied to raw data by the apply.changes function
 raw_data2 <- undo.changes(data = clean_data2,
-                             clog = cleaning_log,
-                             is.loop = F)
+                          clog = cleaning_log,
+                          is.loop = F)
 
 # to show that the dataframes are equal
 cat(all.equal(raw_data2, utilityR_raw_data))
+
+```
+
+
+The last function that can be attributed to this family is `compare_rows` function. While it is most useful for creating the deletion log, it uses a similar input structure as compare columns and finishes out the documentation needed to submit the clean dataframes for the review. The syntax is pretty straightforward. As usual, by specifying the `is.loop` parameter the user can work on both regular and loop data. However, if using the loop data, the user is also required to fill the `data.main` parameter. This is needed because the deletion log needs to pull the `col.enum` from the main dataframe (it is usually not present in the loop data).
+
+```{r setup4}
+# undo the cleaning log changes applied to raw data by the apply.changes function
+del_log <- compare_rows(data_raw = utilityR_raw_data,
+                        data_clean = utilityR_clean_data,
+                        is.loop = F,
+                        id_col = 'uuid',
+                        col.enum = 'a2_1_enum_id',
+                        reason = 'test')
+
+# View the results
+kable(head(del_log), caption = 'Deletion log table created from the clean and raw dataframes')
 
 ```
