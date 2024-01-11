@@ -51,10 +51,18 @@ find.responses <- function(.dataframe, questions.db, values_to="responses", is.l
   }
 
   if ("ref.name" %in% colnames(responses.j)) {
+    if(is.loop == F){
     responses.j <- .dataframe %>%
       dplyr::select(uuid, dplyr::all_of(na.omit(responses.j$ref.name))) %>%
       tidyr::pivot_longer(cols = dplyr::all_of(na.omit(responses.j$ref.name)), names_to = 'ref.name', values_to = 'choice') %>%
       dplyr::right_join(responses.j)
+    }else if(is.loop==T){
+      responses.j <- .dataframe %>%
+        dplyr::select(loop_index, dplyr::all_of(na.omit(responses.j$ref.name))) %>%
+        tidyr::pivot_longer(cols = dplyr::all_of(na.omit(responses.j$ref.name)), names_to = 'ref.name', values_to = 'choice') %>%
+        dplyr::right_join(responses.j)
+    }
+
   } else {
     responses.j <- responses.j %>%
       dplyr::mutate(choice = NA)
