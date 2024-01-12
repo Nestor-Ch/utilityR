@@ -10,7 +10,7 @@
 #' a <- 2
 #' a %==% 2
 "%==%" <- function(a, b){
-  ifelse(!is.na(a), a == b, F)
+  ifelse(!is.na(a) & !is.na(b), a == b, F)
 }
 
 
@@ -28,7 +28,7 @@
 #' a <- 3
 #' a %not=% 2
 "%not=%" <- function(a, b){
-  ifelse(!is.na(a), a != b, F)
+  ifelse(!is.na(a)& !is.na(b), a != b, F)
 }
 
 
@@ -44,7 +44,7 @@
 #' a <- 3
 #' a %_>_% 2
 "%_>_%" <- function(a, b){
-  ifelse(!is.na(a), as.numeric(a)>b, F)
+  ifelse(!is.na(a)& !is.na(b), as.numeric(a)>b, F)
 }
 
 
@@ -60,7 +60,7 @@
 #' a <- 5
 #' a %_>=_% 2
 "%_>=_%" <- function(a, b){
-  ifelse(!is.na(a), as.numeric(a)>=b, F)
+  ifelse(!is.na(a)& !is.na(b), as.numeric(a)>=b, F)
 }
 
 
@@ -76,7 +76,7 @@
 #' a <- 5
 #' a %_<_% 6
 "%_<_%" <- function(a, b){
-  ifelse(!is.na(a), as.numeric(a)<b, F)
+  ifelse(!is.na(a)& !is.na(b), as.numeric(a)<b, F)
 }
 
 
@@ -92,7 +92,7 @@
 #' a <- 5
 #' a %_<=_% 7
 "%_<=_%" <- function(a, b){
-  ifelse(!is.na(a), as.numeric(a)<=b, F)
+  ifelse(!is.na(a)& !is.na(b), as.numeric(a)<=b, F)
 }
 
 
