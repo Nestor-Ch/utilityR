@@ -1,0 +1,130 @@
+---
+title: "Grapes-functions"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Grapes-functions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+The most basic set of functions in the package are a family of grapes functions. They serve as replacements for the standard mathematical and set operators in R, replacing addition, subtraction, division and multiplication as well as equality checks present in the base R. The added benefit of these functions is that they're coded to take NA values into the account, as well as transform the character values in vectors into numeric ones if possible.
+
+*Basic mathematical operations*
+```{r setup}
+library(utilityR)
+
+# Addition
+a <- c('1',2,NA) # let's say one of the values is a character
+b <- c(1,5,6)
+
+# test the regular operator
+test <- try(
+a+b, silent = T
+)
+
+cat(test)
+
+# test the UtilityR one
+a%_+_%b
+
+
+# Subtraction
+
+a%_-_%b
+
+
+# Multiplication
+
+a%_*_%b
+
+
+# Division
+
+a%_/_%b
+
+```
+
+This functionality is quite basic, but allows the user to have a shorthand for such operations without transforming the values into a numeric class every time there's a need for them. The more interesting features of these functions come out when we use the comparison operators on them.
+
+*Basic comparison operations*
+```{r}
+# set up our vectors
+a <- c(1,5,10,NA)
+b <- c(0,5,12,20)
+
+# less than
+a<b
+
+a %_<_% b
+
+# We got a FALSE on the fourth comparison! This is better than getting an NA
+
+# less than or equal to
+a<=b
+
+a %_<=_% b
+
+# more than
+
+a>b
+
+a %_>_% b
+
+# more than or equal to
+
+a>=b
+
+a %_>=_% b
+
+```
+
+This functionality becomes even more useful when we do equality comparisons
+
+```{r 2}
+
+a <- c('a',1,2,'45')
+b <- c('a',22,NA,'56')
+
+# General equality
+a==b 
+
+a%==%b
+
+
+# general inequality
+
+a!=b 
+
+a%not=%b
+
+```
+These function may break when forced to compare NA to NA, so we have a few that work with those too
+
+```{r}
+
+# Equality operator
+a <- c('a',1,NA,'45')
+b <- c('a',22,NA,'56')
+
+a==b
+a%==%b
+a%==na%b
+
+
+# Inequality operator
+
+a <- c('a',1,NA,'45')
+b <- c('a',22,NA,'56')
+
+a!=b
+a%not=%b
+a%not=na%b
+
+```
