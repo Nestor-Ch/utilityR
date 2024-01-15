@@ -428,7 +428,6 @@ recode.multiple.remove.choices <- function(data, variable, choices, issue, other
 #' @note  _others suffix is added to the kobo tool dataframes to avoid recursion
 #'
 #' @export
-#'
 #' @return A dataframe for the changes that need to be applied to the data
 #'
 #' @examples
@@ -691,7 +690,6 @@ recode.others_select_multiple <- function(data, or.select_multiple, orig_respons
 #' @return Dataframe containing cleaning log entries covering recoding others, constructed from `data` and `or.edited`
 #'
 #' @export
-#'
 #' @examples
 #' \dontrun{
 #' recode.others(data, or.edited = other_requests_file, orig_response_col = "response.uk",tool.survey=tool.survey,
