@@ -4,7 +4,7 @@
 \alias{select.multiple.check}
 \title{Checks mismatching between cumulative and binary columns for select multiple answers}
 \usage{
-select.multiple.check(data, survey, id_col = "uuid")
+\method{select}{multiple.check}(data, survey, id_col = "uuid")
 }
 \arguments{
 \item{data}{data frame}

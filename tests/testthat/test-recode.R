@@ -1401,5 +1401,56 @@ testthat::test_that('recode.trans.requests works',{
 
 })
 
+testthat::test_that('recode.others.elsewhere works', {
 
+  raw.main.filename <- testthat::test_path("fixtures", "test_recode_elsewhere_main.xlsx")
+  tool.filename <- testthat::test_path("fixtures", "tool_elsewhere.xlsx")
+  res.filename <- testthat::test_path("fixtures", "res_elsewhere.xlsx")
+  requests.filename <- testthat::test_path("fixtures")
+  label_colname <- "label::English"
+  tool.survey <- load.tool.survey(tool.filename, label_colname)
+  tool.shoices <- load.tool.choices(tool.filename ,label_colname)
+  raw.main <- as.data.frame(readxl::read_excel(raw.main.filename))
+  or.edited <- load.requests(requests.filename, "requests_elsewhere", "Sheet1", validate = T)
+  expected_res <- as.data.frame(readxl::read_excel(res.filename))
+
+  # firstly let check edge conditions
+  # test not existing YES in the invalid.v
+  or.edited$invalid.v <- NA
+  or.edited.sm <- or.edited %>% dplyr::filter(ref.type == "select_multiple")
+  or.edited.so <- or.edited %>% dplyr::filter(ref.type == "select_one")
+
+  testthat::expect_error(recode.others.elsewhere(raw.main, tool.survey, or.edited.sm, is.loop = F))
+  testthat::expect_error(recode.others.elsewhere(raw.main, tool.survey, or.edited.so, is.loop = F))
+
+  # test error when passed or.edited without uuid column
+  or.edited <- or.edited %>% dplyr::select(-uuid)
+  testthat::expect_error(recode.others.elsewhere(raw.main, tool.survey, or.edited, is.loop = F))
+
+  # test error when passed raw.main without uuid column
+  or.edited <- load.requests(requests.filename, "requests_elsewhere", "Sheet1")
+  raw.main <- raw.main %>% dplyr::select(-uuid)
+  testthat::expect_error(recode.others.elsewhere(raw.main, tool.survey, or.edited, is.loop = F))
+
+  raw.main <- readxl::read_excel(raw.main.filename)
+
+  # test if pass the data with is.loop = T without loop_index column
+  raw.main <- as.data.frame(readxl::read_excel(raw.main.filename))
+  or.edited <- load.requests(requests.filename, "requests_elsewhere", "Sheet1")
+
+  testthat::expect_error(recode.others.elsewhere(raw.main, tool.survey, or.edited, is.loop = T))
+
+  # test correctness of the output
+
+  actual_result <- recode.others.elsewhere(raw.main, tool.survey, or.edited, is.loop = F)
+  expected_res$loop_index <- as.character(expected_res$loop_index)
+  testthat::expect_equal(actual_result, expected_res)
+
+  # test correctness of the output with is.loop = T
+  raw.main$loop_index <- as.character(raw.main$uuid)
+  or.edited$loop_index <- as.character(or.edited$uuid)
+  actual_result <- recode.others.elsewhere(raw.main, tool.survey, or.edited, is.loop = F)
+  expected_res$loop_index <- as.character(expected_res$uuid)
+  testthat::expect_equal(actual_result, expected_res)
+})
 

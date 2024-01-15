@@ -4,7 +4,7 @@
 \alias{recode.others_select_one}
 \title{Recode others: function for recoding select_one questions}
 \usage{
-recode.others_select_one(
+\method{recode}{others_select_one}(
   or.select_one,
   orig_response_col = "response.uk",
   print_debug = T,
