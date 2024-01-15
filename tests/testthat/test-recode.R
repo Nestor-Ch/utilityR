@@ -1408,10 +1408,10 @@ testthat::test_that('recode.others.elsewhere works', {
   res.filename <- testthat::test_path("fixtures", "res_elsewhere.xlsx")
   requests.filename <- testthat::test_path("fixtures")
   label_colname <- "label::English"
-  tool.survey <- load.tool.survey(tool.filename, label_colname)
-  tool.shoices <- load.tool.choices(tool.filename ,label_colname)
+  tool.survey <- utilityR::load.tool.survey(tool.filename, label_colname)
+  tool.shoices <- utilityR::load.tool.choices(tool.filename ,label_colname)
   raw.main <- as.data.frame(readxl::read_excel(raw.main.filename))
-  or.edited <- load.requests(requests.filename, "requests_elsewhere", "Sheet1", validate = T)
+  or.edited <- utilityR::load.requests(requests.filename, "requests_elsewhere", "Sheet1", validate = T)
   expected_res <- as.data.frame(readxl::read_excel(res.filename))
 
   # firstly let check edge conditions
@@ -1428,7 +1428,7 @@ testthat::test_that('recode.others.elsewhere works', {
   testthat::expect_error(recode.others.elsewhere(raw.main, tool.survey, or.edited, is.loop = F))
 
   # test error when passed raw.main without uuid column
-  or.edited <- load.requests(requests.filename, "requests_elsewhere", "Sheet1")
+  or.edited <- utilityR::load.requests(requests.filename, "requests_elsewhere", "Sheet1")
   raw.main <- raw.main %>% dplyr::select(-uuid)
   testthat::expect_error(recode.others.elsewhere(raw.main, tool.survey, or.edited, is.loop = F))
 
@@ -1436,7 +1436,7 @@ testthat::test_that('recode.others.elsewhere works', {
 
   # test if pass the data with is.loop = T without loop_index column
   raw.main <- as.data.frame(readxl::read_excel(raw.main.filename))
-  or.edited <- load.requests(requests.filename, "requests_elsewhere", "Sheet1")
+  or.edited <- utilityR::load.requests(requests.filename, "requests_elsewhere", "Sheet1")
 
   testthat::expect_error(recode.others.elsewhere(raw.main, tool.survey, or.edited, is.loop = T))
 
