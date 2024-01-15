@@ -1,0 +1,169 @@
+---
+title: "Get-familty"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Get-familty}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+The `get` family of functions can be split in two sub-groups:
+1. Functions that deal with kobo tool transformations
+2. Functions that extract information about the dataset from the kobo tool
+
+This vignette will go through both of these subgroups and explain how and when to use them.
+For the most part, the functions share a simple set of inputs - tool.survey and tool.choices objects. Both of these objects have to be loaded through their respective `load` family functions - `load.tool.survey` and `load.tool.choices`.
+
+`get.type` is a simple data transformation function that extracts the type column from the tool.survey for a given set of variables. The function is vectorized and can take on multiple arguments
+```{r setup}
+library(utilityR)
+library(knitr)
+library(dplyr)
+
+data("data")
+data("tool.choices")
+data("tool.survey")
+
+test_names <- c("q2_4_2_month_leav","q4_2_2_security_incidents")
+
+get.type(variable=test_names,
+         tool.survey = tool.survey)
+
+```
+
+`get.label` is a similar function that can extract the question's label for the user. It supports multiple languages if you have them in your data - just change the `label_colname` argument and you're good to go.
+```{r}
+# English labels
+get.label(test_names,tool.survey = tool.survey, 
+          label_colname = 'label::English')
+
+```
+Similarly, if one wants to get the list_names from the name of the variable, it can be done with the `get.choice.list.from.name`. 
+
+```{r}
+# get the list_name for the choices of a single variable
+get.choice.list.from.name('q4_2_2_security_incidents',
+                          tool.survey = tool.survey, 
+                          label_colname = 'label::English')
+```
+Please note that this function is not vectorized. If you want to iterate it over multiple variable names, you can use some form of a loop like in the example below. Just understand that the object that you're outputting is subject to the type of a loop you're using.
+
+```{r}
+names_2 <- c('q1_10_hohh','q2_4_3_main_cause','q1_9_language')
+
+sapply(names_2, function(x){
+  get.choice.list.from.name(x, tool.survey = tool.survey, 
+                            label_colname = 'label::English')
+})
+```
+
+If the user wants to get the labels of choices in a column of the dataframe or the frequency tables, the get family offers the functionality of `get.choice.label` that parses the individual names of your choices and produces their labels.
+
+```{r}
+get.choice.label(choice = 'lack_of_accommodation',
+                 list = 'cause',label_colname = 'label::English',
+                 tool.choices = tool.choices)
+```
+This function is really useful when parsing through an entire column's worth of choices and can easily transform the names of said choices into labels. It should be noted that this function is not vectorized and will break if you feed it select multiple questions.
+
+To run a vectorized version of this function you have to wrap it around a loop. 
+
+```{r}
+
+data$q0_4_settlement_label <- sapply(data$q0_4_settlement, function(x){
+  get.choice.label(choice = x, list = 'settlements',
+                   label_colname = 'label::English',
+                   tool.choices = tool.choices)
+})
+
+kable(head(data[,c('q0_4_settlement','q0_4_settlement_label')],25), 
+      caption = 'Comparison of a raw column and a
+      column that has been transformed into labels')
+
+
+```
+
+This function doesn't work with select multiple variables because of the way that names are stored within these variables. When fed the name 'telephone telegram signal viber whatsapp' this function is trying to find this exact labels in the list_name 'prefway_cont'. As it doesn't exist, the function breaks
+
+```{r}
+get.choice.label(choice = 'whatsapp',list = 'prefway_cont',
+                 label_colname = 'label::English',
+                 tool.choices = tool.choices)
+
+get.choice.label(choice = 'telephone telegram signal viber whatsapp',
+                 list = 'prefway_cont',label_colname = 'label::English',
+                 tool.choices = tool.choices)
+
+```
+To get around this error, you will have to transform the select_multiple column prior to applying this function. The easiest way of doing this is the following. 
+
+```{r}
+
+# use the structure of how select multiples are stored to split the rows of the dataset
+tidyr::separate_rows(data,'q2_4_3_main_cause',sep=' ') %>%  
+  select(`_uuid`,q2_4_3_main_cause) %>% # keep only the columns that we need
+  filter(!is.na(q2_4_3_main_cause)) %>% # remove NAs for the sake of this demonstration
+  # use simple mutate + sapply loop to get the labels
+  mutate(q2_4_3_main_cause_label = sapply(q2_4_3_main_cause,function(x){
+    get.choice.label(choice = x,list = 'cause',
+                     label_colname = 'label::English',
+                     tool.choices = tool.choices)
+  })) %>% 
+  # group by uuid
+  group_by(`_uuid`) %>% 
+  # collapse the values into a single row
+  summarise(across(q2_4_3_main_cause:q2_4_3_main_cause_label,~
+                     paste0(.x,collapse = ' '))) %>%
+  ungroup() %>% 
+  select(q2_4_3_main_cause,q2_4_3_main_cause_label) %>% 
+  head(25) %>%
+  kable()
+
+# After these transformations one can join the new label to the dataset. 
+# This method also works well for frequency tables, 
+# but keep in mind that you'll have to provide a dynamic argument `list`
+# for each new variable in your frequency tables.
+
+```
+
+The last function from this subfamily allows one to get the reference question for `other` variables when fed the appropriate row of the `relevant` column. `get.ref.question` only works if the tool is filled correctly, meaning that `_other` variable has only one relevancy and it's the question where the respondent has answered `other`.
+
+```{r}
+tool.survey$relevant[11]
+get.ref.question(tool.survey$relevant[11])
+
+```
+The second subfamily of the `get` functions is the get.db questions. When fed the tools and label column, these functions output all questions of a certain type.
+
+`get.select.db` outputs all `select_one` and `select_multiple` questions.
+
+```{r}
+get.select.db(tool.choices = tool.choices,tool.survey = tool.survey,
+              label_colname = 'label::English') %>% 
+  tail(1) %>% 
+  tibble()
+```
+
+`get.other.db` allows the user to output all of the _other questions in the tool. It searches for all questions that have a `name` that ends in `_other` and have the `type` of `text`. If your `other` question doesn't satisfy these conditions it won't be found. 
+
+```{r}
+get.other.db(tool.choices = tool.choices,tool.survey = tool.survey,
+             label_colname = 'label::English') %>% 
+  tail(1) %>% 
+  tibble()
+```
+`get.trans.db` follows a similar principle to the `get.other.db.` function It searches for all questions that have a `name` that *doesn't end in `_other` and have the `type` of `text`*.
+
+```{r}
+get.trans.db(tool.choices = tool.choices,tool.survey = tool.survey,
+             label_colname = 'label::English') %>% 
+  tail(1) %>% 
+  tibble()
+```

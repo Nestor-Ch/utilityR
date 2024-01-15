@@ -4,7 +4,7 @@
 \alias{recode.so.elsewhere}
 \title{Recode elsewhere others}
 \usage{
-\method{recode}{so.elsewhere}(edited.so, data, tool.survey)
+recode.so.elsewhere(edited.so, data, tool.survey)
 }
 \arguments{
 \item{edited.so}{The file with the translated requests loaded with the `load.requests` function}

@@ -4,7 +4,7 @@
 \alias{recode.sm.elsewhere}
 \title{Recode elsewhere others}
 \usage{
-\method{recode}{sm.elsewhere}(edited.sm, data, tool.survey)
+recode.sm.elsewhere(edited.sm, data, tool.survey)
 }
 \arguments{
 \item{edited.sm}{The file with the translated requests loaded with the `load.requests` function}
