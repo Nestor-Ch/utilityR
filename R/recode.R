@@ -880,20 +880,32 @@ recode.sm.elsewhere <- function(edited.sm, data, tool.survey) {
     }
 
     # change the cumulative and the binary other variable
-    existing_choices <- data.row[[or.row$true_column_parent]]
+    existing_choices <- unlist(stringr::str_split(data.row[[or.row$true_column_parent]], " "))
+    te_add_choices <- data.frame()
     # add  other
-    if(!is.na(existing_choices)){
-      new_choices <- c(existing_choices, 'other')
-      te_add_choices <- recode.multiple.add.choices(data.row, or.row$true_column_parent, new_choices, issue = 'Recode elsewhere other')
-    }else{
-      te_add_choices <-rbind(recode.set.value.regex(data.row, or.row$true_column_parent, 'NA', 'other', issue = 'Recode elsewhere other', affect_na = T),
-                             recode.set.value.regex(data.row, paste0(or.row$true_column_parent, '/other'), 'NA', '1', issue = 'Recode elsewhere other',affect_na = T)
-      )
+    if (!("other" %in% existing_choices)) {
+      if(!is.na(data.row[[or.row$true_column_parent]])){
+        existing_choices <- c(existing_choices, "other")
+        for (choice in existing_choices){
+          choice.res <- recode.multiple.add.choices(data.row, or.row$true_column_parent, choice, issue = 'Recode elsewhere other;)')
+          te_add_choices <- rbind(te_add_choices, choice.res)
+        }
+
+      }else {
+        te_add_choices <- rbind(recode.set.value.regex(data.row, or.row$true_column_parent, 'NA', 'other', issue = 'Recode elsewhere other', affect_na = T),
+                                recode.set.value.regex(data.row, paste0(or.row$true_column_parent, '/other'), 'NA', '1', issue = 'Recode elsewhere other',affect_na = T)
+        )
+      }
+      te_add_choices$uniqui <- te_add_choices$uuid
+      te_add_choices$loop_index <- NA
+      te_add_choices <- te_add_choices %>%
+        dplyr::select(-loop_index)
+
     }
     # call the function that creates the cleaning log
 
     # if the variable that is being recoded didn't have any choices, we're making the other binaries 0
-    if(is.na(existing_choices)){
+    if(is.na(data.row[[or.row$true_column_parent]])){
       unique_choices <- data %>%
         tidyr::separate_rows(or.row$true_column_parent, sep= " ") %>%
         dplyr::pull(or.row$true_column_parent) %>% unique() %>% na.omit()
@@ -903,19 +915,45 @@ recode.sm.elsewhere <- function(edited.sm, data, tool.survey) {
 
       add_binaries <- recode.set.value.regex(data.row, cols_to_change,
                                                        'NA', '0', issue = 'Recode elsewhere other', affect_na = T)
-      add_binaries <- add_binaries %>% dplyr::mutate_all(as.character)
+      add_binaries$loop_index <- NA
+      add_binaries <- add_binaries %>%
+        dplyr::mutate_all(as.character) %>%
+        dplyr::select(-loop_index)
     }else{add_binaries <- data.frame()}
 
     # change the _other column itself
     existing_others <- data.row[[or.row$true_column]]
     # get the chosen options and concatenate the new other value to them
     if(!is.na(existing_others)){
-      existing_others <- paste0(existing_others, "; ", or.row$true_elsewhere)
+      existing_others <- paste0(existing_others, ";", or.row$true_elsewhere)
     }else{
       existing_others <- or.row$true_elsewhere
     }
 
-    te_change_other <- recode.set.value.regex(data.row, or.row$true_column, "*", existing_others, issue = 'Recode elsewhere other', affect_na = T)
+    # real case
+    # te_change_other <- recode.set.value.regex(data.row, or.row$true_column, "*",
+    #                                           existing_others, issue = 'Recode elsewhere other!!!!!', affect_na = T)
+    te_change_other <- data.frame()
+    if (!("other" %in% existing_choices) & !is.na(data.row[[or.row$true_column_parent]])) {
+      te_change_other <- data.frame(
+        uuid = rep(or.row$uuid, 3),
+        uniqui = rep(or.row$uuid, 3),
+        variable = c(or.row$true_column_parent, paste0(or.row$true_column_parent, '/other'), or.row$true_column),
+        old.value = c(data.row[[or.row$true_column_parent]], "0", data.row[[or.row$true_column]]),
+        new.value = c(ifelse(is.na(existing_choices), "other", paste(c(existing_choices, "other"), collapse = " ")), "1", existing_others),
+        issue = rep('Recode elsewhere other', 3)
+      )
+    } else {
+      te_change_other <- data.frame(
+        uuid = rep(or.row$uuid, 1),
+        uniqui = rep(or.row$uuid, 1),
+        variable = c(or.row$true_column),
+        old.value = c(data.row[[or.row$true_column]]),
+        new.value = c(existing_others),
+        issue = rep('Recode elsewhere other', 1)
+      )
+    }
+
     loop.data <- rbind(te_add_choices, add_binaries, te_change_other)
     loop.data <- loop.data %>% dplyr::mutate(loop_index = or.row$loop_index)
 
@@ -1040,13 +1078,5 @@ recode.others.elsewhere <- function(data, tool.survey, or.edited, is.loop) {
 
   return(rbind(recoded_so, recoded_sm))
 }
-
-
-
-
-
-
-
-
 
 
