@@ -853,11 +853,193 @@ recode.trans.requests <- function(requests,response_col){
 
 
 
+#' Recode elsewhere others
+#'
+#' Recode elsewhere others for select multiple questions
+#'
+#' @param edited.sm The file with the translated requests loaded with the `load.requests` function
+#' @param data Dataframe containing Kobo data
+#' @param tool.survey The survey sheet of your kobo tool
+#'
+#' @return Returns a cleaning log file
+#'
+#' @examples
+#' \dontrun{
+#' recode.sm.elsewhere(edited.sm = edited.sm, data = raw.main, tool.survey = tool.survey)
+#' }
+recode.sm.elsewhere <- function(edited.sm, data, tool.survey) {
+  # some initial checks
+  cl_sm_recode_te <- dplyr::tibble()
+  for (i in 1:nrow(edited.sm)){
+    or.row <- edited.sm[i,]
+    data.row <- data[data$uuid==or.row$uuid,]
 
+    # check that invalid.v doesn't equal to YES
+    if (is.na(or.row$invalid.v != "YES")) {
+      stop(paste("The invalid value column for entity with uuid", or.row$uuid, "is not YES, please check the data"))
+    }
 
+    # change the cumulative and the binary other variable
+    existing_choices <- data.row[[or.row$true_column_parent]]
+    # add  other
+    if(!is.na(existing_choices)){
+      new_choices <- c(existing_choices, 'other')
+      te_add_choices <- recode.multiple.add.choices(data.row, or.row$true_column_parent, new_choices, issue = 'Recode elsewhere other')
+    }else{
+      te_add_choices <-rbind(recode.set.value.regex(data.row, or.row$true_column_parent, 'NA', 'other', issue = 'Recode elsewhere other', affect_na = T),
+                             recode.set.value.regex(data.row, paste0(or.row$true_column_parent, '/other'), 'NA', '1', issue = 'Recode elsewhere other',affect_na = T)
+      )
+    }
+    # call the function that creates the cleaning log
 
+    # if the variable that is being recoded didn't have any choices, we're making the other binaries 0
+    if(is.na(existing_choices)){
+      unique_choices <- data %>%
+        tidyr::separate_rows(or.row$true_column_parent, sep= " ") %>%
+        dplyr::pull(or.row$true_column_parent) %>% unique() %>% na.omit()
+      unique_choices <- dplyr::setdiff(unique_choices,'other')
 
+      cols_to_change <- paste0(or.row$true_column_parent,'/', unique_choices)
 
+      add_binaries <- recode.set.value.regex(data.row, cols_to_change,
+                                                       'NA', '0', issue = 'Recode elsewhere other', affect_na = T)
+      add_binaries <- add_binaries %>% dplyr::mutate_all(as.character)
+    }else{add_binaries <- data.frame()}
+
+    # change the _other column itself
+    existing_others <- data.row[[or.row$true_column]]
+    # get the chosen options and concatenate the new other value to them
+    if(!is.na(existing_others)){
+      existing_others <- paste0(existing_others, "; ", or.row$true_elsewhere)
+    }else{
+      existing_others <- or.row$true_elsewhere
+    }
+
+    te_change_other <- recode.set.value.regex(data.row, or.row$true_column, "*", existing_others, issue = 'Recode elsewhere other', affect_na = T)
+    loop.data <- rbind(te_add_choices, add_binaries, te_change_other)
+    loop.data <- loop.data %>% dplyr::mutate(loop_index = or.row$loop_index)
+
+    cl_sm_recode_te <- rbind(cl_sm_recode_te, loop.data)
+
+  }
+  return(cl_sm_recode_te)
+}
+
+#' Recode elsewhere others
+#'
+#' Recode elsewhere others for select one questions
+#'
+#' @param edited.so The file with the translated requests loaded with the `load.requests` function
+#' @param data Dataframe containing Kobo data
+#' @param tool.survey The survey sheet of your kobo tool
+#'
+#' @return Returns a cleaning log file
+#'
+#' @examples
+#' \dontrun{
+#' recode.so.elsewhere(edited.so = edited.so, data = raw.main, tool.survey = tool.survey)
+#' }
+recode.so.elsewhere <- function(edited.so, data, tool.survey) {
+  # some initial checks
+
+  cl_sm_recode_te <- dplyr::tibble()
+  for (i in 1:nrow(edited.so)){
+    or.row <- edited.so[i,]
+    data.row <- data[data$uuid==or.row$uuid,]
+
+    # check that invalid.v doesn't equal to YES
+    if (is.na(or.row$invalid.v != "YES")) {
+      stop(paste("The invalid value column for entity with uuid", or.row$uuid, "is not YES, please check the data"))
+    }
+
+    if (!is.na(data.row[[or.row$true_column_parent]])) {
+      te_add_choices <- data.frame(
+        uuid = rep(or.row$uuid, 2), uniqui = rep(or.row$uniqui, 2), loop_index = rep(or.row$loop_index, 2),
+        variable = c(or.row$true_column, or.row$true_column_parent),
+        new.value = c(or.row$true_elsewhere, 'other'), old.value = c(data.row[[or.row$true_column]],
+                                                                     data.row[[or.row$true_column_parent]]), issue = rep("Recode elsewhere other", 2))
+    }else {
+      te_add_choices <- data.frame(
+        uuid = or.row$uuid, uniqui = or.row$uniqui, lop_index = or.row$loop_index,
+        variable = c(or.row$true_column_parent), new.value = c(ifelse(is.na(data.row[[or.row$true_column]]), or.row$true_elsewhere, paste0(data.row[[or.row$true_column]], or.row$true_elsewhere, sep = "; "))),
+        old.value = c(data.row[[or.row$true_column]]), issue = rep("Recode elsewhere other other", 1))
+    }
+
+    cl_sm_recode_te <- rbind(te_add_choices)
+  }
+  return(cl_sm_recode_te)
+}
+
+#' Recode elsewhere others
+#'
+#' Recode elsewhere others for select multiple and select one questions
+#'
+#' @param data Dataframe containing Kobo data
+#' @param tool.survey The survey sheet of your kobo tool
+#' @param or.edited The file with the translated requests loaded with the `load.requests` function
+#' @param is.loop Logical, whether the data is looped or not
+#'
+#' @return Returns a cleaning log file
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' recode.others.elsewhere(data = raw.main, tool.survey = tool.surveyor.edited = or.edited, is.loop = F)
+#' }
+recode.others.elsewhere <- function(data, tool.survey, or.edited, is.loop) {
+
+  if (!"uuid" %in% colnames(data)) {
+    stop("Your data doesnt have the uuid variable, please check the data")
+  }
+
+  if (is.loop & !("loop_index" %in% colnames(data))) {
+    stop("Your loop data doesnt have the loop_index variable, please check the data")
+  }
+
+  if (!("uuid" %in% colnames(or.edited))) {
+    stop("Your or.edited doesnt have the uuid variable, please check")
+  }
+
+  if (!"uniqui" %in% names(data)) {
+    data <- data %>% dplyr::mutate(uniqui = uuid)
+  }
+
+  if (!"uniqui" %in% names(or.edited)) {
+    or.edited <- or.edited %>% dplyr::mutate(uniqui = uuid)
+  }
+
+  if (any(!or.edited$uniqui %in% data$uniqui)) {
+    warning(paste0("The following unique IDs from your requests file were not found in the data provided: ",
+                   paste0(dplyr::setdiff(or.edited$uniqui,
+                                         data$uniqui), collapse = ", "), ". Please double check "))
+    or.edited <- or.edited[or.edited$uniqui %in%
+                             data$uniqui, ]
+  }
+
+  te_or.edited <- or.edited %>% dplyr::filter(!is.na(true_elsewhere))
+
+  te_or.edited <- te_or.edited %>% dplyr::left_join(
+    tool.survey %>% dplyr::select(name, type) %>% dplyr::rename(true_column_parent=name,
+                                                                ref.type_elsewhere=type)
+  )
+
+  edited.sm <- te_or.edited %>% dplyr::filter(grepl('select_multiple', ref.type_elsewhere))
+  edited.so <- te_or.edited %>% dplyr::filter(grepl('select_one', ref.type_elsewhere))
+
+  if (nrow(edited.so) > 0) {
+    recoded_so <- recode.so.elsewhere(edited.so=edited.so, data=data, tool.survey=tool.survey)
+  } else {
+    recoded_so <- dplyr::tibble()
+  }
+
+  if (nrow(edited.sm) > 0) {
+    recoded_sm <- recode.sm.elsewhere(edited.sm=edited.sm, data=data, tool.survey=tool.survey)
+  } else {
+    recoded_sm <- dplyr::tibble()
+  }
+
+  return(rbind(recoded_so, recoded_sm))
+}
 
 
 

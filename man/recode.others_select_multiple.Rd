@@ -4,7 +4,7 @@
 \alias{recode.others_select_multiple}
 \title{Recode others: function for recoding select_multiple questions}
 \usage{
-recode.others_select_multiple(
+\method{recode}{others_select_multiple}(
   data,
   or.select_multiple,
   orig_response_col = "response.uk",

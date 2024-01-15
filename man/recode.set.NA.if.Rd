@@ -4,7 +4,7 @@
 \alias{recode.set.NA.if}
 \title{Recode a question by setting variables to NA if they are equal to a given value (code).}
 \usage{
-recode.set.NA.if(
+\method{recode}{set.NA.if}(
   data,
   variables,
   code,

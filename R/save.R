@@ -17,6 +17,10 @@
 save.other.requests <- function(df, wb_name, use_template = F, directory,
                                 template_dir="resources/other_requests_template.xlsx"){
 
+  df$`true_elsewhere` <- NA
+  df$`true_column` <- NA
+  df$`true_column_parent` <- NA
+
   if(use_template){
     wb <- openxlsx::loadWorkbook(template_dir)
   }else{
@@ -66,9 +70,15 @@ save.other.requests <- function(df, wb_name, use_template = F, directory,
   openxlsx::setColWidths(wb, "Sheet2", cols = which(colnames(df) == "full.label"), widths = 30)
   openxlsx::setColWidths(wb, "Sheet2", cols = (ncol(df)-4):(ncol(df)), widths = 35)
 
+  openxlsx::addStyle(wb, "Sheet2", style = style.col.green, rows = 1:(nrow(df)+1), cols = ncol(df)-5, stack = T)
+  openxlsx::addStyle(wb, "Sheet2", style = style.col.green, rows = 1:(nrow(df)+1), cols = ncol(df)-4, stack = T)
+  openxlsx::addStyle(wb, "Sheet2", style = style.col.green, rows = 1:(nrow(df)+1), cols = ncol(df)-3, stack = T)
   openxlsx::addStyle(wb, "Sheet2", style = style.col.green, rows = 1:(nrow(df)+1), cols = ncol(df)-2, stack = T)
   openxlsx::addStyle(wb, "Sheet2", style = style.col.green, rows = 1:(nrow(df)+1), cols = ncol(df)-1, stack = T)
   openxlsx::addStyle(wb, "Sheet2", style = style.col.green, rows = 1:(nrow(df)+1), cols = ncol(df), stack = T)
+  openxlsx::addStyle(wb, "Sheet2", style.col.green.bold, rows = 1, cols = ncol(df)-5, stack = T)
+  openxlsx::addStyle(wb, "Sheet2", style.col.green.bold, rows = 1, cols = ncol(df)-4, stack = T)
+  openxlsx::addStyle(wb, "Sheet2", style.col.green.bold, rows = 1, cols = ncol(df)-3, stack = T)
   openxlsx::addStyle(wb, "Sheet2", style.col.green.bold, rows = 1, cols = ncol(df)-2, stack = T)
   openxlsx::addStyle(wb, "Sheet2", style.col.green.bold, rows = 1, cols = ncol(df)-1, stack = T)
   openxlsx::addStyle(wb, "Sheet2", style.col.green.bold, rows = 1, cols = ncol(df), stack = T)
