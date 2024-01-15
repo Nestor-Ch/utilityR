@@ -4,7 +4,7 @@
 \alias{recode.set.NA}
 \title{Set the given variables for the given entries to NA.}
 \usage{
-\method{recode}{set.NA}(data, variables, issue)
+recode.set.NA(data, variables, issue)
 }
 \arguments{
 \item{data}{Dataframe containing records which will be affected.}

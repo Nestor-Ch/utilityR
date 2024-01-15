@@ -2,9 +2,9 @@
 % Please edit documentation in R/recode.R
 \name{recode.others.elsewhere}
 \alias{recode.others.elsewhere}
-\title{Recode elsewhere others for select multiple and select one questions}
+\title{Recode elsewhere others}
 \usage{
-\method{recode}{others.elsewhere}(data, tool.survey, or.edited, is.loop)
+recode.others.elsewhere(data, tool.survey, or.edited, is.loop)
 }
 \arguments{
 \item{data}{Dataframe containing Kobo data}

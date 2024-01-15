@@ -4,7 +4,7 @@
 \alias{recode.trans.requests}
 \title{Recode translated columns}
 \usage{
-\method{recode}{trans.requests}(requests, response_col)
+recode.trans.requests(requests, response_col)
 }
 \arguments{
 \item{requests}{The file with the translated requests loaded with the `load.requests` function}
