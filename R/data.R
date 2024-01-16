@@ -17,3 +17,7 @@
 #' @rdname data
 #' @format NULL
 "tool.choices"
+
+#' @rdname data
+#' @format NULL
+"other_requests_short"
