@@ -2,7 +2,7 @@
 title: "Cleaning template general"
 author: "Your Name"
 date: "January 2024"
-output: output_format
+output: utilityR::cleaning_template
 ---
 
 ```{r setup, include=FALSE}
@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-```{r}
+```{r setup the values}
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 rm(list = ls())
 
@@ -31,12 +31,144 @@ directory_dictionary <- list(
   dctime_short = "XXXX" # the data of your survey (just for naming)
 )
 
+```
+
+Initialize packages, load tools.
+Add the API key file into `resources` directory prior to running this
+
+```{r initialize_packages_load_inputs}
+
 api_key <- source('resources/microsoft.api.key_regional.R')$value
 
 #-------------------------------Initialize packages, load tools -----------------------------
 source("src/init.R")
+source("src/load_Data.R")
 
-#-------------------------------Load Tools -----------------------------
 ```
 
+Section below only for research cycles that requires cleaning on regular basis and use one kobo server.
+
+```{r Section  0  - Data pre-processing}
+
+source('src/sections/process_old_data.R')
+
+
+# final preparation
+# Rename your dataframes
+
+raw.main <- kobo.raw.main
+
+sheet_names <- sheet_names[sheet_names!='kobo.raw.main']
+sheet_names_new <- gsub('kobo.','',sheet_names)
+
+if(length(sheet_names_new)>0){
+  for(i in 1:length(sheet_names_new)){
+    txt <- paste0(sheet_names_new[i],' <- ',sheet_names[i])
+    eval(parse(text=txt))
+  }
+}
+
+
+# If there were any changes in the tool during data collection, they can be run here
+source('src/sections/tool_modification.R')
+
+
+# select the columns in your data that contain date elements
+date_cols_main <- c("start","end", tool.survey %>% filter(type == "date" & datasheet == "main") %>% pull(name),
+                    "submission_time") # add them here
+
+# transform them into the datetime format
+raw.main <- raw.main %>%
+  mutate_at(date_cols_main, ~ifelse(!str_detect(., '-'), as.character(convertToDateTime(as.numeric(.))), .))
+
+rm(date_cols_main)
+
+
+```
+
+No manual entry is necessary on this bit of the script
+
+```{r Section  1  - Remove duplicates and No consent entries}
+source('src/sections/section_1_remove_duplicates_no_consents.R')
+```
+
+Specify the necessary parameters of the audit check in the rows below and run the source command
+
+```{r Section  2  - Audit checks + soft duplicates}
+min_duration_interview <- 5 # minimum duration of an interview (screen time in minutes)
+max_duration_interview <- 60 # maximum duration of an interview (screen time in minutes)
+pre_process_audit_files <- F # whether cases of respondent taking too long to answer 1 question should cleaned.
+# if pre_process_audit_files =T, enter the maximum time that  the respondent can spend answering 1 question (in minutes)
+max_length_answer_1_question <- 20
+# Used during the check for soft duplicates.
+# The minimum number of different columns that makes us confident that the entry is not a soft duplicate
+min_num_diff_questions <- 8
+
+# run the checks
+source('src/sections/section_2_run_audit_checks.R')
+```
+
+Once you've checked all entries in the files in "output/checking/audit/" directory and only left those rows that need to be deleted implement the decisions below
+
+```{r Section  2 - Implement deletion decisions}
+source('src/sections/section_2_run_audit_decisions.R')
+```
+
+The section below is deprecated and rarely used. We're keepint it in case it comes in handy sometime in the future
+
+```{r Section  3  - Loop inconsitencies + spatial checks}
+source('src/sections/section_3_loops_and_spatial_checks.R')
+
+write.xlsx(deletion.log.new, make.filename.xlsx("output/deletion_log/", "deletion_log", no_date = T), overwrite=T)
+
+```
+
+Section below is a bit more involved. The first section can be run without your direct input, just be aware that this section will activate the translation function.
+
+```{r Section  4 - Others and translations - setup}
+source('src/sections/section_4_create_other_requests_files.R')
+```
+
+After receiving the outputs of this function, please check the `dir.requests` directory and work through the other requests files filling them out. 
+
+The section below is better run if you open up the file and run the script line by line.
+
+```{r Section  4 - Others and translations - recoding}
+# name that hosts the clean recode.others file, leave as '' if you don't have this file. Nothing will be recoded that way
+name_clean_others_file <- 'XXX'
+sheet_name_others <- 'Sheet2' # name of the sheet where you're holding your requests
+# name that hosts the clean translation requests file, leave as '' if you don't have this file. Nothing will be recoded that way
+name_clean_trans_file <- 'XXX'
+
+source('src/sections/section_4_apply_changes_to_requests.R')
+
+```
+
+Some post translation checks to make sure it all worked out. Doesn't need much involvement from your side if you did everything well. If not, you will get some warnings.
+
+```{r  Section  4 - additional checks}
+
+# Check if your data still has any cyrillic entries
+
+# variables that will be omitted from the analysis
+vars_to_omit <- c('settlement', directory_dictionary$enum_colname, directory_dictionary$enum_comments) # add more names as needed
+
+source('src/sections/section_4_post_check_for_leftover_cyrillic.R')
+
+# Check that cumulative and binary values in select multiple match each other
+
+cleaning.log.match <- utilityR::select.multiple.check(raw.main, tool.survey, id_col="uuid")
+
+if (nrow(cleaning.log.match) > 0) {
+  write.xlsx(cleaning.log.match, "output/checking/select_multiple_match.xlsx", overwrite=T)
+}
+
+# Check that cumulative and binary values in select multiple match each other
+
+cleaning.log.match <- utilityR::select.multiple.check(raw.main, tool.survey, id_col="uuid")
+
+if (nrow(cleaning.log.match) > 0) {
+  write.xlsx(cleaning.log.match, "output/checking/select_multiple_match.xlsx", overwrite=T)
+}
+```
 
