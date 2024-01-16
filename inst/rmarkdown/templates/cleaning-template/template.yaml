@@ -1,0 +1,4 @@
+name: Cleaning template
+description: >
+   Template for cleaning data through the typical Reach Ukraine workflow
+create_dir: TRUE

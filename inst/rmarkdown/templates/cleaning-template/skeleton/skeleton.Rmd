@@ -1,0 +1,14 @@
+---
+title: "Cleaning template general"
+author: "Your Name"
+date: "January 2024"
+output: output_format
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Adding an RMarkdown Template
+
+Blah-blah. THis is a test
