@@ -1,0 +1,179 @@
+---
+title: "Recode-family"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Recode-family}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+Recode is one the biggest and most useful families of function within this package. They are mostly used for creation of the cleaning log after the translation process. They allow the user to create the standard form of cleaning log with different types of transformations.
+
+The family of these functions is built on top of one another and subsequent functions use the simple ones to provide for more functionality for the user. We'll go through the simple functions first and then provide the user with the use cases for the advanced functions that mix multiple simple functions together to encompass the entire recoding process into a single function.
+
+*Select one methods*
+
+`recode.set.NA` allows the user to replace all entries in the dataframe that they've specified with NA. all filtering has to be specified prior to running this function.
+
+```{r}
+library(utilityR)
+library(dplyr)
+library(knitr)
+
+data("data")
+data("tool.choices")
+data("tool.survey")
+
+data <- data %>% rename(uuid = `_uuid`)
+
+recode.set.NA(data[1:5,], variables = c('q1_10_hohh','age_hohh'), 
+              issue= 'bad entry')
+
+```
+
+
+`recode.set.NA.if` allows the user to transform certain entries in the data into NAs for the given set of variables if a condition is met. This works well for cases when you need to remove entire sections of the data quickly. The function also has a `ignore_case` parameter that allows the user to specify whether the script should be case sensitive, `TRUE` by default.
+```{r setup}
+
+recode.set.NA.if(data = data[1:3,],variables = c('q1_10_hohh'),
+                 code = 'YES',issue = 'bad entry')
+
+```
+
+The `recode.set.NA.if` function can find an exact match for the variable the user is trying to recode, however, sometimes the recoding process isn't that straightforward. The function `recode.set.NA.regex` allows the user to specify the regex pattern they'd like to locate and replace with NA.
+
+```{r}
+# let's say I want to replace all values that start with a '2' with NA
+recode.set.NA.regex(data = data[1:50,],variables = 'age_hohh', 
+                    pattern = '^2',issue = 'bad entry')
+```
+
+If you want to replace the entries with a specific value instead of just with NA you can use the function
+`recode.set.value.regex`. It allows the user to replace specific cases that match the specified regex condition with a set value. It allows the user to also specify if NA values should be affected by this function. By default, they will not be.
+
+```{r}
+recode.set.value.regex(data = data[1:50,],variables = 'age_hohh', 
+                       pattern = '^2',new.value = '18', affect_na = T, 
+                       issue = 'bad entry')
+```
+*Select multiple methods*
+
+The methods above work well for select_one questions, however, due to the existence of binary columns in the select multiple columns those functions fail to create a proper cleaning log when called on.
+
+The subfamily of `recode.multiple` allows the user to change  cumulative and binary columns at the same time.
+`recode.multiple.set.NA` is a select_multiple version of `recode.set.NA`. As above, all transformations and filtering have to be run prior to calling this function. Since it's setting everything to NA, the user will also have to specify the `_other` variable with the `other_var_name` parameter. If it's not specified the function will try to search for the correct `other` variable by combining the `variable` parameter and `_other` text. This can work in some cases, but as we can see below, it wouldn't have found the correct variable in our data.
+
+```{r}
+recode.multiple.set.NA(data = data[1:5,], 
+                       variable = 'q1_7_preferred_way_of_contacting',
+                       issue = 'bad entry', 
+                       other_var_name = 'q1_7_1_referred_way_of_contacting_other')
+```
+
+If the values in the column need to be transformed into something other than NA, this can be achieved by using the `recode.multiple.set.choices` function. It sets the values of the question just to the options chosen by the user and drops everything else.
+
+```{r}
+recode.multiple.set.choices(data = data[1:5,], 
+                            variable = 'q1_7_preferred_way_of_contacting',
+                            issue = 'bad entry', 
+                            other_var_name = 'q1_7_1_referred_way_of_contacting_other',
+                            choices = c('viber','telegram'),
+                            tool.choices = tool.choices,
+                            tool.survey = tool.survey)
+```
+If you don't want to change the entire question to have a set of choices, but to add another choise, this can be achieved with the `recode.multiple.add.choices` function.
+
+
+```{r}
+recode.multiple.add.choices(data = data[1:5,], 
+                            variable = 'q1_7_preferred_way_of_contacting',
+                            issue = 'bad entry', 
+                            choices = 'signal')
+```
+A reversed version of `recode.multiple.add.choices` is `recode.multiple.remove.choices` which allows the user to remove a choice from the select_multiple column and keep the other existing choices.
+If the user wants to remove the `other` choice, they also have to specify the `other_var_name` parameter to set the text column value to NA.
+
+```{r}
+recode.multiple.remove.choices(data = data[1:5,], 
+                               variable = 'q1_7_preferred_way_of_contacting',
+                               issue = 'bad entry', 
+                               choices = 'telephone')
+```
+
+The functions presented above are a set of general functionality commands that can be applied to any dataframe and don't require any particular preparation from the side of the user, as long as you know what you want to do, these functions can help you achieve it. However, there's a second set of functions within the recode family. They deal primarily with recoding of `other` entries and require the user to prepare a requests file and fill it manually. The generalities of the recoding of others have been described elsewhere,  the functions presented below are described assuming that the reader is already familiar with general workflow of the process for recoding others.
+
+
+The basic functionality of this set of functions can be split in two general categories: basic functionality recoders and recode.elsewhere recoders. 
+
+The first set is based on the traditional workflow of re-coding other responses. They handle the cases where the only variables affected are direct relevancies of the `_other` column:
+ - the main column for select_one `_other` variables
+ - the cumulative and binary columns for the select_multiple `_other` variables
+ 
+ The traditional recoding procedures include the following:
+ - recoding `_other` response columns in cases where the respondent gave an already existing answer to the question in the text form.
+ - deleting `_other` response for cases where the respondent's answer is not related to the question that was asked
+ - accepting the `_other` response for cases where the respondent's answer is relevant and was not in the presented options.
+ 
+`recode.others_select_one` encompass all of these transformations in a single function. You may need to specify the column that holds the original Ukrainian responses in the `other_requests` file, it's called `response.uk` by default.
+
+These functions work for separate dataframes. You cannot recode both loops and main dataframes within a single function.
+```{r}
+# uploaded the other_requests file
+data("other_requests_short")
+# save only the main _other questions
+other_requests_short_main <- other_requests_short[is.na(other_requests_short$loop_index),]
+# keep only select_one variables for this example
+so_other_requests_short <- other_requests_short_main %>% 
+  filter(ref.type =='select_one')
+
+recode.others_select_one(or.select_one = so_other_requests_short,
+                         tool.survey_others = tool.survey,
+                         tool.choices_others = tool.choices)
+
+```
+
+For cases of select_multiple the function `recode.others_select_multiple` provides the needed functionality. Unlike `recode.others_select_one` this function requires the user to also pass the `data` argument and specify whether the frame is a loop.
+
+It is worth noting that both functions exist within the larger `recode.others` workflow. As such both rely on the existance of a `uniqui` variable within the dataframe and the other_requests file. Usually this variable is created automatically when calling the `recode.others` function. But as we're running each of these functions separately, we'll need to create it ourselves.
+
+`uniqui` is a placeholder name for the unique identifier of the dataset. For main dataframes it takes on the value of `uuid`, for loops it's `loop_index`. This variable allows to call data transformations without the need to dynamically change the script to reflect the unique identifier within a particular dataset, i.e. it makes coding these functions a bit easier.
+```{r}
+
+# keep only select_multiple variables for this example
+sm_other_requests_short <- other_requests_short_main %>% 
+  filter(ref.type =='select_multiple') %>% 
+  mutate(uniqui = uuid) # set up uniquis
+
+data$uniqui = data$uuid
+
+recode.others_select_multiple(data = data, or.select_multiple = sm_other_requests_short,
+                              is.loop = F,tool.survey_others = tool.survey,
+                              tool.choices_others = tool.choices)
+```
+
+Within the general workflow of recoding others the user won't have to use the two abovementioned functions as they are built within the `recode.others` function. It splits the other_requests file depending on the variable's type and runs the appropriate function on the subsections.
+The result of this function is the combination of the results of the two previous ones.
+
+```{r}
+recode.others(data = data, or.edited = other_requests_short_main,
+              is.loop = F,tool.survey = tool.survey,tool.choices = tool.choices)
+```
+
+The last bit of functionality within the recode family relates to fringe cases of recoding. The general functionality is called `true.elsewhere`. This function exists for cases where the `_other` response is correct just not for the question where it was asked. This `_other` response works well for another open answer that the respondent gave.
+
+
+```{r}
+
+```
+
+
+This family can be further expanded with `existing.elsewhere` and `invalid.elsewhere` functionalities, but the existance of these cases is case specific. Some of these changes may mean more than just one transformation per case or changes to the existing answers that the respondent gave in their answer. As such they lie outside the functionalities of this package and are left for the user to solve per their own discretion.
+
+
