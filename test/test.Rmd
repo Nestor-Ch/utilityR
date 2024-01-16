@@ -1,0 +1,42 @@
+---
+title: "Cleaning template general"
+author: "Your Name"
+date: "January 2024"
+output: output_format
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+rm(list = ls())
+
+
+directory_dictionary <- list(
+  research_cycle_name = 'xxxx',
+  round = 'xxxx',
+  dir.audits = "data/inputs/audits/reach/", # The directory to your audit files
+  dir.audits.check = "output/checking/audit/",# The directory to your audit summary files (you'll be checking these)
+  dir.requests = "output/checking/requests/", # the directory of your other_requests file
+  dir.responses = "output/checking/responses/", # the directory of your responses to open questions
+  enum_colname = "XXX", # the column that contains the enumerator ID,
+  enum_comments = 'XXX', # the column that contains the enumerator's comments,
+  filename.tool = "resources/XXX.xlsx", # the name of your Kobo tool and its path
+  data_name = "XXXX.xlsx", # the name of your dataframe
+  data_path = "data/inputs/kobo_export/", # the path to your dataframe
+  label_colname = 'label::English', # the name of your label column. Has to be identical in Kobo survey and choices sheets
+  dctime_short = "XXXX" # the data of your survey (just for naming)
+)
+
+api_key <- source('resources/microsoft.api.key_regional.R')$value
+
+#-------------------------------Initialize packages, load tools -----------------------------
+source("src/init.R")
+
+#-------------------------------Load Tools -----------------------------
+```
+
+
