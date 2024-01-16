@@ -5,6 +5,7 @@
 \alias{data}
 \alias{tool.survey}
 \alias{tool.choices}
+\alias{other_requests_short}
 \title{Test data}
 \format{
 data.frame object
@@ -15,6 +16,8 @@ data
 tool.survey
 
 tool.choices
+
+other_requests_short
 }
 \description{
 These data sets are test data collected to serve as examples for the vignettes.

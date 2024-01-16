@@ -1,5 +1,5 @@
 ---
-title: "cleaning-log-transformers"
+title: "Cleaning-log-transformers"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{cleaning-log-transformers}
