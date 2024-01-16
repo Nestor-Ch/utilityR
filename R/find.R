@@ -209,7 +209,7 @@ find.similar.surveys <- function(data.main, tool.survey, uuid="_uuid",
   # - columns of type = "start", "end", etc.
   # - columns starting with "_"
   # - option columns for the select multiple -> keeping only the concatenation column
-  types_to_remove <- c("start", "end", "today", "deviceid", "date", "geopoint", "audit", "note", "calculated")
+  types_to_remove <- c("start", "end", "today", "deviceid", "date", "geopoint", "audit", "note", "calculate")
   cols_to_keep <- data.frame(column=colnames(data)) %>%
     dplyr::left_join(dplyr::select(tool.survey, name, type), by=c("column"="name")) %>%
     dplyr::filter((!(type %in% types_to_remove) &
