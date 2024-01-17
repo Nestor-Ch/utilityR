@@ -3,7 +3,11 @@
 #' @param df Dataframe containing columns which will be observed on outliers
 #' @param id row's unique identifier
 #' @param n.sd number of standard deviations will be used in algorithm
-#' @param method method for outliers detecting: o1, o2, o3, o4. More detailed about methods below
+#' @param method method for outliers detecting: o1, o2, o3, o4.\cr
+#' \code{method = 'o1'} Method based on Z score and logarithmization of the values\cr
+#' \code{method = 'o2'} Modified Z score which based on the median absolute deviation, recommended n.sd\cr
+#' \code{method = 'o3'} Method based on the interquartile range\cr
+#' \code{method = 'o4'} Method based on the median absolute deviation\cr
 #' @param is.loop Is df a loop data or not
 #' @param colnames columns which will be observed on outliers
 #' @param ignore_0 ignore 0 values or not, should be TRUE in o2 method, and in another too
@@ -23,11 +27,6 @@
 #' }
 #'
 #' @export
-#'
-#' @method o1 Method based on Z score and logarithmization of the values
-#' @method o2 Modified Z score which based on the median absolute deviation, recommended n.sd
-#' @method o3 Method based on the interquartile range
-#' @method o4 Method based on the median absolute deviation
 #'
 
 detect.outliers <- function(df, id, n.sd, method="o1", is.loop, colnames, ignore_0=T){
