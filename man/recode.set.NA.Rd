@@ -2,7 +2,7 @@
 % Please edit documentation in R/recode.R
 \name{recode.set.NA}
 \alias{recode.set.NA}
-\title{Set the given variables for the given entries to NA.}
+\title{Create a cleaning log that sets the variables for the given entries to NA.}
 \usage{
 recode.set.NA(data, variables, issue)
 }
@@ -17,7 +17,7 @@ recode.set.NA(data, variables, issue)
 Dataframe containing cleaning log entries constructed from `data`.
 }
 \description{
-Set the given variables for the given entries to NA.
+Create a cleaning log that sets the variables for the given entries to NA.
 }
 \examples{
 \dontrun{

@@ -2,7 +2,7 @@
 % Please edit documentation in R/recode.R
 \name{recode.others_select_multiple}
 \alias{recode.others_select_multiple}
-\title{Recode others: function for recoding select_multiple questions}
+\title{Create a cleaning log for recoding select_multiple questions}
 \usage{
 recode.others_select_multiple(
   data,
@@ -40,7 +40,7 @@ recode.others_select_multiple(
 A dataframe for the changes that need to be applied to the data
 }
 \description{
-Recode others: function for recoding select_multiple questions
+Create a cleaning log for recoding select_multiple questions
 }
 \note{
 When running loop data, make sure to have a uuid column in your dataframe. This ensures that the resulting tables are uniform

@@ -21,3 +21,15 @@
 #' @rdname data
 #' @format NULL
 "other_requests_short"
+
+#' @rdname data
+#' @format NULL
+"requests_elsewhere"
+
+#' @rdname data
+#' @format NULL
+"tool_elsewhere"
+
+#' @rdname data
+#' @format NULL
+"test_recode_elsewhere_main"

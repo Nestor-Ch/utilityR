@@ -2,7 +2,7 @@
 % Please edit documentation in R/recode.R
 \name{recode.multiple.remove.choices}
 \alias{recode.multiple.remove.choices}
-\title{Recode select_multiple responses: remove particular choices.}
+\title{Create a cleaning log that removes particular choices from select_multiple responses.}
 \usage{
 recode.multiple.remove.choices(
   data,

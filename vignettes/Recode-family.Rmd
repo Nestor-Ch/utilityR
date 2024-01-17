@@ -113,14 +113,14 @@ The functions presented above are a set of general functionality commands that c
 The basic functionality of this set of functions can be split in two general categories: basic functionality recoders and recode.elsewhere recoders. 
 
 The first set is based on the traditional workflow of re-coding other responses. They handle the cases where the only variables affected are direct relevancies of the `_other` column:
- - the main column for select_one `_other` variables
- - the cumulative and binary columns for the select_multiple `_other` variables
- 
- The traditional recoding procedures include the following:
- - recoding `_other` response columns in cases where the respondent gave an already existing answer to the question in the text form.
- - deleting `_other` response for cases where the respondent's answer is not related to the question that was asked
- - accepting the `_other` response for cases where the respondent's answer is relevant and was not in the presented options.
- 
+- the main column for select_one `_other` variables
+- the cumulative and binary columns for the select_multiple `_other` variables
+
+The traditional recoding procedures include the following:
+- recoding `_other` response columns in cases where the respondent gave an already existing answer to the question in the text form.
+- deleting `_other` response for cases where the respondent's answer is not related to the question that was asked
+- accepting the `_other` response for cases where the respondent's answer is relevant and was not in the presented options.
+
 `recode.others_select_one` encompass all of these transformations in a single function. You may need to specify the column that holds the original Ukrainian responses in the `other_requests` file, it's called `response.uk` by default.
 
 These functions work for separate dataframes. You cannot recode both loops and main dataframes within a single function.
@@ -168,10 +168,54 @@ recode.others(data = data, or.edited = other_requests_short_main,
 
 The last bit of functionality within the recode family relates to fringe cases of recoding. The general functionality is called `true.elsewhere`. This function exists for cases where the `_other` response is correct just not for the question where it was asked. This `_other` response works well for another open answer that the respondent gave.
 
+The `true.elsewhere` framework follows a similar workflow as the basic `recode.others`. There are two functions that deal with select_one and select_multiple questions separately and are later merged into a single function.
+
+For this functionality to work the user has to fill in three `elsewhere` framework columns and set the `invalid` column to `YES`
+
+The previous examples of `other_requests` will not work well for this framework as it needs three additional columns to work:
+
+-`true_elsewhere` - this is the column hosts the translated values of the other answers of the respondents
+-`true_column` - the true column that is supposed to host the `_other` value that you're trying to assign
+-`true_column_parent` - the cumulative column that hosts the respondents answers to the true question
+
+The function assigns the new value to the `true_column` and `other` value to `true_column_parent`. The only thing that is left to do is to make the old entry invalid, but that is handled by the typical `recode.others` workflow.
 
 ```{r}
 
+data("requests_elsewhere")
+data("tool_elsewhere")
+data("test_recode_elsewhere_main")
+
+requests_elsewhere$uniqui <- requests_elsewhere$uuid
+
+requests_elsewhere_so <- requests_elsewhere[
+  requests_elsewhere$ref.type=='select_one',]
+
+test_recode_elsewhere_main$uniqui <- test_recode_elsewhere_main$uuid
+
+utilityR:::recode.so.elsewhere(edited.so = requests_elsewhere_so,
+                               data = test_recode_elsewhere_main,
+                               tool.survey = tool_elsewhere) %>% tibble()
+
 ```
+The `recode.sm.elsewhere` function provides a similar functionality to the select_multiple cases. Its main functionality includes that if the previous value of the `true_column_parent` is NA it'll assign it the value of `other` as well as transform all of the binary columns into 0 instead of NA.
+```{r}
+requests_elsewhere_sm <- requests_elsewhere[
+  requests_elsewhere$ref.type=='select_multiple',]
+
+utilityR:::recode.sm.elsewhere(edited.sm = requests_elsewhere_sm,
+                               data = test_recode_elsewhere_main,
+                               tool.survey = tool_elsewhere) %>% tibble()
+```
+Both of these functionalities are united within the `recode.others.elsewhere` function.
+
+```{r}
+recode.others.elsewhere(data = test_recode_elsewhere_main,
+                        or.edited = requests_elsewhere,
+                        tool.survey = tool_elsewhere,
+                        is.loop = F) %>% tibble()
+```
+
 
 
 This family can be further expanded with `existing.elsewhere` and `invalid.elsewhere` functionalities, but the existance of these cases is case specific. Some of these changes may mean more than just one transformation per case or changes to the existing answers that the respondent gave in their answer. As such they lie outside the functionalities of this package and are left for the user to solve per their own discretion.

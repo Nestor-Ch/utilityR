@@ -2,7 +2,7 @@
 % Please edit documentation in R/recode.R
 \name{recode.multiple.set.NA}
 \alias{recode.multiple.set.NA}
-\title{Recode select_multiple responses: set to NA.}
+\title{Create a cleaning log that sets the select_multiple responses to NA.}
 \usage{
 recode.multiple.set.NA(
   data,

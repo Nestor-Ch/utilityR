@@ -6,6 +6,9 @@
 \alias{tool.survey}
 \alias{tool.choices}
 \alias{other_requests_short}
+\alias{requests_elsewhere}
+\alias{tool_elsewhere}
+\alias{test_recode_elsewhere_main}
 \title{Test data}
 \format{
 data.frame object
@@ -18,6 +21,12 @@ tool.survey
 tool.choices
 
 other_requests_short
+
+requests_elsewhere
+
+tool_elsewhere
+
+test_recode_elsewhere_main
 }
 \description{
 These data sets are test data collected to serve as examples for the vignettes.

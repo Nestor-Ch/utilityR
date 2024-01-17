@@ -1,5 +1,5 @@
 
-#' Recode a question by setting variables to NA if they are equal to a given value (code).
+#' Create a cleaning log that sets the variables to NA if they are equal to a given value (code).
 #'
 #' @note DO NOT use this function for select_multiple questions. Instead use `recode.multiple.set.NA`
 #'
@@ -42,7 +42,7 @@ recode.set.NA.if <- function(data, variables, code, issue, ignore_case = T,
   }
 }
 
-#' Recode a question by setting variables to NA if they are matching a regex pattern.
+#' Create a cleaning log that sets the variables to NA if they are matching a regex pattern.
 #'
 #' This function is also useful also if you need to simply set some variables to NA - you can put ".*" as the `pattern`.
 #'
@@ -84,7 +84,7 @@ recode.set.NA.regex <- function(data, variables, pattern, issue,
   }}
 
 
-#' Set the given variables for the given entries to NA.
+#' Create a cleaning log that sets the variables for the given entries to NA.
 #'
 #' @param data Dataframe containing records which will be affected.
 #' @param variables Vector of strings (or a single string) containing the names of the variables.
@@ -111,7 +111,7 @@ recode.set.NA <- function(data, variables, issue){
 
 
 
-#' Recode a question by setting variables to some new value if they are matching a regex pattern.
+#' Create a cleaning log that sets the variables to some new value if they are matching a regex pattern.
 #'
 #' @param data Dataframe containing records which will be affected.
 #' @param variables Vector of strings (or a single string) containing the names of the variables.
@@ -155,7 +155,7 @@ recode.set.value.regex <- function(data, variables, pattern, new.value, issue, a
 
 
 
-#' Recode select_multiple responses: set to NA.
+#' Create a cleaning log that sets the select_multiple responses to NA.
 #'
 #' Changes all 1s and 0s to NA in choice columns, sets cumulative variable and _other text answers to NA.
 #'
@@ -222,7 +222,7 @@ recode.multiple.set.NA <- function(data, variable, issue, other_var_name = NULL,
 }
 
 
-#' Recode select_multiple responses: set answer to one particular choice.
+#' Create a cleaning log that sets the select_multiple variables to one particular choice.
 #'
 #' This function affects choice columns: setting 1 for `choices` and 0 everywhere else.
 #' For the cumulative variable, the value will be more or less equal to `paste(choices, collapse=" ")`
@@ -298,7 +298,7 @@ recode.multiple.set.choices <- function(data, variable, choices, issue, other_va
 
 
 
-#' Recode select_multiple responses: add particular choices.
+#' Create a cleaning log that add particular choices to the select_multiple variables.
 #'
 #' Changes all 0s to 1s in choice columns specified by `choices`. Modifies cumulative variable too.
 #'
@@ -349,7 +349,7 @@ recode.multiple.add.choices <- function(data, variable, choices, issue){
 }
 
 
-#' Recode select_multiple responses: remove particular choices.
+#' Create a cleaning log that removes particular choices from select_multiple responses.
 #'
 #' Removes the relevant text from the cummulative column. Changes all 1s to 0 in choice columns specified by `choices`.
 #' Also, if one of the `choices` is "other", then the text variable (_other) will be changed to NA.
@@ -415,7 +415,7 @@ recode.multiple.remove.choices <- function(data, variable, choices, issue, other
 
 
 
-#' Recode others: function for recoding select_one questions
+#' Create a cleaning log for recoding select_one questions
 #'
 #' @param or.select_one Your filled out recoding form after translation and verification  (with only select ones)
 #' @param orig_response_col The name of your original column with the untranslated responses, "response.uk" by default
@@ -502,7 +502,7 @@ recode.others_select_one <- function(or.select_one, orig_response_col = "respons
 
 
 
-#' Recode others: function for recoding select_multiple questions
+#' Create a cleaning log for recoding select_multiple questions
 #'
 #' @param data your dataframe
 #' @param or.select_multiple Your filled out recoding form after translation and verification (with only select multiple)
@@ -791,7 +791,7 @@ recode.others <- function(data, or.edited, orig_response_col = "response.uk", is
 }
 
 
-#' Recode translated columns
+#' Create a cleaning log for recoding translated columns
 #'
 #' Recode translate requests into a cleaning log file
 #'
@@ -851,9 +851,7 @@ recode.trans.requests <- function(requests,response_col){
 
 
 
-#' Recode elsewhere others
-#'
-#' Recode elsewhere others for select multiple questions
+#' Create a cleaning log for recoding select multiple questions into other columns
 #'
 #' @param edited.sm The file with the translated requests loaded with the `load.requests` function
 #' @param data Dataframe containing Kobo data
@@ -961,9 +959,8 @@ recode.sm.elsewhere <- function(edited.sm, data, tool.survey) {
   return(cl_sm_recode_te)
 }
 
-#' Recode elsewhere others
+#' Create a cleaning log for recoding select one questions into other columns
 #'
-#' Recode elsewhere others for select one questions
 #'
 #' @param edited.so The file with the translated requests loaded with the `load.requests` function
 #' @param data Dataframe containing Kobo data

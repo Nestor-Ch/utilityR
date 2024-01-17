@@ -2,7 +2,7 @@
 % Please edit documentation in R/recode.R
 \name{recode.multiple.set.choices}
 \alias{recode.multiple.set.choices}
-\title{Recode select_multiple responses: set answer to one particular choice.}
+\title{Create a cleaning log that sets the select_multiple variables to one particular choice.}
 \usage{
 recode.multiple.set.choices(
   data,

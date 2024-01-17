@@ -2,7 +2,7 @@
 % Please edit documentation in R/recode.R
 \name{recode.set.NA.regex}
 \alias{recode.set.NA.regex}
-\title{Recode a question by setting variables to NA if they are matching a regex pattern.}
+\title{Create a cleaning log that sets the variables to NA if they are matching a regex pattern.}
 \usage{
 recode.set.NA.regex(
   data,
