@@ -9,7 +9,6 @@ output: utilityR::cleaning_template
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-
 ```{r setup the values}
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 rm(list = ls())
@@ -172,3 +171,139 @@ if (nrow(cleaning.log.match) > 0) {
 }
 ```
 
+Check if any columns are equal to '999'/'99', enter any other values you're suspicious of
+
+```{r Section  5 - Check for 999/99 entries}
+code_for_check  <- c('99','999')
+
+source('src/sections/section_5_create_999_checks.R')
+
+print(cl_log_999)
+```
+if Anything got into cl_log_999, check it. If you want to delete it from your data run the command below set apply_999_changes to 'Yes' if you want to remove the entries from code_for_check
+
+```{r Section  5 - Fix 999/99 entries}
+apply_999_changes <- 'No'
+
+source('src/sections/section_5_finish_999_checks.R')
+```
+
+Time for logic checks
+```{r Section L - Your logic checks go here}
+cleaning.log.checks.direct <- tibble()
+```
+
+Outlier checks will require you to set some parameters prior to running the algorithm. Check the documentation on `detect.outliers` to find more details.
+```{Section 6 - Check for outliers}
+# specify the number of standard deviations you want to use
+n.sd <- 3
+
+# specify methods for  detecting outliers
+method <- "o1"
+
+# ignore 0 values or not
+ignore_0 <- T
+
+# specify as many loops as you need 
+# specify columns for check or leave them empty
+cols.integer_raw.main <- c()
+cols.integer_raw.loop1 <- c()
+cols.integer_raw.loop2 <- c()
+cols.integer_raw.loop3 <- c()
+
+source('src/sections/section_6_detect_and_visualise_outliers.R')
+
+write.xlsx(cleaning.log.outliers, paste0("output/checking/outliers/outlier_analysis_", n.sd, "sd.xlsx"), overwrite=T)
+
+```
+
+Edit the file
+Manually check outliers and change to NA (Decision made with country FPS)
+Save your changes in the same file or create a new file in output/checking/responses/ and change the path in the `cleaning.log.outliers` below
+
+```{r}
+cleaning.log.outliers <- read.xlsx(paste0("output/checking/outliers/outlier_analysis_", n.sd, "sd.xlsx"))
+
+source('src/sections/section_6_finish_outlier_check.R')
+
+cleaning.log <- rbind(cleaning.log,cleaning.log.outliers)
+
+```
+
+You're done with cleaning (yay). Now you have to drop the unnecessary data and fill in the template for HQ valiadation.
+
+```{r Section 7 - Finalize the cleaning log}
+
+# finalize cleaning log:
+cleaning.log <- cleaning.log %>% distinct() %>%
+  filter(old.value %!=na% new.value) %>% left_join(raw.main %>% select(uuid, any_of(directory_dictionary$enum_colname)))
+
+if (length(list.files(make.filename.xlsx("output/cleaning_log", "cleaning_log", no_date = T))) > 0) {
+  cleaning.log.previous <- read_xlsx(make.filename.xlsx("output/cleaning_log", "cleaning_log"))
+  cleaning.log.whole <- rbind(cleaning.log.previous, cleaning.log)
+} else {
+  cleaning.log.whole <- cleaning.log
+}
+# Output Cleaning Log
+write.xlsx(cleaning.log.whole, make.filename.xlsx("output/cleaning_log", "cleaning_log", no_date = T), overwrite = T)
+
+```
+
+
+```{r Section 7 Remove PII columns}
+# specify the PII columns to remove
+pii.to.remove_main <- c(
+  "deviceid",
+  "staff_other",
+  "audit",
+  "audit_URL",
+  "username")
+
+# remove PII from raw.
+raw.main  <- raw.main %>% select(-any_of(pii.to.remove_main))
+kobo.raw.main  <- kobo.raw.main %>% select(-any_of(pii.to.remove_main))
+
+if(length(ls)>1){
+  ls_loops <- ls[2:length(ls)]
+}else{ls_loops <- c()}
+```
+
+
+```{r Section 7 - Save the raw dataset with no PII}
+# create the data list that will be written into the excel 
+if(length(ls)>1){
+txt <- paste0(
+  'datasheets <-list("main" =kobo.raw.main,',
+  paste0('"',ls_loops,'" = ',sheet_names, collapse = ','),')'
+)
+}else{
+  txt <- 'datasheets <-list("main" =kobo.raw.main)'
+}
+eval(parse(text= txt))
+
+write.xlsx(datasheets, make.filename.xlsx("output/data_log", "full_data"), overwrite = T,
+           zoom = 90, firstRow = T)
+```
+
+```{r Section 7 - Save the clean dataset with no PII}
+# clean data (pii removed)
+
+if(length(ls)>1){
+txt <- paste0(
+  'datasheets_anon <-list("main" =raw.main,',
+  paste0('"',ls_loops,'" = ',sheet_names_new, collapse = ','),')'
+)}else{
+  txt <- 'datasheets_anon <-list("main" =raw.main)'
+}
+eval(parse(text= txt))
+
+write.xlsx(datasheets_anon, make.filename.xlsx("output/final", "final_anonymized_data"), overwrite = T,
+           zoom = 90, firstRow = T)
+```
+
+```{r Section 7 - Run the enumerator performance script and zip the files into one archive}
+source("src/count_enum_performance.R")
+source("package4validation.R")
+```
+
+You are done. Congratulations :)

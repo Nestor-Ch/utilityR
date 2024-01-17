@@ -13,7 +13,11 @@ detect.outliers(df, id, n.sd, method = "o1", is.loop, colnames, ignore_0 = T)
 
 \item{n.sd}{number of standard deviations will be used in algorithm}
 
-\item{method}{method for outliers detecting: o1, o2, o3, o4. More detailed about methods below}
+\item{method}{method for outliers detecting: o1, o2, o3, o4.\cr
+\code{method = 'o1'} Method based on Z score and logarithmization of the values\cr
+\code{method = 'o2'} Modified Z score which based on the median absolute deviation, recommended n.sd\cr
+\code{method = 'o3'} Method based on the interquartile range\cr
+\code{method = 'o4'} Method based on the median absolute deviation\cr}
 
 \item{is.loop}{Is df a loop data or not}
 
