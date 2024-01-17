@@ -2,7 +2,7 @@
 % Please edit documentation in R/recode.R
 \name{recode.others_select_one}
 \alias{recode.others_select_one}
-\title{Recode others: function for recoding select_one questions}
+\title{Create a cleaning log for recoding select_one questions}
 \usage{
 recode.others_select_one(
   or.select_one,
@@ -34,7 +34,7 @@ recode.others_select_one(
 A dataframe for the changes that need to be applied to the data
 }
 \description{
-Recode others: function for recoding select_one questions
+Create a cleaning log for recoding select_one questions
 }
 \note{
 _others suffix is added to the kobo tool dataframes to avoid recursion

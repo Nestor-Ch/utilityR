@@ -2,7 +2,7 @@
 % Please edit documentation in R/recode.R
 \name{recode.sm.elsewhere}
 \alias{recode.sm.elsewhere}
-\title{Recode elsewhere others}
+\title{Create a cleaning log for recoding select multiple questions into other columns}
 \usage{
 recode.sm.elsewhere(edited.sm, data, tool.survey)
 }
@@ -17,7 +17,7 @@ recode.sm.elsewhere(edited.sm, data, tool.survey)
 Returns a cleaning log file
 }
 \description{
-Recode elsewhere others for select multiple questions
+Create a cleaning log for recoding select multiple questions into other columns
 }
 \examples{
 \dontrun{

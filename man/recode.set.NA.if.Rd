@@ -2,7 +2,7 @@
 % Please edit documentation in R/recode.R
 \name{recode.set.NA.if}
 \alias{recode.set.NA.if}
-\title{Recode a question by setting variables to NA if they are equal to a given value (code).}
+\title{Create a cleaning log that sets the variables to NA if they are equal to a given value (code).}
 \usage{
 recode.set.NA.if(
   data,
@@ -31,7 +31,7 @@ recode.set.NA.if(
 Dataframe containing cleaning log entries constructed from `data`.
 }
 \description{
-Recode a question by setting variables to NA if they are equal to a given value (code).
+Create a cleaning log that sets the variables to NA if they are equal to a given value (code).
 }
 \note{
 DO NOT use this function for select_multiple questions. Instead use `recode.multiple.set.NA`

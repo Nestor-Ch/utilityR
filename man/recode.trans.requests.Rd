@@ -2,7 +2,7 @@
 % Please edit documentation in R/recode.R
 \name{recode.trans.requests}
 \alias{recode.trans.requests}
-\title{Recode translated columns}
+\title{Create a cleaning log for recoding translated columns}
 \usage{
 recode.trans.requests(requests, response_col)
 }

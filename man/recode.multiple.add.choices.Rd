@@ -2,7 +2,7 @@
 % Please edit documentation in R/recode.R
 \name{recode.multiple.add.choices}
 \alias{recode.multiple.add.choices}
-\title{Recode select_multiple responses: add particular choices.}
+\title{Create a cleaning log that add particular choices to the select_multiple variables.}
 \usage{
 recode.multiple.add.choices(data, variable, choices, issue)
 }

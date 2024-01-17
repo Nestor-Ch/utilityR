@@ -2,7 +2,7 @@
 % Please edit documentation in R/recode.R
 \name{recode.set.value.regex}
 \alias{recode.set.value.regex}
-\title{Recode a question by setting variables to some new value if they are matching a regex pattern.}
+\title{Create a cleaning log that sets the variables to some new value if they are matching a regex pattern.}
 \usage{
 recode.set.value.regex(
   data,
@@ -34,7 +34,7 @@ recode.set.value.regex(
 Dataframe containing cleaning log entries constructed from `data`.
 }
 \description{
-Recode a question by setting variables to some new value if they are matching a regex pattern.
+Create a cleaning log that sets the variables to some new value if they are matching a regex pattern.
 }
 \examples{
 \dontrun{
