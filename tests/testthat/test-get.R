@@ -35,6 +35,27 @@ testthat::test_that("get.choice.label work", {
   testthat::expect_warning(get.choice.label("ye","yn",label_colname,tool.choices))
 })
 
+
+testthat::test_that("get.choice.name.from.label work", {
+  filename <- testthat::test_path("fixtures","tool.xlsx")
+  label_colname <- "label::English"
+  tool.choices <- utilityR::load.tool.choices(filename,label_colname)
+
+  testthat::expect_error(get.choice.name.from.label("Yes",list = "yn",label_colname = label_colname),
+                         "tool.choices is not provided.")
+  testthat::expect_error(get.choice.name.from.label("Yes",list = "yn",tool.choices = tool.choices),
+                         "label_colname is not provided.")
+  testthat::expect_error(get.choice.name.from.label("Yes",list="y",
+                                                    tool.choices = tool.choices,
+                                                    label_colname = label_colname),
+                         ("list y not found in tool.choices!"))
+
+  testthat::expect_equal(get.choice.name.from.label("Yes","yn",label_colname,tool.choices),"yes")
+  testthat::expect_warning(
+    get.choice.name.from.label("Ye","yn",label_colname,tool.choices)
+    )
+})
+
 testthat::test_that("get.choice.list.from.name work", {
   filename <- testthat::test_path("fixtures","tool.xlsx")
   label_colname <- "label::English"

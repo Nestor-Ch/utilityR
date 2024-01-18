@@ -96,6 +96,51 @@ get.choice.label <- function(choice,
   return(res_vec)
 }
 
+#' Find the name of the Choice from label
+#'
+#' @param choice_label the label of the choice
+#' @param list the name of the list containing choice
+#' @param label_colname This is the label_colname input
+#' @param tool.choices This is the tool.choices data.frame
+#'
+#' @return It will return the name of the choice label
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' choice_name <- get.choice.name.from.label(choice = "Yes", list = "yn",
+#'                                  label_colname = label_colname,
+#'                                  tool.choices = tool.choices)
+#' }
+get.choice.name.from.label <- function(choice_label,
+                                       list,
+                                       label_colname = NULL,
+                                       tool.choices = NULL){
+
+  if(is.null(tool.choices)) stop("tool.choices is not provided.")
+  if(is.null(label_colname)) stop("label_colname is not provided.")
+  if(!list %in% tool.choices$list_name) stop(paste("list",list, "not found in tool.choices!"))
+  tool.choices <- tool.choices %>%
+    dplyr::select(name, list_name, all_of(label_colname))
+
+  tool.choices <- tool.choices[tool.choices$list_name == list,]
+
+  res <- data.frame(unlist(choice_label))
+  names(res) <- label_colname
+  res <- res %>%
+    dplyr::left_join(tool.choices,by = label_colname, na_matches = "never")
+
+  if(any(is.na(res[['name']]))){
+    culprits <- paste0(res[is.na(res[[label_colname]]),] %>%
+                         dplyr::pull(name), collapse = ", ")
+    warning(paste0("Choices not in the list (", list, "):", culprits))
+  }
+  # if(nrow(res) == 0) stop("All choices not in the list!")
+
+  res_vec <- dplyr::pull(res, name)
+  return(res_vec)
+}
+
 
 #' Find the choices list name using name
 #'
