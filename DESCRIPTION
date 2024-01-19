@@ -41,7 +41,8 @@ Imports:
     cluster,
     igraph,
     fastDummies,
-    ggplot2
+    ggplot2,
+    stringdist
 VignetteBuilder: knitr
 Depends: 
     R (>= 2.10)

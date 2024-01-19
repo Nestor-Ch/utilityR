@@ -573,7 +573,7 @@ testthat::test_that("recode.others_select_one works", {
   ),
   new.value = c(other_requests$true.v[1:2],other_requests$true.v[7:8], # true
                 rep(NA,8) # invalid  variable
-  # existing other variable
+                # existing other variable
   ),
   issue = c(rep('Translating other response',4), # true
             rep('Invalid other response', 8 )
@@ -1274,11 +1274,11 @@ testthat::test_that("recode.others works", {
 testthat::test_that('recode.trans.requests works',{
 
   test_data <- data.frame(uuid = c("a0d73ff7-7f8c-4b0e-b13b-a909fe9b0aa7",
-                                       "b231339d-1b74-4e5a-bfad-037028fb71d8", "e2a71393-61a1-48bb-bc10-a061c2ec98cc",
-                                       "7faf7bf1-a52b-4011-8590-e972b2fa0d0d", "3d5e12e7-c269-4fd6-8162-ce17342b9ca8",
-                                       "3495679e-0d16-4658-ae9b-caf0e283f736", "a0d73ff7-7f8c-4b0e-b13b-a909fe9b0aa7",
-                                       "9c0ddcef-fef8-4f8f-9f72-59292187090c", "9c4b2e89-1ec7-4b3c-aeee-1395b960b5be",
-                                       "27e07fda-fffd-4abe-9dad-ebcc03a7f84f"),
+                                   "b231339d-1b74-4e5a-bfad-037028fb71d8", "e2a71393-61a1-48bb-bc10-a061c2ec98cc",
+                                   "7faf7bf1-a52b-4011-8590-e972b2fa0d0d", "3d5e12e7-c269-4fd6-8162-ce17342b9ca8",
+                                   "3495679e-0d16-4658-ae9b-caf0e283f736", "a0d73ff7-7f8c-4b0e-b13b-a909fe9b0aa7",
+                                   "9c0ddcef-fef8-4f8f-9f72-59292187090c", "9c4b2e89-1ec7-4b3c-aeee-1395b960b5be",
+                                   "27e07fda-fffd-4abe-9dad-ebcc03a7f84f"),
                           loop_index = c(NA, NA, NA, NA, NA, "loop1_1247", NA, NA, NA, NA),
                           name = c("conditions_to_pursue_option_other",
                                    "conditions_to_pursue_option_other", "conditions_to_pursue_option_other",
@@ -1296,12 +1296,12 @@ testthat::test_that('recode.trans.requests works',{
                                           "There is a robrta and calm", "There is no laptop in the house, a computer for homework,",
                                           "999", "In the n.p. vi you feel calm", "It's crackling", "compared to house 5"),
                           true.v = c(NA, "Lives abroad", "He moves with the help of crutches, but he has to go to the toilet on the other wing",
-                                        "There are no thresholds(doorstep, first step of a porch) it is convenient to bring in and out a child's wheelchair",
-                                        "There's work here and it's quiet", "HH has no laptop to do hometasks.",
-                                        NA, "In the inhabited locality (settlement) you feel yourself calm",
-                                        "The building is cracking", "in comparison with the 5th house"),
+                                     "There are no thresholds(doorstep, first step of a porch) it is convenient to bring in and out a child's wheelchair",
+                                     "There's work here and it's quiet", "HH has no laptop to do hometasks.",
+                                     NA, "In the inhabited locality (settlement) you feel yourself calm",
+                                     "The building is cracking", "in comparison with the 5th house"),
                           invalid.v = c("yes", NA, NA, NA, NA, NA, "yes", NA, NA, NA))
-#Test 1 works fine on it's own
+  #Test 1 works fine on it's own
 
   actual_output <- recode.trans.requests(requests = test_data, response_col = 'responses')
   expected_output <- data.frame(
@@ -1339,23 +1339,23 @@ testthat::test_that('recode.trans.requests works',{
   actual_output <- recode.trans.requests(requests = test_data2, response_col = 'responses')
   expected_output <- data.frame(
     uuid = c(
-             "b231339d-1b74-4e5a-bfad-037028fb71d8", "e2a71393-61a1-48bb-bc10-a061c2ec98cc",
-             "7faf7bf1-a52b-4011-8590-e972b2fa0d0d", "3d5e12e7-c269-4fd6-8162-ce17342b9ca8",
-             "3495679e-0d16-4658-ae9b-caf0e283f736",
-             "9c0ddcef-fef8-4f8f-9f72-59292187090c", "9c4b2e89-1ec7-4b3c-aeee-1395b960b5be",
-             "27e07fda-fffd-4abe-9dad-ebcc03a7f84f"),
+      "b231339d-1b74-4e5a-bfad-037028fb71d8", "e2a71393-61a1-48bb-bc10-a061c2ec98cc",
+      "7faf7bf1-a52b-4011-8590-e972b2fa0d0d", "3d5e12e7-c269-4fd6-8162-ce17342b9ca8",
+      "3495679e-0d16-4658-ae9b-caf0e283f736",
+      "9c0ddcef-fef8-4f8f-9f72-59292187090c", "9c4b2e89-1ec7-4b3c-aeee-1395b960b5be",
+      "27e07fda-fffd-4abe-9dad-ebcc03a7f84f"),
     loop_index = c( NA, NA, NA, NA, "loop1_1247", NA, NA, NA),
     variable = c(
-                 "conditions_to_pursue_option_other", "conditions_to_pursue_option_other",
-                 "conditions_to_pursue_option_other", "conditions_to_pursue_option_other",
-                 "ed_barriers", "reasons_feeling_of_safety",
-                 "reasons_feeling_of_safety", "reasons_feeling_of_safety"),
+      "conditions_to_pursue_option_other", "conditions_to_pursue_option_other",
+      "conditions_to_pursue_option_other", "conditions_to_pursue_option_other",
+      "ed_barriers", "reasons_feeling_of_safety",
+      "reasons_feeling_of_safety", "reasons_feeling_of_safety"),
     old.value = c(
-                  "мешкає за кордоном ДГ", "на милицях мусить ходити до туалету на інше крило",
-                  "нет порогов, удобно завозить инвалидную коляску ребенка",
-                  "Є робрта і спокійно", "В ДХ нет ноутбука, компьютера для выполнения домашних заданий,",
-                  "в н.п. ви чувствуете спокойно",
-                  "Здатне трещит", "Порівняно з домом 5"),
+      "мешкає за кордоном ДГ", "на милицях мусить ходити до туалету на інше крило",
+      "нет порогов, удобно завозить инвалидную коляску ребенка",
+      "Є робрта і спокійно", "В ДХ нет ноутбука, компьютера для выполнения домашних заданий,",
+      "в н.п. ви чувствуете спокойно",
+      "Здатне трещит", "Порівняно з домом 5"),
     new.value = c("Lives abroad", "He moves with the help of crutches, but he has to go to the toilet on the other wing",
                   "There are no thresholds(doorstep, first step of a porch) it is convenient to bring in and out a child's wheelchair",
                   "There's work here and it's quiet", "HH has no laptop to do hometasks.",
@@ -1453,4 +1453,212 @@ testthat::test_that('recode.others.elsewhere works', {
   expected_res$loop_index <- as.character(expected_res$uuid)
   testthat::expect_equal(actual_result, expected_res)
 })
+
+
+
+testthat::test_that('recode.other.relevancies',{
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_recode.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the dataframe
+  filename <- testthat::test_path("fixtures","data_main_recode.xlsx")
+  test_data <- readxl::read_excel(filename)
+
+  # get the cl_log
+
+  filename <- testthat::test_path("fixtures","cl_log_recode_example.xlsx")
+  cl_log <- readxl::read_excel(filename)
+
+
+  var_list <- c('d2_winterization_support')
+
+  relevancy_dictionary <- find.relevances(tool.survey = tool.survey,var_list = var_list)
+
+  #test 1 basic functionality
+
+  actual_output <- recode.other.relevances(data = test_data,
+                                           cleaning.log.other = cl_log,
+                                           relevancy_dictionary = relevancy_dictionary,
+                                           is.loop = F) %>%
+    dplyr::arrange(uuid,variable,old.value)
+
+
+  expected_output <- data.frame(uuid = c('4a0fe558-902c-4c19-aa07-c03cac26e30a','559110ec-fec7-44a8-a132-c14ac4a8542a',
+                                         '61279cb7-1c09-420c-9b82-bc2872ecb44e','61991004-5a0d-46b7-9084-19ca28379fe0',
+                                         'cd44ecdc-2140-401e-943f-eaa9328e6a75','d5bd44dd-2979-4e0f-a3e8-bd707fcd8671',
+                                         '7551c0f2-f22c-4e74-ab6d-104864fa6d66','bc07518c-dc73-4b2b-8117-4a6255e5ee90',
+                                         'd26cb056-0788-4234-a920-8c57f0f3d7a8','fbd82700-21ec-4244-9a3e-041acfaaacdb', # invalid
+                                         '61279cb7-1c09-420c-9b82-bc2872ecb44e','61991004-5a0d-46b7-9084-19ca28379fe0',
+                                         'cd44ecdc-2140-401e-943f-eaa9328e6a75','d5bd44dd-2979-4e0f-a3e8-bd707fcd8671' # existing recode
+  ),
+  uniqui = c('4a0fe558-902c-4c19-aa07-c03cac26e30a','559110ec-fec7-44a8-a132-c14ac4a8542a',
+             '61279cb7-1c09-420c-9b82-bc2872ecb44e','61991004-5a0d-46b7-9084-19ca28379fe0',
+             'cd44ecdc-2140-401e-943f-eaa9328e6a75','d5bd44dd-2979-4e0f-a3e8-bd707fcd8671',
+             '7551c0f2-f22c-4e74-ab6d-104864fa6d66','bc07518c-dc73-4b2b-8117-4a6255e5ee90',
+             'd26cb056-0788-4234-a920-8c57f0f3d7a8','fbd82700-21ec-4244-9a3e-041acfaaacdb', # invalid
+             '61279cb7-1c09-420c-9b82-bc2872ecb44e','61991004-5a0d-46b7-9084-19ca28379fe0',
+             'cd44ecdc-2140-401e-943f-eaa9328e6a75','d5bd44dd-2979-4e0f-a3e8-bd707fcd8671' # existing recode
+  ),
+  loop_index = NA,
+  variable = c(rep('d2_2_8_sufficient_winterization_support_oth',10),
+               'd2_2_4_sufficient_winterization_support_fuel_generator',
+               'd2_2_5_sufficient_winterization_support_alternative_heating_source',
+               'd2_2_5_sufficient_winterization_support_alternative_heating_source',
+               'd2_2_4_sufficient_winterization_support_fuel_generator'),
+  issue = c(rep('Change in the relevancy. Invalid entry',10),
+            rep('Change in the relevancy. Recoding the entry',4)),
+  old.value = c('partially','no','partially',
+                'partially','yes','yes','partially','yes',
+                'partially','partially', rep(NA,4)),
+  new.value = c(rep(NA,10),'partially','partially','yes','yes')
+  ) %>%
+    dplyr::tibble() %>%
+    dplyr::arrange(uuid,variable,old.value)
+
+  testthat::expect_equal(actual_output,expected_output)
+
+  # test 2 - runs well if we have no invalid entries
+
+  cl_log_recode <- cl_log[grepl('d2_winterization_support/',cl_log$variable) & cl_log$new.value%==%1,]
+
+  actual_output <- recode.other.relevances(data = test_data,
+                                           cleaning.log.other = cl_log_recode,
+                                           relevancy_dictionary = relevancy_dictionary,
+                                           is.loop = F) %>%
+    dplyr::arrange(uuid,variable,old.value)
+
+
+  expected_output <- data.frame(uuid = c('61279cb7-1c09-420c-9b82-bc2872ecb44e','61991004-5a0d-46b7-9084-19ca28379fe0',
+                                         'cd44ecdc-2140-401e-943f-eaa9328e6a75','d5bd44dd-2979-4e0f-a3e8-bd707fcd8671' # existing recode
+  ),
+  uniqui = c('61279cb7-1c09-420c-9b82-bc2872ecb44e','61991004-5a0d-46b7-9084-19ca28379fe0',
+             'cd44ecdc-2140-401e-943f-eaa9328e6a75','d5bd44dd-2979-4e0f-a3e8-bd707fcd8671' # existing recode
+  ),
+  loop_index = NA,
+  variable = c('d2_2_4_sufficient_winterization_support_fuel_generator',
+               'd2_2_5_sufficient_winterization_support_alternative_heating_source',
+               'd2_2_5_sufficient_winterization_support_alternative_heating_source',
+               'd2_2_4_sufficient_winterization_support_fuel_generator'),
+  issue = c(rep('Change in the relevancy. Recoding the entry',4)),
+  old.value = c(rep(NA_character_,4)),
+  new.value = c('partially','partially','yes','yes')
+  ) %>%
+    dplyr::tibble() %>%
+    dplyr::arrange(uuid,variable,old.value)
+
+  testthat::expect_equal(actual_output,expected_output)
+
+
+  # test 3 - runs well if we have ONLY invalid entries
+
+  cl_log_invalid <- cl_log[grepl('d2_winterization_support/',cl_log$variable) & !cl_log$new.value%in%1,]
+
+  actual_output <- recode.other.relevances(data = test_data,
+                                           cleaning.log.other = cl_log_invalid,
+                                           relevancy_dictionary = relevancy_dictionary,
+                                           is.loop = F) %>%
+    dplyr::arrange(uuid,variable,old.value)
+
+
+  expected_output <- data.frame(uuid = c('4a0fe558-902c-4c19-aa07-c03cac26e30a','559110ec-fec7-44a8-a132-c14ac4a8542a',
+                                         '61279cb7-1c09-420c-9b82-bc2872ecb44e','61991004-5a0d-46b7-9084-19ca28379fe0',
+                                         'cd44ecdc-2140-401e-943f-eaa9328e6a75','d5bd44dd-2979-4e0f-a3e8-bd707fcd8671',
+                                         '7551c0f2-f22c-4e74-ab6d-104864fa6d66','bc07518c-dc73-4b2b-8117-4a6255e5ee90',
+                                         'd26cb056-0788-4234-a920-8c57f0f3d7a8','fbd82700-21ec-4244-9a3e-041acfaaacdb' # invalid
+  ),
+  uniqui = c('4a0fe558-902c-4c19-aa07-c03cac26e30a','559110ec-fec7-44a8-a132-c14ac4a8542a',
+             '61279cb7-1c09-420c-9b82-bc2872ecb44e','61991004-5a0d-46b7-9084-19ca28379fe0',
+             'cd44ecdc-2140-401e-943f-eaa9328e6a75','d5bd44dd-2979-4e0f-a3e8-bd707fcd8671',
+             '7551c0f2-f22c-4e74-ab6d-104864fa6d66','bc07518c-dc73-4b2b-8117-4a6255e5ee90',
+             'd26cb056-0788-4234-a920-8c57f0f3d7a8','fbd82700-21ec-4244-9a3e-041acfaaacdb' # invalid
+  ),
+  loop_index = NA,
+  variable = c(rep('d2_2_8_sufficient_winterization_support_oth',10)),
+  new.value = c(rep(NA_character_,10)),
+  issue = c(rep('Change in the relevancy. Invalid entry',10)),
+  old.value = c('partially','no','partially',
+                'partially','yes','yes','partially','yes',
+                'partially','partially')
+  ) %>%
+    dplyr::tibble() %>%
+    dplyr::arrange(uuid,variable,old.value)
+
+  testthat::expect_equal(actual_output,expected_output)
+
+  # test 4 - should break if we try to run it on non-loop data
+  testthat::expect_error(
+    recode.other.relevances(data = test_data,
+                            cleaning.log.other = cl_log,
+                            relevancy_dictionary = relevancy_dictionary,
+                            is.loop = T),
+    "Parameter is.loop = TRUE, but column loop_index was not found in data!"
+  )
+
+  # test 5 - missing vars
+
+  relevancy_dictionary <- rbind(relevancy_dictionary,data.frame(name='test',relevant='test'))
+
+  testthat::expect_warning(
+    recode.other.relevances(data = test_data,
+                            cleaning.log.other = cl_log,
+                            relevancy_dictionary = relevancy_dictionary,
+                            is.loop = F),
+    "Some of the variables in your relevancy_dictionary are not present in the data:test"
+  )
+
+
+  # test 6. Loops.
+
+  test_data$loop_index <- paste0('loop',test_data$uuid)
+  cl_log$loop_index <- paste0('loop',cl_log$uuid)
+
+  var_list <- 'e3_wash_support'
+  relevancy_dictionary <- find.relevances(tool.survey = tool.survey,var_list = var_list)
+
+  actual_output <- recode.other.relevances(data = test_data,
+                                           cleaning.log.other = cl_log,
+                                           relevancy_dictionary = relevancy_dictionary,
+                                           is.loop = T) %>%
+    dplyr::arrange(uuid,variable,old.value)
+
+  expected_output <- data.frame(uuid = c('6d0dbe00-9e20-4f48-9c90-50af8f443f63','1c97b817-5be6-420c-ad09-0e0835d87904',
+                                         '40b0277f-dd88-4e95-9602-f66ba2a6d65c','bc07518c-dc73-4b2b-8117-4a6255e5ee90',
+                                         'fbd82700-21ec-4244-9a3e-041acfaaacdb','74771da6-0321-4da0-b40b-d159bf1f5da6', #invalid
+                                         '1c97b817-5be6-420c-ad09-0e0835d87904','40b0277f-dd88-4e95-9602-f66ba2a6d65c' #recode
+                                         ),
+  uniqui = c('loop6d0dbe00-9e20-4f48-9c90-50af8f443f63','loop1c97b817-5be6-420c-ad09-0e0835d87904',
+             'loop40b0277f-dd88-4e95-9602-f66ba2a6d65c','loopbc07518c-dc73-4b2b-8117-4a6255e5ee90',
+             'loopfbd82700-21ec-4244-9a3e-041acfaaacdb','loop74771da6-0321-4da0-b40b-d159bf1f5da6', #invalid
+             'loop1c97b817-5be6-420c-ad09-0e0835d87904','loop40b0277f-dd88-4e95-9602-f66ba2a6d65c' #recode
+  ),
+  loop_index = c('loop6d0dbe00-9e20-4f48-9c90-50af8f443f63','loop1c97b817-5be6-420c-ad09-0e0835d87904',
+                 'loop40b0277f-dd88-4e95-9602-f66ba2a6d65c','loopbc07518c-dc73-4b2b-8117-4a6255e5ee90',
+                 'loopfbd82700-21ec-4244-9a3e-041acfaaacdb','loop74771da6-0321-4da0-b40b-d159bf1f5da6', #invalid
+                 'loop1c97b817-5be6-420c-ad09-0e0835d87904','loop40b0277f-dd88-4e95-9602-f66ba2a6d65c' #recode
+  ),
+  variable = c(rep('e3_1_14_sufficient_wash_support_oth',6),
+  rep('e3_1_1_sufficient_wash_support_repairs_water_supply_infrastructure_drainage_system',2)),
+  issue = c(rep('Change in the relevancy. Invalid entry',6),rep('Change in the relevancy. Recoding the entry',2)),
+  old.value = c('yes','yes',"partially",'yes','yes',"partially",NA,NA),
+  new.value = c(rep(NA_character_,6),"yes","partially")
+  ) %>%
+    dplyr::tibble() %>%
+    dplyr::arrange(uuid,variable,old.value)
+
+  testthat::expect_equal(actual_output,expected_output)
+
+})
+
+
+
+
+
+
+
+
+
+
 

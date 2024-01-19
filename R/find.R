@@ -259,3 +259,48 @@ find.similar.surveys <- function(data.main, tool.survey, uuid="_uuid",
 
   return(result.outdata)
 }
+
+
+
+#' Find the questions that have the questions from `var_list` as parents in their relevances
+#'
+#' @param tool.survey your tool.survey object
+#' @param var_list the list of variables you want to check
+#'
+#' @export
+#'
+#' @note this function won't work if you have multiple relevance conditions in your rows.
+#' They will be filtered out
+#' @examples
+#' \dontrun{
+#' relevancy_dictionary <- find.relevances(
+#'  tool.survey=tool.survey,
+#'  var_list=c('variable1','variable2'))
+#' }
+find.relevances <- function(tool.survey, var_list){
+  relevancy_dictionary <- tool.survey %>%
+    dplyr::select(name,relevant) %>%
+    dplyr::mutate(relevant = gsub(' ','',relevant)) %>%
+    dplyr::filter(!grepl('\\)or|\\)and',relevant)) %>%
+    dplyr::filter(grepl(
+      ifelse(length(var_list)>1,paste0(var_list,collapse='|'),var_list),
+      relevant))%>%
+    tidyr::separate(relevant,into = c('variable','binary'),sep='}') %>%
+    dplyr::mutate(
+      original =paste0(gsub("selected\\(\\$\\{(\\w+)", "\\1 \\2",variable),'_other'),
+      original =gsub(' ','',original),
+      variable = gsub("selected\\(\\$\\{(\\w+)", "\\1 \\2", variable),
+      binary = gsub('[^_[:alnum:] ]+','',binary)) %>%
+    tidyr::unite('relevant',variable:binary,sep='/') %>%
+    dplyr::mutate(relevant = gsub(' ','',relevant),
+                  similar = stringdist::stringsim(name, original,method='jaccard',q=2)) %>%
+    dplyr::filter(!similar>0.85) %>%
+    dplyr::select(-similar, -original) %>%
+    dplyr::tibble()
+  return(relevancy_dictionary)
+}
+
+
+
+
+

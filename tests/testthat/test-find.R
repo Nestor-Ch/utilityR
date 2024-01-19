@@ -177,3 +177,58 @@ testthat::test_that('column.cleaner works',{
   )
   testthat::expect_warning(column.cleaner(temp, colnames(temp)))
 })
+
+testthat::test_that('find.relevances works',{
+  path <- testthat::test_path('fixtures','tool.survey_full.xlsx')
+  tool.survey <- load.tool.survey(path, 'label:English')
+
+  var_list <- 'b8_petrol_official_price_yn'
+
+  expected_output <- data.frame(name='b8_petrol_official_price',
+                                relevant = 'b8_petrol_official_price_yn/yes') %>%
+    dplyr::tibble()
+
+  actual_output <- find.relevances(tool.survey,var_list = var_list)
+
+  testthat::expect_equal(actual_output,expected_output)
+
+  # test 2 multiple items in the list.
+  var_list <- c('b7_vehicle_fuel','b13_firewood_price_yn')
+
+  expected_output <- data.frame(name=c('b8_petrol_official_price_yn',
+                                       'b8_1_petrol_unofficial_price_yn',
+                                       'b9_diesel_official_price_yn',
+                                       'b9_1_diesel_unofficial_price_yn',
+                                       'b10_gas_vehicle_price_yn',
+                                       'b13_firewood_price',
+                                       'b15_electricity_vehicles_price_yn'
+                                       ),
+                                relevant = c('b7_vehicle_fuel/petrol_vehicles',
+                                             'b7_vehicle_fuel/petrol_vehicles',
+                                             'b7_vehicle_fuel/diesel_vehicles',
+                                             'b7_vehicle_fuel/diesel_vehicles',
+                                             'b7_vehicle_fuel/gas_vehicles',
+                                             'b13_firewood_price_yn/yes',
+                                             'b7_vehicle_fuel/electricity_vehicles'
+                                             )
+  ) %>% dplyr::tibble()
+
+  actual_output <- find.relevances(tool.survey,var_list = var_list)
+
+  testthat::expect_equal(actual_output,expected_output)
+
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+

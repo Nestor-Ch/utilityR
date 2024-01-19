@@ -28,7 +28,8 @@ recode.others_select_one(
 
 \item{label_colname}{The name of your english label column. "label::English" by default}
 
-\item{CL_COLS}{string of columns of the cleaning log. Defauls to c("uuid","uniqui", "loop_index", "variable", "old.value", "new.value", "issue")}
+\item{CL_COLS}{string of columns of the cleaning log.
+Defauls to c("uuid","uniqui", "loop_index", "variable", "old.value", "new.value", "issue")}
 }
 \value{
 A dataframe for the changes that need to be applied to the data

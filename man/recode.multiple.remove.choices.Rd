@@ -19,13 +19,16 @@ recode.multiple.remove.choices(
 
 \item{variable}{variable String containing the name of the select_multiple variable.}
 
-\item{choices}{choices Vector of strings (or a single string) containing the choices that will be removed. They must be valid options for this variable.}
+\item{choices}{choices Vector of strings (or a single string) containing the
+choices that will be removed. They must be valid options for this variable.}
 
 \item{issue}{issue String with explanation used for the cleaning log entry.}
 
-\item{other_var_name}{the name of your _other variable - variable containing string responses, NULL by default}
+\item{other_var_name}{the name of your _other variable -
+variable containing string responses, NULL by default}
 
-\item{CL_COLS}{string of columns of the cleaning log defauls to c("uuid","uniqui", "loop_index", "variable", "old.value", "new.value", "issue")}
+\item{CL_COLS}{string of columns of the cleaning log.
+Defauls to c("uuid","uniqui", "loop_index", "variable", "old.value", "new.value", "issue")}
 }
 \value{
 Dataframe containing cleaning log entries constructed from `data`

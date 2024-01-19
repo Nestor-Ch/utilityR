@@ -18,7 +18,8 @@ recode.others(
 \arguments{
 \item{data}{Dataframe containing Kobo data}
 
-\item{or.edited}{Dataframe containing the filled-out other_requests file. Needs to contain the standard TEI (True, Existing, Invalid) columns
+\item{or.edited}{Dataframe containing the filled-out other_requests file.
+Needs to contain the standard TEI (True, Existing, Invalid) columns
 in one of the following formats: (true.v,existing.v, invalid.v) or (true.other, existing.other, invalid.other),
 as well as column `check`. Please use the ```load.requests``` function to load these xlsx files.}
 
@@ -26,7 +27,8 @@ as well as column `check`. Please use the ```load.requests``` function to load t
 
 \item{is.loop}{Set this to True if the provided dataframe is a loop (it needs to contain loop_index and uuid columns}
 
-\item{print_debug}{Whether debugging information will be printed to screen (about how many responses will be recoded/translated etc.).}
+\item{print_debug}{Whether debugging information will be printed to screen
+(about how many responses will be recoded/translated etc.).}
 
 \item{tool.survey}{The survey sheet of your kobo tool}
 
