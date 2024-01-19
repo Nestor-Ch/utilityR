@@ -23,6 +23,6 @@ Recode elsewhere others for select multiple and select one questions
 }
 \examples{
 \dontrun{
-recode.others.elsewhere(data = raw.main, tool.survey = tool.surveyor.edited = or.edited, is.loop = F)
+recode.others.elsewhere(data = raw.main, tool.survey = tool.survey,or.edited = or.edited, is.loop = F)
 }
 }

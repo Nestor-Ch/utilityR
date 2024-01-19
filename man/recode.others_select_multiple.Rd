@@ -34,7 +34,8 @@ recode.others_select_multiple(
 
 \item{label_colname}{The name of your english label column. "label::English" by default}
 
-\item{CL_COLS}{CL_COLS string of columns of the cleaning log. Defauls to c("uuid","uniqui" ,"loop_index", "variable", "old.value", "new.value", "issue")}
+\item{CL_COLS}{CL_COLS string of columns of the cleaning log.
+Defauls to c("uuid","uniqui" ,"loop_index", "variable", "old.value", "new.value", "issue")}
 }
 \value{
 A dataframe for the changes that need to be applied to the data
@@ -43,7 +44,8 @@ A dataframe for the changes that need to be applied to the data
 Create a cleaning log for recoding select_multiple questions
 }
 \note{
-When running loop data, make sure to have a uuid column in your dataframe. This ensures that the resulting tables are uniform
+When running loop data, make sure to have a uuid column in your dataframe.
+This ensures that the resulting tables are uniform
 }
 \examples{
 \dontrun{

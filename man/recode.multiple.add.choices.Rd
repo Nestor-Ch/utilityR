@@ -11,7 +11,8 @@ recode.multiple.add.choices(data, variable, choices, issue)
 
 \item{variable}{String containing the name of the select_multiple variable.}
 
-\item{choices}{Vector of strings (or a single string) containing the choices that will be added. They must be valid options for this variable.}
+\item{choices}{Vector of strings (or a single string) containing the choices that will be added.
+They must be valid options for this variable.}
 
 \item{issue}{String with explanation used for the cleaning log entry.}
 }
