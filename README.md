@@ -9,7 +9,7 @@ The text below follows the structure of the cleaning template presented in the m
 ## Table of Contents
 - [Open up the cleaning template](#Open-up-the-cleaning-template)
 - [Duplicates and no-consents](#Cleaning-duplicates-and-no-consent-entries)
-- [Audit checks and soft duplicates]($Audit-checks-and-soft-duplicates)
+- [Audit checks and soft duplicates](#Audit-checks-and-soft-duplicates)
 
 ### Open up the cleaning template
 
@@ -51,7 +51,34 @@ If you want to add any other checks for general validity of the data, you can ad
 
 ### Audit checks and soft duplicates
 
+**Audit checks** 
+Prior to running the script you'll have to specify the minimum and maximum time that the respondent can spend answering the questions. All of the interviews that are above/below these thresholds will be marked as suspicious. Additionally, some enumerators can spend too much time on a single question (consent, location, etc.) to make the interview seem longer than it actually was. You can smooth these interview times by passing the `pre_process_audit_files = T` argument and setting `max_length_answer_1_question` parameter. This will make the script run the `pre.process.audits` function, that will replace these long times with the sample average time for answering the given question, without the outliers.
 
+The analysis of audits will create a `audits_summary` excel file in the `directory_dictionary$dir.audits.check` directory. This file is your survey data + audit check columns such as:  
+`n.iteration` - The number of iterations per interviews (the number of times the user had to stop and then continue the interview)  
+`tot.t` - Total time of the interview. Calculated as `start` of the last `form.exit` event minus the `start` of `form.start` event  
+`tot.rt` - The total response time of the interview. The sum of the `duration` column in the loaded audits dataframe  
+`tot.rt.inter` - The total time between questions in the interview. The sum of the `inter_q_duration` column in the loaded audits dataframe  
+`t` - Time of each iteration. Calculated as `start` of the iteration's `form.exit` event minus the `start` of the iterations`form.start` event  
+`rt` - Response time of each iteration. The sum of the `duration` column in the loaded audits dataframe for the iteration  
+`q` - Number of questions per iteration  
+`j` - Number of jump events per iteration  
+`e` - Number of edits per iteration Calculated as the number of non NA entries in the `old.value` column  
+`w` - Waiting time - the `start` column of iteration's `form.resume`event - the `start`  for the column of the pervious iterations `form.exit` event
+
+As well as `NA`, `DK`, and `_other` (open text answer) columns.  
+After the script is done analysing these things, you can browse the `audits_summary` excel file. If you decide to keep an entry despite it being in this file, delete the relevant excel row. Everyting within this file will be deleted when you run the `section_2_run_audit_decisions.R`.
+
+**Soft Duplicates**
+
+The only entry needed from the user for this bit of the script is `min_num_diff_questions` parameter, that is the minimum number of different columns that makes us confident that the entry is not a soft duplicate. The soft duplicate algorithm is based on the Gower distance parameter of 
+
+
+### Contributors 
+
+<a href="https://github.com/Nestor-Ch/utilityR/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=Nestor-Ch/utilityR" />
+</a>  
 
 
 <!-- badges: start -->
