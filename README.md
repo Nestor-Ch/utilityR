@@ -10,6 +10,7 @@ The text below follows the structure of the cleaning template presented in the m
 - [Open up the cleaning template](#Open-up-the-cleaning-template)
 - [Duplicates and no-consents](#Cleaning-duplicates-and-no-consent-entries)
 - [Audit checks and soft duplicates](#Audit-checks-and-soft-duplicates)
+- [Geospatial checks](#Geospatial-checks)
 
 ### Open up the cleaning template
 
@@ -71,8 +72,42 @@ After the script is done analysing these things, you can browse the `audits_summ
 
 **Soft Duplicates**
 
-The only entry needed from the user for this bit of the script is `min_num_diff_questions` parameter, that is the minimum number of different columns that makes us confident that the entry is not a soft duplicate. The soft duplicate algorithm is based on the Gower distance parameter of 
+The only entry needed from the user for this bit of the script is `min_num_diff_questions` parameter, that is the minimum number of different columns that makes us confident that the entry is not a soft duplicate. The soft duplicate algorithm is based on the Gower distance parameter calculated for subsets of each individual enumerator.
 
+This analysis produces 4 outputs: 
+1. `soft.duplicates` excel - the dataframe that contains entries with most similar surveys per enumerator.
+2. `soft_duplicates_analysis` excel - the summary file with statistics for soft duplicates per enumerator.
+3. `soft_duplicates_outliers` excel - outlier enumerators that have the most soft duplicates.
+4. `enumerators_surveys` pdf - a visualisation of the enumerators with outlier values in terms of similarity of surveys.
+
+Once again, if you're fine with some of these duplicates, remove them from the `soft_duplicates` excel file in the `directory_dictionary$dir.audits.check` directory. Everyting that is left in the excel will be deleted when you run the `section_2_run_audit_decisions.R`.
+
+Once you've looked through the excel files, double-checked everything and left only those entries that you'd like to delete in audit and soft duplicate files, run the `section_2_run_audit_decisions.R` line in the cleaning script.
+
+### Geospatial checks
+
+The spatial checks section checks for interviews with 0 geo coordinate precision. If these are present in the data, this may mean that the interviewer has installed a fake gps app onto their phone and has used it to fake the interview.
+
+After this check is done, the deletion log is written into an excel file and we're done with the deletion bit of the cleaning.
+
+
+###  Other requests and translations
+
+This section is the most hands-on part of this script. It is also the most complex one, so please take your time running it and be vary of any bugs, errors and warning that you may get. Please go into the scripts themselves when running them instead of just sourcing them.
+
+`section_4_create_other_requests_files.R` is the bit of the script that gathers all of the `text` columns from your kobo questionnaire and translates them. It creates two files each having a different procedure applied to it.
+
+**The `_other` entry workflow**. 
+The first type of a file that this script produces are the `other_requests_final` file. This file has the following structure
+
+| uuid | loop_index| name  | ref.name| full.label| ref.type  | choices.label | choices | response.uk | response.en| true| existing| invalid  | true_elsewhere| true_column| true_column_parent|
+|------|-----------| ------|---------|-----------| ----------|---------------|---------|-------------|------------|-----|---------| ---------| ------------- |------------| -----------------------------|
+| ID   | loop_ID  | variable_name_other  | variable_name| variable label|`select_one` or `select_multiple` | the labels of all available choices| respondent's choices | the response in Ukrainian/Russian| The translated response in English | Whether the `_other` response is appropriate| Whether the `_other` response already exists within the `choices.label` column | Whether the response is invalid | If the response is appropriate but answers another question| The `name` of the `_other` question that it answers | The `ref.name` column for `true_column`|
+
+
+missing_vars
+
+The 
 
 ### Contributors 
 
