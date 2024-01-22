@@ -145,7 +145,6 @@ get.choice.name.from.label <- function(choice_label,
 #' Find the choices list name using name
 #'
 #' @param variable This is the name of the header from raw data.
-#' @param label_colname This is the label_colname input
 #' @param tool.survey This is the tool.survey data.frame
 #'
 #' @return It will return the list_name value of the chosen variable
@@ -154,15 +153,12 @@ get.choice.name.from.label <- function(choice_label,
 #' @examples
 #' \dontrun{
 #' list_name_from_name <- get.choice.list.from.name(variable = "a2_partner",
-#'                                                  label_colname = label_colname
 #'                                                  tool.survey = tool.survey)
 #' }
 get.choice.list.from.name <- function(variable,
-                                      label_colname = NULL,
                                       tool.survey = NULL){
 
   if(is.null(tool.survey)) stop("tool.survey is not provided.")
-  if(is.null(label_colname)) stop("label_colname is not provided.")
 
   not_in_tool <- variable[!variable %in% tool.survey$name]
   if(length(not_in_tool) > 0){

@@ -372,7 +372,7 @@ recode.multiple.set.choices <-
     }
 
     ls_name <-
-      get.choice.list.from.name(variable, label_colname = 'label::English', tool.survey)
+      get.choice.list.from.name(variable,  tool.survey)
 
     # find the new value for the cumulative variable (get the proper order from tool.choices)
     newvalue <-
@@ -665,8 +665,7 @@ recode.others_select_one <-
       dplyr::mutate(
         list_name = sapply(ref.name, function(x) {
           get.choice.list.from.name(x,
-                                    tool.survey = tool.survey_others,
-                                    label_colname = label_colname)
+                                    tool.survey = tool.survey_others)
         }),
         existing.v = stringr::str_remove_all(existing.v, ";")
       )
@@ -870,8 +869,7 @@ recode.others_select_multiple <-
       dplyr::mutate(
         list_name = sapply(ref.name, function(x) {
           get.choice.list.from.name(x,
-                                    tool.survey = tool.survey_others,
-                                    label_colname = label_colname)
+                                    tool.survey = tool.survey_others)
         }),
         existing.v = stringr::str_split(stringr::str_squish(existing.v),
                                         " *; *", simplify = T)
