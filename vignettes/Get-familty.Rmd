@@ -50,8 +50,7 @@ Similarly, if one wants to get the list_names from the name of the variable, it 
 ```{r}
 # get the list_name for the choices of a single variable
 get.choice.list.from.name('q4_2_2_security_incidents',
-                          tool.survey = tool.survey, 
-                          label_colname = 'label::English')
+                          tool.survey = tool.survey)
 ```
 Please note that this function is not vectorized. If you want to iterate it over multiple variable names, you can use some form of a loop like in the example below. Just understand that the object that you're outputting is subject to the type of a loop you're using.
 
@@ -59,8 +58,7 @@ Please note that this function is not vectorized. If you want to iterate it over
 names_2 <- c('q1_10_hohh','q2_4_3_main_cause','q1_9_language')
 
 sapply(names_2, function(x){
-  get.choice.list.from.name(x, tool.survey = tool.survey, 
-                            label_colname = 'label::English')
+  get.choice.list.from.name(x, tool.survey = tool.survey)
 })
 ```
 
