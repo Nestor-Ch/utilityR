@@ -1,11 +1,14 @@
 Package: utilityR
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Standard Reach Ukraine cleaning procedures (Title Case)
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Author: Reach Ukraine
+Maintainer: The package maintainer <nestor.cheryba@reach-initiative.org>
+Description: The package that encompasses the general functionality of cleaning
+    survey data within the Reach Ukraine mission. The package goes through the
+    standard cleaning processes such as - deduplication, audit checks, geospatial
+    checks, recoding of others and many other forms of data processing to ensure
+    that the user can get the cleanest data possible.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
