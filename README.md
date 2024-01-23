@@ -11,7 +11,12 @@ The text below follows the structure of the cleaning template presented in the m
 - [Duplicates and no-consents](#Cleaning-duplicates-and-no-consent-entries)
 - [Audit checks and soft duplicates](#Audit-checks-and-soft-duplicates)
 - [Geospatial checks](#Geospatial-checks)
-  - [Recoding other responses](#The-other-entry-workflow) 
+- [Other requests and translations](#Other-requests-and-translations)
+  - [Recoding other responses](#The-other-entry-workflow)
+  - [Recoding translations](#The-translation-entry-workflow)
+  - [Applying changes](#Applying-recode-changes)
+  - [recode.relevancy framework](#recode.relevancy-framework)
+  - [Recoding translation requests](#Recoding-translation-requests)
 
 ### Open up the cleaning template
 
@@ -112,14 +117,13 @@ This output file has the following structure
 
 After the file is created, the user's task is to open the excel file and look through the `response.en` column to see if the translation and the answer itself is appropriate.
 
-**The regular cases**
-
+**The regular cases**  
 Most of the time the user will be engaging with `true`, `existing` and `invalid` columns. 
 - If the translation is good and the answer is appropriate to what was asked in the question stored in `full.label` column, put the correct translation into the `true` column.
 - If the answer that the user has given is already present in the `choices.label` column (meaning that the user didn't understand that such option was already available), fill the `existing` column by pasting the exact appropriate option from the `choices.label` column. If you're working with a `select_multiple` question, and the answer is appropriate for a few of the options in the `choices.label` you can add a few of them if you separate them with a semicolon - `;`.
 - If the answer is invalid - as in, it's not related to the question that is being asked, type `YES` into the `invalid` column.
 
-**The elsewhere cases**
+**The elsewhere cases**  
 The elsewhere case is reserved for occurences when the `response.en` is inappropriate for the question asked in the `full.label` but it can be appropriate for some other question in the survey and you want to transfer that response into a new column. If you want to do this you have to ensure the following:
 1. The `invalid` column is filled with `YES` for this row.
 2. You've inserted the correct translation into the `true_elsewhere`
@@ -146,6 +150,59 @@ After the file is created, the user's task is to open the excel file and look th
 - If the answer is invalid - as in, it's not related to the question that is being asked, type `YES` into the `invalid` column.
 
 When you're done with this, you can save the excel file and move on to applying the changes to the dataset.
+
+#### Applying recode changes  
+When the user starts running the `section_4_apply_changes_to_requests` file the script will go through a round of checks to see whether the `other_requests_final` file was filled properly. It will check:
+- Whether the choices that the user has added in the `existing` column weren't already chosen by the user within the `choices` column (if they were, those entries will be removed from the requests file).
+- Whether the entries were filled properly (only 1 column out of `existing`, `true`,`invalid` is filled)
+- Whether there are any empty rows
+- Whether the choices that the user has added in the `existing` column are actually present in the `tool.choices` object.
+
+If those checks have passed, the script will split the requests file depending on whether the questions belong to the main or loop dataframe. Each of these pairs of objects (the dataframe and its relevant recode requests) will be passed through the function `recode.others` that will create a cleaning log with the following set of changes for each case:
+- If the reply is `true`, it'll replace the Ukrainian/Russian version of the `_other` response with the translated version.
+- If the reply is `invalid`, the function will:
+  - Replace the text column value with an NA value.
+  - The value in the cumulative column will be changed to NA if the `ref.name` is a `select_one`. If `ref.name` is a `select_multiple` and some other choices were also chosen except for `other` it'll remove the `other` response from the cumulative column and replace the value in the binary column of `ref.name/other` with a 0. If the respondent has only chosen `other` when responding to 'ref.name', the function will replace the value of the cumulative column with NA, and change the values of all binary columns to NA as well.
+- If the reply is existing, the function will replace the text column value with an NA value, replace the `other` response in the cumulative column with the `existing` choice, recode the `ref.name/other` binary column to 0 and change the `ref.name/existing` column to 1.  
+
+Once this is done, the next bit of code deals with the *elsewhere* cases. This bit of the script creates another cleaning log that does the following:
+- As the row is already marked as `invalid` no changes need to be applied to the `_other` and `ref.name` columns.
+- The value of the `_other` column specified in the `true_column` will be changed to the value specified in the `true_elsewhere`
+- The value of `other` will be added to `true_column_parent`.
+- If the value of `true_column_parent` is a `select_multiple` the binary column `true_column_parent/other` will also be changed to 1.  
+
+**This process is applied to the `raw.main` and each of the loops that you have in your environment.**
+
+**Please note that the output of these functions is just the cleaning log. These changes haven't yet been applied to the data**
+
+After this is done, we move on to the `recode.relevancy` framework.
+
+#### recode.relevancy framework
+The `recode.relevancy` framework is created for cases where the `ref.name` you are recoding is a `select_multiple` that direct the respondent to other questions depending on their answers. For example `ref.name` is a `select_multiple` asking the respondent to tell us what types of humanitarian aid they have recieved. After they reply, they are directed to a set of questions asking about the quality of said aid. If we are recoding the `ref.name` it inevitably influences these relevant questions, so we have to recode them as well. This is where the `recode.relevancy` framework comes in.
+
+The first step in this framework is filling up the vector of `select_multiple_list_relevancies`. It stores the names of `select_multiple` variables that open up other relevant questions. The script then calls the `find.relevances` function that searches for the binary columns of the select multiple that open up each subquestion within the relevancy. This function creates `relevancy_dictionary` - a table of relationships between the variables in the following form.
+
+| name | relevancy|
+|------|----------|
+| variable/option1  | variable_option1_detail  |
+| variable/option2  | variable_option2_detail  |
+
+This object, together with the dataframe and its relevant cleaning log is fed to the `recode.other.relevances` function. This function creates a cleaning log documenting the following changes:
+- If the binary variable of `_other` was recoded to 0 it replaces the `_detail` variable with NA
+- If the `_other` response was classified as `existing`, the `_detail` variable for `_other` choice will be replaced with NA and its answer will be transfered to the `existingoption_detail` variable.  
+
+**Please note that as of now, this feature is experimental, should you encounter any bugs please report them to the package's maintainer.**  
+
+**This process is applied to the `raw.main` and each of the loops that you have in your environment.**
+
+**Please note that the output of these functions is just the cleaning log. These changes haven't yet been applied to the data**
+
+After all of cleaning logs have been created the changes outlined in those objects are applied to the datasets through the `apply.changes` function.
+
+#### Recoding translation requests
+Since the changes needed for the translation requests are pretty basic, the cleaning log is created out of them on the stage of loading the dataset through the `recode.trans.requests` function. If the response is deemed `invalid` it is replaced with NA, if it's `true` then the Ukrainian/Russian text is changed to English.
+
+After these cleaning logs are created, the changes outlined in those objects are applied to the datasets through the `apply.changes` function.
 
 
 ### Contributors 
