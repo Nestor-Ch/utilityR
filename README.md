@@ -11,7 +11,7 @@ The text below follows the structure of the cleaning template presented in the m
 - [Duplicates and no-consents](#Cleaning-duplicates-and-no-consent-entries)
 - [Audit checks and soft duplicates](#Audit-checks-and-soft-duplicates)
 - [Geospatial checks](#Geospatial-checks)
-  - [Recoding other responses](#The-`_other`-entry-workflow) 
+  - [Recoding other responses](#The-other-entry-workflow) 
 
 ### Open up the cleaning template
 
@@ -101,8 +101,10 @@ This section is the most hands-on part of this script. It is also the most compl
 
 `section_4_create_other_requests_files.R` is the bit of the script that gathers all of the `text` columns from your kobo questionnaire and translates them. It creates two files each having a different procedure applied to it. One file is dedicated to the `_other` requests the other one works with the open-ended questions.
 
-#### The `_other` entry workflow. 
-The first type of a file that this script produces are the `other_requests_final` file. This file has the following structure
+#### The other entry workflow. 
+The first type of a file that this script produces are the `other_requests_final` file. To produce the list of `text` questions that have `_other` response options the script uses the `get.other.db` function. This functions relies on the fact that in our data these questions have the `_other` suffix and have only one relevancy - their `ref.name` column in the following form - `selected(${ref.name}, 'other')`.  
+**If there are multiple relevancies for a given `_other` column or if the text column doesn't have the `_other` suffix, the variable may be ommited from the analysis.**  
+This output file has the following structure
 
 | uuid | loop_index| name  | ref.name| full.label| ref.type  | choices.label | choices | response.uk | response.en| true| existing| invalid  | true_elsewhere| true_column| true_column_parent|
 |------|-----------| ------|---------|-----------| ----------|---------------|---------|-------------|------------|-----|---------| ---------| ------------- |------------| -----------------------------|
@@ -124,7 +126,27 @@ The elsewhere case is reserved for occurences when the `response.en` is inapprop
 3. You've inserted the correct `_other` column into the `true_column`
 4. You've inserted the correct parent column into the `true_column_parent`
 
-When you're done with this, you can save the excel file and move on to the 
+When you're done with this, you can save the excel file and move on to the translation requests.
+
+#### The translation entry workflow. 
+
+Prior to running the translation of the `text` responses, the user needs to specify two parameters:
+- `trans_cols_to_skip` - a vector list of columns that need to be omitted from the process and the translations. These may be columns of enumerator comments, names of locations of the interviews, personal data of the respondent, etc. After these are specified the user can run the `get.trans.db` function, which will return the `trans.db` object - a dataframe of variable names that are to be extracted from the data. This function is similar to the abovementioned `get.other.db` function, but it omits the `_other` questions.
+- `missing_vars`- a dataframe containing the variables that are not present in the `trans.db` and should be added to it. The user needs to specify the variable and its label.  
+
+After this, the user can continue running and translating the responses, this will produce the `text_requests_final` document in the `directory_dictionary$dir.requests` with the following structure
+
+| uuid | loop_index| name  | responses | response.en| true| invalid  |
+|------|-----------| ------|-----------|------------| ----|----------|
+| ID   | loop_ID  | variable_name  |the response in Ukrainian/Russian| The translated response in English | Whether the response is appropriate| Whether the response is invalid|
+
+After the file is created, the user's task is to open the excel file and look through the `response.en` column to see if the translation and the answer itself is appropriate.
+
+- If the translation is good and the answer is appropriate, put the correct translation into the `true` column.
+- If the answer is invalid - as in, it's not related to the question that is being asked, type `YES` into the `invalid` column.
+
+When you're done with this, you can save the excel file and move on to applying the changes to the dataset.
+
 
 ### Contributors 
 
