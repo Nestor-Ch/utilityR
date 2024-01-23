@@ -17,6 +17,7 @@ The text below follows the structure of the cleaning template presented in the m
   - [Applying changes](#Applying-recode-changes)
   - [recode.relevancy framework](#recode.relevancy-framework)
   - [Recoding translation requests](#Recoding-translation-requests)
+  - [Cyrillic check](#Cyrillic-check)
 
 ### Open up the cleaning template
 
@@ -203,6 +204,10 @@ After all of cleaning logs have been created the changes outlined in those objec
 Since the changes needed for the translation requests are pretty basic, the cleaning log is created out of them on the stage of loading the dataset through the `recode.trans.requests` function. If the response is deemed `invalid` it is replaced with NA, if it's `true` then the Ukrainian/Russian text is changed to English.
 
 After these cleaning logs are created, the changes outlined in those objects are applied to the datasets through the `apply.changes` function.
+
+#### Cyrillic check
+The last bit of the recoding script checks your dataframe for leftover cyrillic characters. After the steps above, you shouldn't have any cyrillic left in your dataframe. First you need to specify the column that will be omitted from this check in the vector of the `vars_to_omit` object. The use for this object is the same as the `trans_cols_to_skip` object.  
+If any cyrillic has been found in your dataframes it'll be stored in the `cyrillic.main` or `cyrillic.loopx' objects. It is up to you to decide what to do with them.
 
 
 ### Contributors 
