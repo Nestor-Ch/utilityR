@@ -18,6 +18,10 @@ The text below follows the structure of the cleaning template presented in the m
   - [recode.relevancy framework](#recode.relevancy-framework)
   - [Recoding translation requests](#Recoding-translation-requests)
   - [Cyrillic check](#Cyrillic-check)
+  - [Consistency check](#Consistency-check)
+- [999 checks](#999-checks)
+- [Logic checks](#Logic-checks)
+- [Checks for outliers](#Checks-for-outliers)
 
 ### Open up the cleaning template
 
@@ -206,9 +210,31 @@ Since the changes needed for the translation requests are pretty basic, the clea
 After these cleaning logs are created, the changes outlined in those objects are applied to the datasets through the `apply.changes` function.
 
 #### Cyrillic check
-The last bit of the recoding script checks your dataframe for leftover cyrillic characters. After the steps above, you shouldn't have any cyrillic left in your dataframe. First you need to specify the column that will be omitted from this check in the vector of the `vars_to_omit` object. The use for this object is the same as the `trans_cols_to_skip` object.  
-If any cyrillic has been found in your dataframes it'll be stored in the `cyrillic.main` or `cyrillic.loopx' objects. It is up to you to decide what to do with them.
+The next bit of the recoding script checks your dataframe for leftover cyrillic characters. After the steps above, you shouldn't have any cyrillic left in your dataframe. First you need to specify the column that will be omitted from this check in the vector of the `vars_to_omit` object. The use for this object is the same as the `trans_cols_to_skip` object.  
+If any cyrillic has been found in your dataframes it'll be stored in the `cyrillic.main` or `cyrillic.loopx` objects. It is up to you to decide what to do with them.
 
+#### Consistency check
+The final bit of the script is running the `select.multiple.check` which tries to find inconsistencies between the cumulative columns of `select_multiple` questions and their respective binary columns. The file will show the differences between what is expected from the cumulative column and what is present in the binaries. It is left up to the user to decide what to do with these inconsistencies.
+
+
+### 999 checks
+The next bit of the script checks the dataframes for 99 and 999 values in numerical columns as well as any other values that you're suspicious of. You can specify these values in the `code_for_check` vector. These values are suspicious because they are a relic from the SPSS based sociological research. As the .sav values save values as numerics, it became necessary to assign NA or DK values a single code so that they are easily recogniseable and you can recode them quickly. Usually, these are maked as 99,98 or 999. This is not applicable for us as we're not working in SPSS. This bit of script produces a `cl_log_999` object and a `output/checking/999_diferences.xlsx` excel file that document these entries. You can look through them and keep the rows that need to be recoded in your opinion.
+
+Once you've deleted everything that needs to be deleted, you can apply these changes to the data and add them to the cleaning log by setthing `apply_999_changes` parameter to `Yes` and running `section_5_finish_999_checks.R`.
+
+### Logic checks
+This section is dedicated to user-made checks for the general logical consistency across different columns. This is left for the user to fill in on their own as we cannot universalise this. 
+
+### Checks for outliers
+This section runs an algorithm over all numeric columns in the dataframe to see if any of the values are outside of the expected margins. The user needs to specify the following parameters:
+- `n.sd` - the number of standard deviations used to determine if an entry is an outlier
+- `method` - which method should be used to locate outliers. The function allows for the following methods:
+  - method = 'o1' Method based on Z score and logarithmization of the values
+  - method = 'o2' Modified Z score which based on the median absolute deviation, recommended n.sd
+  - method = 'o3' Method based on the interquartile range
+  - method = 'o4' Method based on the median absolute deviation
+- `ignore_0` - Whether 0 should be ignored when calculating outliers (needs to be true for methods using logarithmic transformations of variables)
+- `cols.integer` - A set of parameters specifying exactly which variables should be checked in a given dataframe. All numeric variables will be checked if these are left blank.
 
 ### Contributors 
 
