@@ -11,6 +11,7 @@ The text below follows the structure of the cleaning template presented in the m
 - [Duplicates and no-consents](#Cleaning-duplicates-and-no-consent-entries)
 - [Audit checks and soft duplicates](#Audit-checks-and-soft-duplicates)
 - [Geospatial checks](#Geospatial-checks)
+  - [Recoding other responses](#The-`_other`-entry-workflow) 
 
 ### Open up the cleaning template
 
@@ -68,6 +69,7 @@ The analysis of audits will create a `audits_summary` excel file in the `directo
 `w` - Waiting time - the `start` column of iteration's `form.resume`event - the `start`  for the column of the pervious iterations `form.exit` event
 
 As well as `NA`, `DK`, and `_other` (open text answer) columns.  
+**All of the suspicious surveys will be written into the `survey_durations` file**
 After the script is done analysing these things, you can browse the `audits_summary` excel file. If you decide to keep an entry despite it being in this file, delete the relevant excel row. Everyting within this file will be deleted when you run the `section_2_run_audit_decisions.R`.
 
 **Soft Duplicates**
@@ -84,6 +86,8 @@ Once again, if you're fine with some of these duplicates, remove them from the `
 
 Once you've looked through the excel files, double-checked everything and left only those entries that you'd like to delete in audit and soft duplicate files, run the `section_2_run_audit_decisions.R` line in the cleaning script.
 
+The only bit of manual entry that needs to be done when running this file is filling the `ids_incompl` object. It's supposed to host the uuids of those surveys that are incomplete. If you don't have any such surveys, you can leave it blank.
+
 ### Geospatial checks
 
 The spatial checks section checks for interviews with 0 geo coordinate precision. If these are present in the data, this may mean that the interviewer has installed a fake gps app onto their phone and has used it to fake the interview.
@@ -95,19 +99,32 @@ After this check is done, the deletion log is written into an excel file and we'
 
 This section is the most hands-on part of this script. It is also the most complex one, so please take your time running it and be vary of any bugs, errors and warning that you may get. Please go into the scripts themselves when running them instead of just sourcing them.
 
-`section_4_create_other_requests_files.R` is the bit of the script that gathers all of the `text` columns from your kobo questionnaire and translates them. It creates two files each having a different procedure applied to it.
+`section_4_create_other_requests_files.R` is the bit of the script that gathers all of the `text` columns from your kobo questionnaire and translates them. It creates two files each having a different procedure applied to it. One file is dedicated to the `_other` requests the other one works with the open-ended questions.
 
-**The `_other` entry workflow**. 
+#### The `_other` entry workflow. 
 The first type of a file that this script produces are the `other_requests_final` file. This file has the following structure
 
 | uuid | loop_index| name  | ref.name| full.label| ref.type  | choices.label | choices | response.uk | response.en| true| existing| invalid  | true_elsewhere| true_column| true_column_parent|
 |------|-----------| ------|---------|-----------| ----------|---------------|---------|-------------|------------|-----|---------| ---------| ------------- |------------| -----------------------------|
 | ID   | loop_ID  | variable_name_other  | variable_name| variable label|`select_one` or `select_multiple` | the labels of all available choices| respondent's choices | the response in Ukrainian/Russian| The translated response in English | Whether the `_other` response is appropriate| Whether the `_other` response already exists within the `choices.label` column | Whether the response is invalid | If the response is appropriate but answers another question| The `name` of the `_other` question that it answers | The `ref.name` column for `true_column`|
 
+After the file is created, the user's task is to open the excel file and look through the `response.en` column to see if the translation and the answer itself is appropriate.
 
-missing_vars
+**The regular cases**
 
-The 
+Most of the time the user will be engaging with `true`, `existing` and `invalid` columns. 
+- If the translation is good and the answer is appropriate to what was asked in the question stored in `full.label` column, put the correct translation into the `true` column.
+- If the answer that the user has given is already present in the `choices.label` column (meaning that the user didn't understand that such option was already available), fill the `existing` column by pasting the exact appropriate option from the `choices.label` column. If you're working with a `select_multiple` question, and the answer is appropriate for a few of the options in the `choices.label` you can add a few of them if you separate them with a semicolon - `;`.
+- If the answer is invalid - as in, it's not related to the question that is being asked, type `YES` into the `invalid` column.
+
+**The elsewhere cases**
+The elsewhere case is reserved for occurences when the `response.en` is inappropriate for the question asked in the `full.label` but it can be appropriate for some other question in the survey and you want to transfer that response into a new column. If you want to do this you have to ensure the following:
+1. The `invalid` column is filled with `YES` for this row.
+2. You've inserted the correct translation into the `true_elsewhere`
+3. You've inserted the correct `_other` column into the `true_column`
+4. You've inserted the correct parent column into the `true_column_parent`
+
+When you're done with this, you can save the excel file and move on to the 
 
 ### Contributors 
 
