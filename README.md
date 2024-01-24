@@ -22,6 +22,8 @@ The text below follows the structure of the cleaning template presented in the m
 - [999 checks](#999-checks)
 - [Logic checks](#Logic-checks)
 - [Checks for outliers](#Checks-for-outliers)
+- [Finalize the data](#Finalize-the-data)
+- [Contributors](#Contributors)
 
 ### Open up the cleaning template
 
@@ -234,9 +236,18 @@ This section runs an algorithm over all numeric columns in the dataframe to see 
   - method = 'o3' Method based on the interquartile range
   - method = 'o4' Method based on the median absolute deviation
 - `ignore_0` - Whether 0 should be ignored when calculating outliers (needs to be true for methods using logarithmic transformations of variables)
-- `cols.integer` - A set of parameters specifying exactly which variables should be checked in a given dataframe. All numeric variables will be checked if these are left blank.
+- `cols.integer` - A set of parameters specifying exactly which variables should be checked in a given dataframe. All numeric variables will be checked if these are left blank.  
+
+The script then runs the selected outlier detection algorithm and writes the suspicious responses into `cleaning.log.outliers` object and the `outlier_analysis_` excel file. It also creates a nice visualization of the distribution of the responses with outliers highlighted in red in the `outlier_analysis_` pdf file.
+
+After you've looked through the `outlier_analysis_` excel and kept only suspicious responses you'd like to omit from the clean data, load up the clean excel file as the `cleaning.log.outliers` object and run `section_6_finish_outlier_check.R`.
+
+### Finalize the data
+The last section goes through removal of PII columns, gathering the cleaning and deletion logs, building the submission excel for HQ validation and writing the submission package. Outside of specifying the `pii.to.remove_main` that holds the names of the PII columns barely any interaction is needed from the users side. The file for HQ submission is written as `Enumerator_performance_temp` excel in the `output/enum_performance` directory.
 
 ### Contributors 
+
+This set of functions and scripts is a legacy of Reach Syria team. It was later transfered to Reach Regional team in Ukraine/Poland/Moldova. Reach Ukraine team has built a package around those functions by testing, optimizing and improving the legacy scripts and running the presented script on multiple research cycles. If you find any bugs or have any suggestions, please text the package maintainers.
 
 <a href="https://github.com/Nestor-Ch/utilityR/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=Nestor-Ch/utilityR" />
