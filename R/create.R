@@ -40,7 +40,11 @@ create.deletion.log <- function(data, col_enum, reason, is.loop = F, data.main =
     stop("Your data is a loop but you haven't provided the main dataframe. Please enter the data.main parameter")
   } else if(is.loop & !is.null(data.main)){
 
-    data <- data %>% dplyr::left_join(data.main %>% dplyr::select(uuid, !!rlang::sym(col_enum)),by = dplyr::join_by(uuid))
+    data <- data %>%
+      dplyr::left_join(data.main %>%
+                         dplyr::select(uuid, !!rlang::sym(col_enum)),
+                       by = dplyr::join_by(uuid)) %>%
+      dplyr::distinct()
 
   }
 
@@ -188,8 +192,8 @@ create.translate.requests <- function(responses.j, response_colname = "response.
     dplyr::select(any_of(relevant_colnames)) %>%
     dplyr::relocate( dplyr::all_of(response_cols), .after = last_col()) %>%
     dplyr::mutate("TRUE other (provide a better translation if necessary)"=NA,
-           "EXISTING other (copy the exact wording from the options in column choices.label)"=NA,
-           "INVALID other (insert yes or leave blank)"=NA) %>%
+                  "EXISTING other (copy the exact wording from the options in column choices.label)"=NA,
+                  "INVALID other (insert yes or leave blank)"=NA) %>%
     dplyr::arrange(name, !!rlang::sym(response_cols[which(response_cols == response_colname)])) %>%
     dplyr::tibble()
 
