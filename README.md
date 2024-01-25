@@ -104,7 +104,7 @@ The only bit of manual entry that needs to be done when running this file is fil
 
 The spatial checks section checks for interviews with 0 geo coordinate precision. If these are present in the data, this may mean that the interviewer has installed a fake gps app onto their phone and has used it to fake the interview.
 
-After this check is done, the deletion log is written into an excel file and we're done with the deletion bit of the cleaning.
+After this check is done, the deletion log is written into a `geospatial_check` excel file. Look trough it and remove those uuids that you'd like to keep in the data. After you're done, run the `section_3_spatial_decisions.R` and we're done with the deletion bit of the cleaning.
 
 
 ###  Other requests and translations
