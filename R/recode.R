@@ -1470,13 +1470,19 @@ recode.others.elsewhere <-
       stop("Your or.edited doesnt have the uuid variable, please check")
     }
 
-    if (!"uniqui" %in% names(data)) {
-      data <- data %>% dplyr::mutate(uniqui = uuid)
-    }
+    if (!is.loop) {
+      or.edited <- or.edited %>%
+        #      dplyr::select(-any_of("loop_index")) %>%
+        dplyr::mutate(uniqui = uuid)
+      data <- data %>%
+        dplyr::mutate(uniqui = uuid)
+    } else{
+        or.edited <- or.edited %>%
+          dplyr::mutate(uniqui = loop_index)
+        data <- data %>%
+          dplyr::mutate(uniqui = loop_index)
+      }
 
-    if (!"uniqui" %in% names(or.edited)) {
-      or.edited <- or.edited %>% dplyr::mutate(uniqui = uuid)
-    }
 
     if (any(!or.edited$uniqui %in% data$uniqui)) {
       warning(
