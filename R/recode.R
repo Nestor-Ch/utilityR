@@ -858,7 +858,7 @@ recode.others_select_multiple <-
             CL_COLS = CL_COLS
           )
         cl_sm_remove <-
-          rbind(cl_sm_remove, cl_only_other, cl_notjust_other)
+          dplyr::bind_rows(cl_sm_remove, cl_only_other, cl_notjust_other)
       }
     }
 
@@ -917,7 +917,7 @@ recode.others_select_multiple <-
         # check if true.v is also not na
         if (!is.na(or.row$true.v)) {
           # in this case, simply add new choices
-          cl_sm_recode <- rbind(
+          cl_sm_recode <- dplyr::bind_rows(
             cl_sm_recode,
             or.row %>%
               dplyr::mutate(
@@ -1154,7 +1154,7 @@ recode.others <-
     }
     # works fine for non-loops
 
-    cl_all_others <- rbind(cl_select_one, cl_select_multiple) %>%
+    cl_all_others <- dplyr::bind_rows(cl_select_one, cl_select_multiple) %>%
       dplyr::filter(old.value %not=na% new.value)
 
     return(cl_all_others)
