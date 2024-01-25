@@ -1241,7 +1241,7 @@ recode.sm.elsewhere <- function(edited.sm, data, tool.survey) {
   cl_sm_recode_te <- dplyr::tibble()
   for (i in 1:nrow(edited.sm)) {
     or.row <- edited.sm[i, ]
-    data.row <- data[data$uuid == or.row$uuid, ]
+    data.row <- data[data$uniqui == or.row$uniqui, ]
 
     # check that invalid.v doesn't equal to YES
     if (is.na(or.row$invalid.v != "YES")) {
@@ -1394,7 +1394,7 @@ recode.so.elsewhere <- function(edited.so, data, tool.survey) {
   cl_sm_recode_te <- dplyr::tibble()
   for (i in 1:nrow(edited.so)) {
     or.row <- edited.so[i, ]
-    data.row <- data[data$uuid == or.row$uuid, ]
+    data.row <- data[data$uniqui == or.row$uniqui, ]
 
     # check that invalid.v doesn't equal to YES
     if (is.na(or.row$invalid.v != "YES")) {
