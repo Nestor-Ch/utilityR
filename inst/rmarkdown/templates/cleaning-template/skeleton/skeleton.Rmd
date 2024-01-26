@@ -121,8 +121,6 @@ geo_column <- ''
 
 source('src/sections/section_3_loops_and_spatial_checks.R')
 
-write.xlsx(deletion.log.new, make.filename.xlsx("output/deletion_log/", "deletion_log", no_date = T), overwrite=T)
-
 ```
 Once you've checked all entries in the "output/checking/audit/geospatial_check"  and only left what needs to be deleted implement the decisions below
 ```{r Section  3  - Loop inconsitencies + spatial checks decisions}
