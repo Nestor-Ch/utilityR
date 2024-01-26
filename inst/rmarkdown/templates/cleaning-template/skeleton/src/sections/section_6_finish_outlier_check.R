@@ -7,15 +7,13 @@ if(nrow(cleaning.log.outliers>0)){
   }
   
   if(length(sheet_names_new)>0){
-    for(i in sheet_names_new){
+    for(i in 1:length(sheet_names_new)){
       txt <- paste0('raw.loop',i,'.outliers <- cleaning.log.outliers[cleaning.log.outliers$variable%in% names(raw.loop',i,'),]')
       eval(parse(text=txt))
-      
       txt <- paste0('if(nrow(raw.loop',i,'.outliers)>0){
       raw.loop',i,' <- utilityR::apply.changes(raw.loop',i,',clog = raw.loop',i,'.outliers,is.loop = T)
       }')
       eval(parse(text=txt))
-      
     }}
   
 }

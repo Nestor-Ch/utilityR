@@ -13,24 +13,34 @@ if (length(ids)>0) {
   deletion.log.dupl <- data.frame()
 }
 
+#del log dupl
+
 if(length(sheet_names_new)>0){
-  for(loop in sheet_names_new)
-    txt <- paste0(loop,'$loop_index[duplicated(',loop,'$loop_index)]')
-  ids <- eval(parse(text = txt))
-  
-  if (length(ids)>0){
-    warning("Duplicate uuids detected: ", length(ids))
-    txt <- paste0(loop,' %>% filter(duplicated(',loop,'[["loop_index"]]))')
-    dupl_df<- eval(parse(text = txt))
-    
-    # add to deletion log
-    deletion.log.loop <- utilityR::create.deletion.log(dupl_df,
-                                                       directory_dictionary$enum_colname, "Duplicate",
-                                                       is.loop = T,
-                                                       data.main = raw.main) # a brand new deletion log
-    deletion.log.dupl <- bind_rows(deletion.log.dupl,deletion.log.loop)
+  for(loop in sheet_names_new){
+    txt <- paste0(loop,' %>% 
+  filter(uuid %in% ids) %>% 
+  select(uuid,parent_index) %>%
+  distinct() %>% 
+  group_by(uuid) %>% 
+  mutate(n=1,
+         n=cumsum(n)) %>% 
+  filter(n>1) %>% 
+  select(-n) %>% 
+  left_join(',loop,' %>% select(uuid,parent_index, loop_index)) %>% 
+  pull(loop_index)')
+    ids_loop <- eval(parse(text = txt))
+    if (length(ids_loop)>0){
+      warning("Duplicate uuids detected: ", length(ids_loop))
+      txt <- paste0(loop,' %>% filter(loop_index %in% ids_loop)')
+      dupl_df<- eval(parse(text = txt))
+      # add to deletion log
+      deletion.log.loop <- utilityR::create.deletion.log(dupl_df,
+                                                         directory_dictionary$enum_colname, "Duplicate",
+                                                         is.loop = T,
+                                                         data.main = raw.main) # a brand new deletion log
+      deletion.log.dupl <- bind_rows(deletion.log.dupl,deletion.log.loop)
+    }
   }
-  
 }
 
 ## run this to remove duplicates ##
@@ -43,16 +53,12 @@ raw.main  <- raw.main %>%
   select(-n) %>% 
   ungroup()
 
+## run this to remove duplicates from looops##
+
 if(length(sheet_names_new)>0){
   for(loop in sheet_names_new){
     txt <- paste0(loop,'<-',loop,'%>% 
-  group_by(loop_index) %>% 
-  mutate(n= 1,
-         n=cumsum(n)
-         ) %>% 
-  filter(n==1) %>% 
-  select(-n)%>% 
-  ungroup()')
+  filter(!loop_index %in% deletion.log.dupl$loop_index)')
     eval(parse(text=txt))
   }
 }
@@ -105,7 +111,7 @@ deletion.log.test_submission <- test_submission %>% utilityR::create.deletion.lo
   deletion.log.test_submission = data.frame()
 }
 
-deletion.log.new <- rbind(deletion.log.new, deletion.log.test_submission,deletion.log.no_consents)
+deletion.log.new <- rbind(deletion.log.new, deletion.log.test_submission)
 
 ####################################################
 ## run this to remove duplicates and no-consents  ##
@@ -120,5 +126,3 @@ if(length(sheet_names_new)>0){
 ####################################################
 
 rm(test_submission, deletion.log.test_submission,deletion.log.no_consents)
-
-deletion.log.new <- rbind(deletion.log.new,deletion.log.dupl)
