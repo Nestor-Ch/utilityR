@@ -3,7 +3,7 @@ cleaning.log <- data.frame()
 if(name_clean_others_file != ''){
   or.edited  <- utilityR::load.requests(directory_dictionary$dir.requests, 
                                         name_clean_others_file,
-                                        sheet = sheet_name_others, validate = T)  # specify Sheet2 because the first one is a readme
+                                        sheet = sheet_name_others, validate = T)
   
   or.edited <- or.edited %>%
     left_join(tool.survey %>% select(name,list_name) %>% rename(ref.name=name)) %>% 
@@ -43,16 +43,21 @@ as invalid to speed up the recoding process'))
   }
   
   if(any(or.edited$check == 1)){
-    issue <- paste0('uuid: ', or.edited[or.edited$check == 1,]$uuid,', variable: ',or.edited[or.edited$check == 1,]$name)
-    stop(paste0('Some of your entries have errors, please double-check: ', paste0(issue,collapse = '\n')))
+    issue <- paste0('uuid: ', or.edited[or.edited$check == 1,]$uuid,
+                    ', variable: ',or.edited[or.edited$check == 1,]$name)
+    stop(paste0('Some of your entries have errors, please double-check: ',
+                paste0(issue,collapse = '\n')))
   }
   
   if(any(or.edited$check == 3)){
-    issue <- paste0('uuid: ', or.edited[or.edited$check == 3,]$uuid,', variable: ',or.edited[or.edited$check == 3,]$name)
-    stop(paste0('Some of your entries are empty, please double-check: ', paste0(issue,collapse = '\n')))
+    issue <- paste0('uuid: ', or.edited[or.edited$check == 3,]$uuid,
+                    ', variable: ',or.edited[or.edited$check == 3,]$name)
+    stop(paste0('Some of your entries are empty, please double-check: ',
+                paste0(issue,collapse = '\n')))
   }
   
-  consistency_check <- or.edited %>% select(uuid, existing.v, ref.name) %>% filter(!is.na(existing.v)) %>% 
+  consistency_check <- or.edited %>% select(uuid, existing.v, ref.name) %>% 
+    filter(!is.na(existing.v)) %>% 
     tidyr::separate_rows(existing.v  , sep= "[;\r\n]") %>% 
     mutate(existing.v = trimws(existing.v)) %>% 
     filter(!existing.v=='') %>% 
@@ -62,7 +67,8 @@ as invalid to speed up the recoding process'))
   
   
   if(nrow(consistency_check)>0){
-    stop("Some of the choices that you've selected in the recode.others file do not match the labels that you have in your
+    stop("Some of the choices that you've selected in the recode.others
+    file do not match the labels that you have in your
          tool. Please check the consistency_check object for more details")
   }
   
@@ -95,43 +101,170 @@ as invalid to speed up the recoding process'))
     }
   }
   
-  
+
   # If you face any weird double spaces
-  tool.choices$`label::English`=str_squish(tool.choices$`label::English`)
+   tool.choices$`label::English`=str_squish(tool.choices$`label::English`)
   
   # Create a cleaning log file for each loop if there's a need for it.
-  cleaning.log.other.main <- utilityR::recode.others(data = raw.main,
-                                                     or.edited = raw.main_requests,
-                                                     orig_response_col = 'responses',
-                                                     is.loop = F,
-                                                     tool.choices = tool.choices,
-                                                     tool.survey = tool.survey)
+  cleaning.log.other.main <- utilityR::recode.others(
+    data = raw.main,
+    or.edited = raw.main_requests,
+    orig_response_col = 'response.uk',
+    is.loop = F,
+    tool.choices = tool.choices,
+    tool.survey = tool.survey)
+  
+  # Recode elsewhere functionality
+  if(nrow(raw.main_requests[!is.na(raw.main_requests$true_elsewhere),])>0){
+    
+    raw.main_requests_elsewhere <- raw.main_requests[!is.na(raw.main_requests$true_elsewhere),]
+    
+    cleaning.log.other.main.elsewhere <- utilityR::recode.others.elsewhere(
+      data= raw.main,
+      or.edited = raw.main_requests_elsewhere,
+      tool.survey = tool.survey,
+      is.loop = F)
+    
+  }else{cleaning.log.other.main.elsewhere <- data.frame()}
+  
+  cleaning.log.other.main <- rbind(cleaning.log.other.main,cleaning.log.other.main.elsewhere)
   
   if(exists('raw.loop1_requests')){
-    cleaning.log.other.loop1 <- utilityR::recode.others(data = raw.loop1,
-                                                        or.edited = raw.loop1_requests,
-                                                        orig_response_col = 'responses',
-                                                        is.loop = T,
-                                                        tool.choices = tool.choices,
-                                                        tool.survey = tool.survey)
+    
+    cleaning.log.other.loop1 <- utilityR::recode.others(
+      data = raw.loop1,
+      or.edited = raw.loop1_requests,
+      orig_response_col = 'response.uk',
+      is.loop = T,
+      tool.choices = tool.choices,
+      tool.survey = tool.survey)
+    
+    # Recode elsewhere functionality
+    if(nrow(raw.loop1_requests[!is.na(raw.loop1_requests$true_elsewhere),])>0){
+      
+      raw.loop1_requests_elsewhere <- raw.loop1_requests[!is.na(raw.loop1_requests$true_elsewhere),]
+      
+      cleaning.log.other.loop1.elsewhere <- utilityR::recode.others.elsewhere(
+        data= raw.loop1,
+        or.edited = raw.loop1_requests_elsewhere,
+        tool.survey = tool.survey,
+        is.loop = T)
+      
+    }else{cleaning.log.other.loop1.elsewhere <- data.frame()}
+    
+    cleaning.log.other.loop1 <- rbind(cleaning.log.other.loop1,cleaning.log.other.loop1.elsewhere)
+    
   }else{cleaning.log.other.loop1 <- data.frame()}
   
   if(exists('raw.loop2_requests')){
-    cleaning.log.other.loop2 <- utilityR::recode.others(data = raw.loop2,
-                                                        or.edited = raw.loop2_requests,
-                                                        orig_response_col = 'responses',
-                                                        is.loop = T,
-                                                        tool.choices = tool.choices,
-                                                        tool.survey = tool.survey)
+    
+    cleaning.log.other.loop2 <- utilityR::recode.others(
+      data = raw.loop2,
+      or.edited = raw.loop2_requests,
+      orig_response_col = 'response.uk',
+      is.loop = T,
+      tool.choices = tool.choices,
+      tool.survey = tool.survey)
+    
+    # Recode elsewhere functionality
+    if(nrow(raw.loop2_requests[!is.na(raw.loop2_requests$true_elsewhere),])>0){
+      
+      raw.loop2_requests_elsewhere <- raw.loop2_requests[!is.na(raw.loop2_requests$true_elsewhere),]
+      
+      cleaning.log.other.loop2.elsewhere <- utilityR::recode.others.elsewhere(
+        data= raw.loop2,
+        or.edited = raw.loop2_requests_elsewhere,
+        tool.survey = tool.survey,
+        is.loop = T)
+      
+    }else{cleaning.log.other.loop2.elsewhere <- data.frame()}
+    
+    cleaning.log.other.loop2 <- rbind(cleaning.log.other.loop2,cleaning.log.other.loop2.elsewhere)
+    
   }else{cleaning.log.other.loop2 <- data.frame()}
+  
   if(exists('raw.loop3_requests')){
-    cleaning.log.other.loop3 <- utilityR::recode.others(data = raw.loop3,
-                                                        or.edited = raw.loop3_requests,
-                                                        orig_response_col = 'responses',
-                                                        is.loop = T,
-                                                        tool.choices = tool.choices,
-                                                        tool.survey = tool.survey)
+    
+    cleaning.log.other.loop3 <- utilityR::recode.others(
+      data = raw.loop3,
+      or.edited = raw.loop3_requests,
+      orig_response_col = 'response.uk',
+      is.loop = T,
+      tool.choices = tool.choices,
+      tool.survey = tool.survey)
+    
+    # Recode elsewhere functionality
+    if(nrow(raw.loop3_requests[!is.na(raw.loop3_requests$true_elsewhere),])>0){
+      
+      raw.loop3_requests_elsewhere <- raw.loop3_requests[!is.na(raw.loop3_requests$true_elsewhere),]
+      
+      cleaning.log.other.loop3.elsewhere <- utilityR::recode.others.elsewhere(
+        data= raw.loop3,
+        or.edited = raw.loop3_requests_elsewhere,
+        tool.survey = tool.survey,
+        is.loop = T)
+      
+    }else{cleaning.log.other.loop3.elsewhere <- data.frame()}
+    
+    cleaning.log.other.loop3 <- rbind(cleaning.log.other.loop3,cleaning.log.other.loop3.elsewhere)
+    
   }else{cleaning.log.other.loop3 <- data.frame()}
+  
+--------------------# Recode followup relevancies ----------------------
+  
+  # these are the variables that have the relevancies related to their _other responses
+  select_multiple_list_relevancies <- c('I_1_income_sources') 
+  
+  if(length(select_multiple_list_relevancies)>0){
+    # get the dictionary of the relevancies
+    relevancy_dictionary <- utilityR::find.relevances(tool.survey = tool.survey,
+                                                      var_list = select_multiple_list_relevancies)
+    print('check out the dictionary to make sure that it works')
+    View(relevancy_dictionary)
+    
+    cleaning.log.other.main.relevances <- utilityR::recode.other.relevances(
+      data = raw.main,
+      cleaning.log.other = cleaning.log.other.main,
+      relevancy_dictionary = relevancy_dictionary,
+      is.loop = F)
+    
+    
+    cleaning.log.other.main <- rbind(cleaning.log.other.main,cleaning.log.other.main.relevances)
+    
+    if(exists('raw.loop1_requests')){
+      cleaning.log.other.loop1.relevances <- utilityR::recode.other.relevances(
+        data = raw.loop1,
+        cleaning.log.other = cleaning.log.other.loop1,
+        relevancy_dictionary = relevancy_dictionary,
+        is.loop = F)
+      
+      cleaning.log.other.loop1 <- rbind(cleaning.log.other.loop1,cleaning.log.other.loop1.relevances)
+      
+    }
+    
+    if(exists('raw.loop2_requests')){
+      cleaning.log.other.loop2.relevances <- utilityR::recode.other.relevances(
+        data = raw.loop2,
+        cleaning.log.other = cleaning.log.other.loop2,
+        relevancy_dictionary = relevancy_dictionary,
+        is.loop = F)
+      
+      cleaning.log.other.loop2 <- rbind(cleaning.log.other.loop2,cleaning.log.other.loop2.relevances)
+      
+    }
+    
+    if(exists('raw.loop3_requests')){
+      cleaning.log.other.loop3.relevances <- utilityR::recode.other.relevances(
+        data = raw.loop3,
+        cleaning.log.other = cleaning.log.other.loop3,
+        relevancy_dictionary = relevancy_dictionary,
+        is.loop = F)
+      
+      cleaning.log.other.loop3 <- rbind(cleaning.log.other.loop3,cleaning.log.other.loop3.relevances)
+      
+    }
+    
+  }
   
   
   ## Apply changes from the cleaning log onto our raw data
@@ -157,7 +290,7 @@ as invalid to speed up the recoding process'))
   cleaning.log <- cleaning.log %>% select(-uniqui)
 }
 
-### Add translation cleaning if needed. ------------------------------ 
+### ----------------------Add translation cleaning if needed. ------------------------------ 
 
 if(name_clean_trans_file!= ''){
   

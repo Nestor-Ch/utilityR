@@ -85,7 +85,7 @@ rm(date_cols_main)
 
 ```
 
-No manual entry is necessary on this bit of the script
+Go into the script to specify the no-consent codition. Otherwise no manual entry is necessary on this bit of the script
 
 ```{r Section  1  - Remove duplicates and No consent entries}
 source('src/sections/section_1_remove_duplicates_no_consents.R')
@@ -113,7 +113,7 @@ Once you've checked all entries in the files in "output/checking/audit/" directo
 source('src/sections/section_2_run_audit_decisions.R')
 ```
 
-The section below is deprecated and rarely used. We're keepint it in case it comes in handy sometime in the future
+The section below is deprecated and rarely used. We're keeping it in case it comes in handy sometime in the future
 
 ```{r Section  3  - Loop inconsitencies + spatial checks}
 #specify the column that holds the cordinates
@@ -124,6 +124,16 @@ source('src/sections/section_3_loops_and_spatial_checks.R')
 write.xlsx(deletion.log.new, make.filename.xlsx("output/deletion_log/", "deletion_log", no_date = T), overwrite=T)
 
 ```
+Once you've checked all entries in the "output/checking/audit/geospatial_check"  and only left what needs to be deleted implement the decisions below
+```{r Section  3  - Loop inconsitencies + spatial checks decisions}
+source('src/sections/section_3_spatial_decisions.R')
+
+# duplicates are merged only prior to writing the file.
+deletion.log.new <- bind_rows(deletion.log.dupl,deletion.log.new)
+write.xlsx(deletion.log.new, make.filename.xlsx("output/deletion_log/", "deletion_log", no_date = T), overwrite=T)
+
+```
+
 
 Section below is a bit more involved. The first section can be run without your direct input, just be aware that this section will activate the translation function.
 
@@ -150,20 +160,12 @@ Some post translation checks to make sure it all worked out. Doesn't need much i
 
 ```{r  Section  4 - additional checks}
 
-# Check if your data still has any cyrillic entries
+# Check if your data still has any non-english entries
 
 # variables that will be omitted from the analysis
 vars_to_omit <- c('settlement', directory_dictionary$enum_colname, directory_dictionary$enum_comments) # add more names as needed
 
-source('src/sections/section_4_post_check_for_leftover_cyrillic.R')
-
-# Check that cumulative and binary values in select multiple match each other
-
-cleaning.log.match <- utilityR::select.multiple.check(raw.main, tool.survey, id_col="uuid")
-
-if (nrow(cleaning.log.match) > 0) {
-  write.xlsx(cleaning.log.match, "output/checking/select_multiple_match.xlsx", overwrite=T)
-}
+source('src/sections/section_4_post_check_for_leftover_non_eng.R')
 
 # Check that cumulative and binary values in select multiple match each other
 
@@ -187,7 +189,7 @@ if Anything got into cl_log_999, check it. If you want to delete it from your da
 
 ```{r Section  5 - Fix 999/99 entries}
 apply_999_changes <- 'No'
-
+cl_log_999 <- readxl::read_excel("output/checking/999_diferences.xlsx") %>% select(-!!sym(directory_dictionary$enum_colname))
 source('src/sections/section_5_finish_999_checks.R')
 ```
 
@@ -239,7 +241,7 @@ You're done with cleaning (yay). Now you have to drop the unnecessary data and f
 
 # finalize cleaning log:
 cleaning.log <- cleaning.log %>% distinct() %>%
-  filter(old.value %!=na% new.value) %>% left_join(raw.main %>% select(uuid, any_of(directory_dictionary$enum_colname)))
+  filter(old.value %not=na% new.value) %>% left_join(raw.main %>% select(uuid, any_of(directory_dictionary$enum_colname)))
 
 if (length(list.files(make.filename.xlsx("output/cleaning_log", "cleaning_log", no_date = T))) > 0) {
   cleaning.log.previous <- read_xlsx(make.filename.xlsx("output/cleaning_log", "cleaning_log"))

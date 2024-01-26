@@ -27,10 +27,10 @@ deletion.log.softduplicates <- utilityR::create.deletion.log(raw.main %>% filter
                                                              directory_dictionary$enum_colname, "Soft duplicate")
 
 # Enter uuids of the interviews that are incomplete submissions to remove:
-ids <- c(
+ids_incompl <- c(
   
 )
-deletion.log.incomplete <- utilityR::create.deletion.log(raw.main %>% filter(uuid %in% ids), directory_dictionary$enum_colname, "Incomplete submission")
+deletion.log.incomplete <- utilityR::create.deletion.log(raw.main %>% filter(uuid %in% ids_incompl), directory_dictionary$enum_colname, "Incomplete submission")
 
 deletion.log.audits <- bind_rows(deletion.log.too.fast,deletion.log.too.slow, deletion.log.softduplicates, deletion.log.incomplete)
 deletion.log.new <- bind_rows(deletion.log.new, deletion.log.audits)
@@ -41,9 +41,9 @@ deletion.log.new <- bind_rows(deletion.log.new, deletion.log.audits)
 raw.main  <- raw.main[!(raw.main$uuid %in% deletion.log.audits$uuid),]
 if(length(sheet_names_new)>0){
   for(loop in sheet_names_new){
-    txt <- paste0(loop,'<-',loop,'[!(',loop,'$uuid %in% deletion.log.new$uuid),]')
+    txt <- paste0(loop,'<-',loop,'[!(',loop,'$uuid %in% deletion.log.audits$uuid),]')
     eval(parse(text=txt))
   }
 }#################################################
 
-rm(ids, deletion.log.too.fast, deletion.log.softduplicates)
+rm(ids_incompl, ids,deletion.log.too.fast, deletion.log.softduplicates)

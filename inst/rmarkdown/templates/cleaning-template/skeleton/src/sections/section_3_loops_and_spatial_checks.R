@@ -1,7 +1,4 @@
 
-# #-------------------------------------------------------------------------------
-# # 3) LOOP INCONSITENCIES + SPATIAL CHECKS
-# ################################################################################
 # cat(paste0("This section is only for assessments that includes loops and need to be checked with their respective calculations."))
 # cat(paste0("Make sure to adjust variable names accordingly."))
 # ## check for inconsistency in loops:
@@ -64,7 +61,7 @@
 #   relocate(loop_index, .after = uuid)
 # cleaning.log <- cleaning.log.loop_inconsitency   # a brand new cleaning log
 # 
-cleaning.log <- tribble()
+# cleaning.log <- tribble()
 # 
 # rm(ids_to_clean, loop_indexes_to_delete, counts_loop1)
 # 
@@ -73,6 +70,32 @@ cleaning.log <- tribble()
 # ## GPS checks
 # warning("No need to run if GPS checks is not needed.")
 # 
+
+if(geo_column  %in% names(raw.main)){
+  suspicious_geo <- raw.main %>% 
+    mutate(check = gsub(".*\\s(\\d+\\.\\d+)$", "\\1",!!sym(geo_column)),
+           check = as.numeric(check)) %>%
+    filter(check ==0) %>% 
+    select(-check)
+  
+  if(nrow(suspicious_geo)>0){
+    warning(paste0('Found ',nrow(suspicious_geo),' entries with suspicious coordinates'))
+    
+    deletion.log.coord <- utilityR::create.deletion.log(suspicious_geo,
+                                                        directory_dictionary$enum_colname, 
+                                                        "The geopoint accuracy is 0.0 may mean that the interview is fake.")
+    
+    write.xlsx(deletion.log.coord, make.filename.xlsx(directory_dictionary$dir.audits.check, "geospatial_check"),
+               zoom = 90, firstRow = T)
+    
+  }
+  
+}
+
+
+
+
+
 # ## In case any needed 
 # # run this section always (if POL) ------------------------  -------------------
 # 
