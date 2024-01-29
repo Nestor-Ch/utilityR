@@ -101,6 +101,56 @@ testthat::test_that('process.uuid works',{
     dplyr::ungroup(), "Your form doesn't have the form.exit event. Please double-check: 00f695c4-9a42-4b8f-9fe1-5c9f3e13a2d2"
   )
 
+  # test 6 - pre-processed files
+
+  test_loaded  <- load.audit.files(dir.audits = test_audit_path, track.changes = T)
+  test_loaded <- pre.process.audits(test_loaded,10)
+
+  actual_output <- test_loaded %>%
+    dplyr::group_by(uuid) %>%
+    dplyr::group_modify(~process.uuid(.x)) %>%
+    dplyr::ungroup()
+
+
+  expected_output <- test_loaded %>%
+    dplyr::group_by(uuid) %>%
+    dplyr::mutate(time_end = ifelse(event == 'form.exit' & start == max(start), start,0),
+                  time_start = ifelse(event == 'form.start' & start == min(start), start,0),
+                  endings = ifelse(event == 'form.exit', start,NA),
+                  wait_end = ifelse(event == 'form.resume', start,NA)
+    ) %>%
+    dplyr::summarise(
+      n.iteration = sum(event =='form.exit'),
+      tot.t = (max(time_end)-max(time_start))/1000/60,
+      tot.rt = sum(ifelse(event %in% questions,duration,0))/60,
+      tot.rt.inter = sum(ifelse(event %in% questions,inter_q_duration,0),na.rm = T)/60,
+      t1 = (min(endings,na.rm = T)-max(time_start))/1000/60,
+      rt1 =  sum(ifelse(event %in% questions & start < min(endings,na.rm = T),duration,0))/60,
+      q1 = ifelse(event %in% questions & start < min(endings,na.rm = T) & start>time_start
+                  , node, NA) %>% na.omit() %>% unique() %>% length(),
+      j1 =  ifelse(event %in% "jump" & start < min(endings,na.rm = T) & start>time_start
+                   , 1, 0) %>% sum(),
+      e1 =  ifelse(!is.na(`old.value`) & `old.value`!="" & start < min(endings,na.rm = T) & start>time_start
+                   , 1, 0) %>% sum(),
+      tag = paste0(tag[tag!=''],collapse = ','),
+      w1 = ifelse(!all(is.na(wait_end)),(min(wait_end, na.rm = T)-min(endings, na.rm = T))/1000/60,0),
+      t2 = ifelse(!all(is.na(wait_end)),(max(endings,na.rm = T)-min(wait_end,na.rm = T))/1000/60,0),
+      rt2 =  sum(ifelse(event %in% questions & start > min(endings,na.rm = T),duration,0))/60,
+      q2 = ifelse(event %in% questions & start > min(endings,na.rm = T) & start>time_start
+                  , node, NA) %>% na.omit() %>% unique() %>% length(),
+      j2 =  ifelse(event %in% "jump" & start > min(endings,na.rm = T) & start>time_start
+                   , 1, 0) %>% sum(),
+      e2 =  ifelse(!is.na(`old.value`) & `old.value`!="" & start > min(endings,na.rm = T) & start>time_start
+                   , 1, 0) %>% sum()
+      ) %>%
+    dplyr::ungroup() %>%
+    dplyr::mutate(dplyr::across(dplyr::all_of(round_cols),~ round(.x,1)),
+                  dplyr::across(dplyr::all_of(na_cols),~ ifelse(.x==0,NA,.x)))
+
+
+  testthat::expect_equal(actual_output, expected_output)
+
+
 })
 
 
@@ -110,10 +160,14 @@ testthat::test_that('pre.process.audits works',{
 
   test_loaded2 <- test_loaded[1:10,]
 
-  actual_output <- pre.process.audits(test_loaded2,1)
+  actual_output <- pre.process.audits(test_loaded2,0.5)
 
   expected_output <- test_loaded2
-  expected_output[expected_output$duration %_>_% 60,'duration'] <- 0
+  expected_output$tag <- ifelse(expected_output$duration %_>_% 30,paste0(
+    expected_output[expected_output$duration %_>_% 30,]$uuid,'-',
+    expected_output[expected_output$duration %_>_% 30,]$question),''
+                                )
+  expected_output[expected_output$duration %_>_% 30,'duration'] <- 0
 
   testthat::expect_equal(actual_output,expected_output)
 

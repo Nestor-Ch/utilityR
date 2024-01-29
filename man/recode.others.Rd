@@ -10,6 +10,7 @@ recode.others(
   orig_response_col = "response.uk",
   is.loop,
   print_debug = T,
+  id_col = NULL,
   tool.survey,
   tool.choices,
   label_colname = "label::English"
@@ -29,6 +30,8 @@ as well as column `check`. Please use the ```load.requests``` function to load t
 
 \item{print_debug}{Whether debugging information will be printed to screen
 (about how many responses will be recoded/translated etc.).}
+
+\item{id_col}{The name of your ID column if you're using neither `loop_index` nor `uuid`}
 
 \item{tool.survey}{The survey sheet of your kobo tool}
 
