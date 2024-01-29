@@ -1027,6 +1027,7 @@ recode.others_select_multiple <-
 #' @param tool.survey The survey sheet of your kobo tool
 #' @param tool.choices The choices sheet of your kobo tool
 #' @param label_colname The name of your english label column. "label::English" by default
+#' @param id_col The name of your ID column if you're using neither `loop_index` nor `uuid`
 #'
 #' @return Dataframe containing cleaning log entries covering recoding others, constructed from `data` and `or.edited`
 #'
@@ -1042,18 +1043,19 @@ recode.others <-
            orig_response_col = "response.uk",
            is.loop ,
            print_debug = T,
+           id_col=NULL,
            tool.survey,
            tool.choices,
            label_colname  = "label::English") {
     # a new thing: UNIQUI - universal unique identifier (either loop_index or uuid)
     # it will be used for matching records to or.edited entries :)
-    if (!is.loop) {
+    if (!is.loop & is.null(id_col)) {
       or.edited <- or.edited %>%
         #      dplyr::select(-any_of("loop_index")) %>%
         dplyr::mutate(uniqui = uuid)
       data <- data %>%
         dplyr::mutate(uniqui = uuid)
-    } else{
+    } else if(is.loop & is.null(id_col)){
       if (!"loop_index" %in% colnames(or.edited)) {
         stop("Parameter is.loop = TRUE, but column loop_index was not found in or.edited!")
       }
@@ -1064,6 +1066,19 @@ recode.others <-
           dplyr::mutate(uniqui = loop_index)
       }
     }
+
+    if(!is.null(id_col)){
+      if(!id_col %in% names(or.edited) | !id_col %in% names(data)){
+        stop(paste0("Column ",id_col," was not found in or.edited or your dataframe!"))
+      }else{
+        or.edited <- or.edited %>%
+          dplyr::mutate(uniqui = !!rlang::sym(id_col))
+        data <- data %>%
+          dplyr::mutate(uniqui = !!rlang::sym(id_col))
+
+      }
+    }
+
 
     # fix legacy naming
     if (!"existing.v" %in% colnames(or.edited)) {

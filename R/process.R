@@ -18,6 +18,7 @@
 #' - \code{j} - Number of jump events per iteration\cr
 #' - \code{e} - Number of edits per iteration Calculated as the number of non NA entries in the `old.value` column\cr
 #' - \code{w} - Waiting time - the `start` column of iteration's `form.resume`event - the `start`
+#' - \code{tag} - If you've pre-processed files, this column will tag the uuid-question pairs that were outside of the set threshold
 #' for the column of the pervious iterations `form.exit` event
 #' @export
 #'
@@ -66,6 +67,8 @@ process.uuid <- function(df){
       else warning("status=waiting while form.exit!")
     }
   }
+
+
   res <- data.frame()
   res[1, "n.iteration"] <- length(t)
   res[1, "tot.t"] <- round((df[nrow(df), "start"] - df[1, "start"])/60000, 1)
@@ -93,6 +96,12 @@ process.uuid <- function(df){
       res[1, paste0("w", i)] <- round(w[[i]], 1)
     }
   }
+
+  if('tag' %in% names(df)){
+    res$tag <- paste0(df[!df$tag=='',]$tag,collapse = ',')
+  }
+
+
   # if("uuid2" %in% colnames(res)){
   #   res <- res %>% select(-uuid2)
   # }
@@ -132,8 +141,10 @@ pre.process.audits <- function(df,threshold){
   result <- df %>%
     dplyr:: left_join(group_means, by = "question") %>%
     dplyr::mutate(group_mean = ifelse(is.na(group_mean),0,group_mean),
+                  tag = ifelse(duration  %_>_% threshold & !is.na(question), paste0(uuid,'-',question), ''),
                   duration = ifelse(duration  %_>_% threshold, group_mean, duration)) %>%
-    dplyr::select(-group_mean)
+    dplyr::select(-group_mean)%>%
+    dplyr::ungroup()
   return(result)
 }
 
