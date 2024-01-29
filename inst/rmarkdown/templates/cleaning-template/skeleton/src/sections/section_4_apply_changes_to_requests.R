@@ -104,7 +104,8 @@ as invalid to speed up the recoding process'))
 
   # If you face any weird double spaces
    tool.choices$`label::English`=str_squish(tool.choices$`label::English`)
-  
+   tool.choices$name=str_squish(tool.choices$name)
+   
   # Create a cleaning log file for each loop if there's a need for it.
   cleaning.log.other.main <- utilityR::recode.others(
     data = raw.main,
