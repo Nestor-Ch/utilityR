@@ -5,6 +5,32 @@ if(name_clean_others_file != ''){
                                         name_clean_others_file,
                                         sheet = sheet_name_others, validate = T)
   
+  # check for the missing variables
+  
+  names_req <- or.edited %>% 
+    pull(name,ref.name)
+  
+  names_list <- names(raw.main)
+  
+  if(length(sheet_names_new)>0){
+    for(frame in sheet_names_new){
+      txt <- paste0("names(",frame,")")
+      names_loop <- eval(parse(text=txt))
+      names_list <- c(names_list,names_loop)
+    }
+  }
+  
+  names_missing <- setdiff(names_req,names_list)
+  
+  if(length(names_missing)>0){
+    
+    stop((paste0("some of the names in your tool are not present in your dataframe. Please double check if they were renamed: ",
+                 paste0(names_missing,collapse = ',\n'))))
+  }
+  
+  
+  # check for chosen choices
+  
   or.edited <- or.edited %>%
     left_join(tool.survey %>% select(name,list_name) %>% rename(ref.name=name)) %>% 
     dplyr::rowwise() %>%
@@ -56,6 +82,8 @@ as invalid to speed up the recoding process'))
                 paste0(issue,collapse = '\n')))
   }
   
+  # check that the labels in existing.v match the labels in the tool
+  
   consistency_check <- or.edited %>% select(uuid, existing.v, ref.name) %>% 
     filter(!is.na(existing.v)) %>% 
     tidyr::separate_rows(existing.v  , sep= "[;\r\n]") %>% 
@@ -73,6 +101,7 @@ as invalid to speed up the recoding process'))
   }
   
   
+
   
   # run the bits below
   
