@@ -552,7 +552,7 @@ recode.multiple.remove.choices <-
                  "were not found in data!"))
 
     # filter to include only rows that are not NA, and that have at least one of the choices selected
-    anychoice_pattern <- paste0("(", choices, ")", collapse = "|")
+    anychoice_pattern <- paste0("(\\b", choices, "\\b)", collapse = "|")
 
     data_1 <- data %>% dplyr::filter(!is.na(!!rlang::sym(variable)) &
                                        stringr::str_detect(!!rlang::sym(variable),
