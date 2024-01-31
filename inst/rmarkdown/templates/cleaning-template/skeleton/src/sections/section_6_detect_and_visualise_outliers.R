@@ -68,3 +68,29 @@ if(length(sheet_names_new)>0){
     eval(parse(text=txt))
   }}
 
+cleaning.log.outliers$checked <- NA
+
+
+wb <- createWorkbook()
+addWorksheet(wb, 'Sheet 1')
+addWorksheet(wb, 'Drop-down values')
+
+validate <- data.frame(values= c("value corrected","value checked"))
+
+writeData(wb, sheet = "Drop-down values", x = validate, startCol = 1)
+writeDataTable(wb, sheet = 1, x = cleaning.log.outliers)
+
+dataValidation(wb, 1, rows = 2:(nrow(cleaning.log.outliers)+1),
+               col = which(names(cleaning.log.outliers)=='checked'), 
+               type = 'list', value = "'Drop-down values'!$A$2:$A$3")
+
+saveWorkbook(wb, paste0("output/checking/outliers/outlier_analysis_", n.sd, "sd.xlsx"), overwrite = T)
+
+
+
+
+
+
+
+
+
