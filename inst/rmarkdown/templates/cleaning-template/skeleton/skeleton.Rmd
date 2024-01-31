@@ -121,6 +121,7 @@ geo_column <- ''
 
 source('src/sections/section_3_loops_and_spatial_checks.R')
 
+
 ```
 Once you've checked all entries in the "output/checking/audit/geospatial_check"  and only left what needs to be deleted implement the decisions below
 ```{r Section  3  - Loop inconsitencies + spatial checks decisions}
@@ -216,7 +217,6 @@ cols.integer_raw.loop3 <- c()
 
 source('src/sections/section_6_detect_and_visualise_outliers.R')
 
-write.xlsx(cleaning.log.outliers, paste0("output/checking/outliers/outlier_analysis_", n.sd, "sd.xlsx"), overwrite=T)
 
 ```
 
@@ -225,11 +225,14 @@ Manually check outliers and change to NA (Decision made with country FPS)
 Save your changes in the same file or create a new file in output/checking/responses/ and change the path in the `cleaning.log.outliers` below
 
 ```{r}
-cleaning.log.outliers <- read.xlsx(paste0("output/checking/outliers/outlier_analysis_", n.sd, "sd.xlsx"))
+cleaning.log.outliers <- read.xlsx(paste0("output/checking/outliers/outlier_analysis_", n.sd, "sd.xlsx"),
+                                   sheet = 1)
+
+cleaning.log.outliers <- cleaning.log.outliers %>% filter(checked%==%'value corrected')
 
 source('src/sections/section_6_finish_outlier_check.R')
 
-cleaning.log <- rbind(cleaning.log,cleaning.log.outliers)
+cleaning.log <- bind_rows(cleaning.log,cleaning.log.outliers)
 
 ```
 
@@ -305,7 +308,7 @@ write.xlsx(datasheets_anon, make.filename.xlsx("output/final", "final_anonymized
 ```
 
 ```{r Section 7 - Run the enumerator performance script and zip the files into one archive}
-source("src/count_enum_performance.R")
+source("src/Cleaning_logbook.R")
 source("package4validation.R")
 ```
 
