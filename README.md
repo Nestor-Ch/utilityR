@@ -66,7 +66,7 @@ If you want to add any other checks for general validity of the data, you can ad
 ### Audit checks and soft duplicates
 
 **Audit checks** 
-Prior to running the script you'll have to specify the minimum and maximum time that the respondent can spend answering the questions. All of the interviews that are above/below these thresholds will be marked as suspicious. Additionally, some enumerators can spend too much time on a single question (consent, location, etc.) to make the interview seem longer than it actually was. You can smooth these interview times by passing the `pre_process_audit_files = T` argument and setting `max_length_answer_1_question` parameter. This will make the script run the `pre.process.audits` function, that will replace these long times with the sample average time for answering the given question, without the outliers.
+Prior to running the script you'll have to specify the minimum and maximum time that the respondent can spend answering the questions. All of the interviews that are above/below these thresholds will be marked as suspicious. Additionally, some enumerators can spend too much time on a single question (consent, location, etc.) to make the interview seem longer than it actually was. You can smooth these interview times by passing the `pre_process_audit_files = T` argument and setting `max_length_answer_1_question` parameter. This will make the script run the `pre.process.audits` function, that will replace these long times with the sample average time for answering the given question, without the outliers. Those uuid-question pairs that had their time values replaced will be tagged in the `tag` column so that the user knows that something was wrong in the interview-question pair.
 
 The analysis of audits will create a `audits_summary` excel file in the `directory_dictionary$dir.audits.check` directory. This file is your survey data + audit check columns such as:  
 `n.iteration` - The number of iterations per interviews (the number of times the user had to stop and then continue the interview)  
@@ -78,7 +78,8 @@ The analysis of audits will create a `audits_summary` excel file in the `directo
 `q` - Number of questions per iteration  
 `j` - Number of jump events per iteration  
 `e` - Number of edits per iteration Calculated as the number of non NA entries in the `old.value` column  
-`w` - Waiting time - the `start` column of iteration's `form.resume`event - the `start`  for the column of the pervious iterations `form.exit` event
+`w` - Waiting time - the `start` column of iteration's `form.resume`event - the `start`  for the column of the pervious iterations `form.exit` event  
+`tag` - If you've pre-processed files, this column will tag the uuid-question pairs that were outside of the set threshold for the column of the pervious iterations `form.exit` event
 
 As well as `NA`, `DK`, and `_other` (open text answer) columns.  
 **All of the suspicious surveys will be written into the `survey_durations` file**
@@ -211,9 +212,9 @@ Since the changes needed for the translation requests are pretty basic, the clea
 
 After these cleaning logs are created, the changes outlined in those objects are applied to the datasets through the `apply.changes` function.
 
-#### Cyrillic check
-The next bit of the recoding script checks your dataframe for leftover cyrillic characters. After the steps above, you shouldn't have any cyrillic left in your dataframe. First you need to specify the column that will be omitted from this check in the vector of the `vars_to_omit` object. The use for this object is the same as the `trans_cols_to_skip` object.  
-If any cyrillic has been found in your dataframes it'll be stored in the `cyrillic.main` or `cyrillic.loopx` objects. It is up to you to decide what to do with them.
+#### Non-english check
+The next bit of the recoding script checks your dataframe for leftover non-english characters. After the steps above, you shouldn't have any non-english characters left in your dataframe. First you need to specify the column that will be omitted from this check in the vector of the `vars_to_omit` object. The use for this object is the same as the `trans_cols_to_skip` object.  
+If any non-english characters have been found in your dataframes it'll be stored in the `cyrillic.main` or `cyrillic.loopx` objects. It is up to you to decide what to do with them.
 
 #### Consistency check
 The final bit of the script is running the `select.multiple.check` which tries to find inconsistencies between the cumulative columns of `select_multiple` questions and their respective binary columns. The file will show the differences between what is expected from the cumulative column and what is present in the binaries. It is left up to the user to decide what to do with these inconsistencies.
@@ -240,7 +241,7 @@ This section runs an algorithm over all numeric columns in the dataframe to see 
 
 The script then runs the selected outlier detection algorithm and writes the suspicious responses into `cleaning.log.outliers` object and the `outlier_analysis_` excel file. It also creates a nice visualization of the distribution of the responses with outliers highlighted in red in the `outlier_analysis_` pdf file.
 
-After you've looked through the `outlier_analysis_` excel and kept only suspicious responses you'd like to omit from the clean data, load up the clean excel file as the `cleaning.log.outliers` object and run `section_6_finish_outlier_check.R`.
+The excel file will have a new column `checked`. It exists to allow the user to let the HQ know that the outlier value was checked even if it's not fixed. If the outlier value is accurate and you with to keep it in the dataset, set the value of the `checked` column to `value checked`, if you want to change the old value to the new one, specify it within the `new.value` column and set the `checked` column value to `value corrected`. Now you can load up the clean excel file as the `cleaning.log.outliers_full` object and run `section_6_finish_outlier_check.R`.
 
 ### Finalize the data
 The last section goes through removal of PII columns, gathering the cleaning and deletion logs, building the submission excel for HQ validation and writing the submission package. Outside of specifying the `pii.to.remove_main` that holds the names of the PII columns barely any interaction is needed from the users side. The file for HQ submission is written as `Enumerator_performance_temp` excel in the `output/enum_performance` directory.
