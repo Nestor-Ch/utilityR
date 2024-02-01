@@ -24,7 +24,7 @@ minus the `start` of the iterations`form.start` event\cr
 - \code{q} - Number of questions per iteration\cr
 - \code{j} - Number of jump events per iteration\cr
 - \code{e} - Number of edits per iteration Calculated as the number of non NA entries in the `old.value` column\cr
-- \code{w} - Waiting time - the `start` column of iteration's `form.resume`event - the `start`
+- \code{w} - Waiting time - the `start` column of iteration's `form.resume`event - the `start`\cr
 - \code{tag} - If you've pre-processed files, this column will tag the uuid-question pairs that were outside of the set threshold
 for the column of the pervious iterations `form.exit` event
 }

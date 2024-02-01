@@ -221,18 +221,20 @@ source('src/sections/section_6_detect_and_visualise_outliers.R')
 ```
 
 Edit the file
-Manually check outliers and change to NA (Decision made with country FPS)
+Manually check outliers and set the value of the `checked` column.
+If the entry within the `cleaning.log.outliers` works for you, set the `checked` column value to `value checked`, if you want to change the old value to the new one, specify it within the `new.value` column and set the `checked` column value to `value corrected`.
+
 Save your changes in the same file or create a new file in output/checking/responses/ and change the path in the `cleaning.log.outliers` below
 
 ```{r}
-cleaning.log.outliers <- read.xlsx(paste0("output/checking/outliers/outlier_analysis_", n.sd, "sd.xlsx"),
+cleaning.log.outliers_full <- read.xlsx(paste0("output/checking/outliers/outlier_analysis_", n.sd, "sd.xlsx"),
                                    sheet = 1)
 
-cleaning.log.outliers <- cleaning.log.outliers %>% filter(checked%==%'value corrected')
+cleaning.log.outliers <- cleaning.log.outliers_full %>% filter(checked%==%'value corrected')
 
 source('src/sections/section_6_finish_outlier_check.R')
 
-cleaning.log <- bind_rows(cleaning.log,cleaning.log.outliers)
+cleaning.log <- bind_rows(cleaning.log,cleaning.log.outliers_full)
 
 ```
 
