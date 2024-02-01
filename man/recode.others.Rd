@@ -13,7 +13,9 @@ recode.others(
   id_col = NULL,
   tool.survey,
   tool.choices,
-  label_colname = "label::English"
+  label_colname = "label::English",
+  none_selection = c("do_not_know", "prefer_not_to_answer", "none", "none_of_the_above",
+    "dont_know", "do_not_want_to_answer")
 )
 }
 \arguments{
@@ -38,6 +40,11 @@ as well as column `check`. Please use the ```load.requests``` function to load t
 \item{tool.choices}{The choices sheet of your kobo tool}
 
 \item{label_colname}{The name of your english label column. "label::English" by default}
+
+\item{none_selection}{The `name` values of the columns that make all other answers in a select multiple invalid.
+If you're recoding a value in the `existing.v` column into one of these, all other replies for this question will be
+removed. If the correct response is `none`, other responses can't also be present. Change depending on your research cycle,
+c('do_not_know','prefer_not_to_answer','none','none_of_the_above','dont_know','do_not_want_to_answer') by default}
 }
 \value{
 Dataframe containing cleaning log entries covering recoding others, constructed from `data` and `or.edited`

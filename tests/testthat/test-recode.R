@@ -810,6 +810,83 @@ testthat::test_that("recode.others_select_multiple works", {
 
   testthat::expect_equal(actual_output, expected_output)
 
+  # test if None functionality works
+
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices')
+
+  # get the dataframe
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename)%>%
+    dplyr::rename(uniqui = `_uuid`)
+
+
+  # get the filled-out others file
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename) %>%
+    dplyr::filter(ref.type == 'select_multiple',
+                  is.na(loop_index)) %>%
+    dplyr::rename(uniqui = uuid) %>%
+    dplyr::mutate(check = 2)
+
+
+  # fake a thing so that we have a better test
+
+  test_data[test_data$uniqui =='f79999d6-192f-4b9b-aee9-5f613bd4e770',
+            'q2_4_3_main_cause'] <- 'other lack_of_accommodation'
+
+  test_data[test_data$uniqui =='f79999d6-192f-4b9b-aee9-5f613bd4e770',
+            'q2_4_3_main_cause/lack_of_accommodation'] <- 1
+
+
+  other_requests[other_requests$uniqui=='f79999d6-192f-4b9b-aee9-5f613bd4e770'&
+                 other_requests$ref.name=='q2_4_3_main_cause','existing.v'] <- 'Don’t know'
+
+
+  actual_output <- recode.others_select_multiple(test_data,other_requests, tool.survey_others=tool.survey, tool.choices_others = tool.choices, is.loop =F)
+
+  expected_output <-  data.frame(uniqui = c(other_requests$uniqui[1:2], rep(c('644ec1bf-4fec-4e93-b088-676dd2ae52ec','2a6bacd0-6a4d-420f-9463-cbf8a66cdb48'), 11),
+                                            rep('f79999d6-192f-4b9b-aee9-5f613bd4e770',9)),
+                                 loop_index = as.character(rep(NA,33)),
+                                 variable = c(other_requests$name[1:2], 'q10_1_3_relationship_negativ_factors','q10_1_3_relationship_negativ_factors',
+                                              'q10_1_3_relationship_negativ_factors/a_lack_of_sense_of_trust_between_the_idps_and_the_nonidps',
+                                              'q10_1_3_relationship_negativ_factors/a_lack_of_sense_of_trust_between_the_idps_and_the_nonidps',
+                                              'q10_1_3_relationship_negativ_factors/different_cultural_identities','q10_1_3_relationship_negativ_factors/different_cultural_identities',
+                                              'q10_1_3_relationship_negativ_factors/different_language','q10_1_3_relationship_negativ_factors/different_language',
+                                              'q10_1_3_relationship_negativ_factors/stereotypes_against_each_other','q10_1_3_relationship_negativ_factors/stereotypes_against_each_other',
+                                              'q10_1_3_relationship_negativ_factors/a_lack_of_willingness_from_both_groups_to_interac','q10_1_3_relationship_negativ_factors/a_lack_of_willingness_from_both_groups_to_interac',
+                                              'q10_1_3_relationship_negativ_factors/a_perceived_lack_of_proactivity_from_the_idps_in_trying_to_find_work',
+                                              'q10_1_3_relationship_negativ_factors/a_perceived_lack_of_proactivity_from_the_idps_in_trying_to_find_work',
+                                              'q10_1_3_relationship_negativ_factors/other','q10_1_3_relationship_negativ_factors/other',
+                                              'q10_1_3_1_relationship_negativ_factors_other','q10_1_3_1_relationship_negativ_factors_other',
+                                              'q10_1_3_relationship_negativ_factors/do_not_know','q10_1_3_relationship_negativ_factors/do_not_know',
+                                              'q10_1_3_relationship_negativ_factors/prefer_not_to_answer','q10_1_3_relationship_negativ_factors/prefer_not_to_answer',
+                                              'q10_2_1_discrimination_idp','q10_2_1_discrimination_idp/yes_we_feel_discriminated_against_when_trying_to_access_basic_services',
+                                              'q10_2_1_discrimination_idp/other','q10_2_1_1_discrimination_idp_other','q2_4_3_main_cause',
+                                              'q2_4_3_main_cause/do_not_know','q2_4_3_main_cause/lack_of_accommodation','q2_4_3_main_cause/other',
+                                              'q2_4_3_1_main_cause_other'
+                                 ),
+                                 old.value = c(other_requests$response.uk[1:2],'other','other','0','0','0','0','0','0','0','0','0','0','0',
+                                               '0','1','1','Ничего не влияет','Нет негативных факторов','0','0','0','0','other','0','1',
+                                               'Так зі сторони проживаючих тут студентів','other lack_of_accommodation','0','1','1','Окупована територія'
+                                 ),
+                                 new.value = c(other_requests$true.v[1:2], rep(NA,22),'yes_we_feel_discriminated_against_when_trying_to_access_basic_services',
+                                               '1','0',NA,'do_not_know','1','0','0',NA
+                                 ),
+                                 issue = c(rep('Translating other response',2),rep('Invalid other response',22),
+                                           rep('Recoding other response',9))
+  ) %>%
+    dplyr::tibble()
+
+  testthat::expect_equal(actual_output, expected_output)
+
+
 
 })
 
