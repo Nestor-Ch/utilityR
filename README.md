@@ -17,7 +17,7 @@ The text below follows the structure of the cleaning template presented in the m
   - [Applying changes](#Applying-recode-changes)
   - [recode.relevancy framework](#recode.relevancy-framework)
   - [Recoding translation requests](#Recoding-translation-requests)
-  - [Cyrillic check](#Cyrillic-check)
+  - [Non-english check](#Non-English-check)
   - [Consistency check](#Consistency-check)
 - [999 checks](#999-checks)
 - [Logic checks](#Logic-checks)
