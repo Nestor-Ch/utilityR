@@ -14,7 +14,9 @@ recode.others_select_multiple(
   tool.choices_others = tool.choices,
   label_colname = "label::English",
   CL_COLS = c("uuid", "uniqui", "loop_index", "variable", "old.value", "new.value",
-    "issue")
+    "issue"),
+  none_selection = c("do_not_know", "prefer_not_to_answer", "none", "none_of_the_above",
+    "dont_know", "do_not_want_to_answer")
 )
 }
 \arguments{
@@ -36,6 +38,11 @@ recode.others_select_multiple(
 
 \item{CL_COLS}{CL_COLS string of columns of the cleaning log.
 Defauls to c("uuid","uniqui" ,"loop_index", "variable", "old.value", "new.value", "issue")}
+
+\item{none_selection}{The `name` values of the columns that make all other answers in a select multiple invalid.
+If you're recoding a value in the `existing.v` column into one of these, all other replies for this question will be
+removed. If the correct response is `none`, other responses can't also be present. Change depending on your research cycle,
+c('do_not_know','prefer_not_to_answer','none','none_of_the_above','dont_know','do_not_want_to_answer') by default}
 }
 \value{
 A dataframe for the changes that need to be applied to the data

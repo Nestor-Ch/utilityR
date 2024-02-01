@@ -760,6 +760,10 @@ recode.others_select_one <-
 #' @param label_colname The name of your english label column. "label::English" by default
 #' @param CL_COLS CL_COLS string of columns of the cleaning log.
 #' Defauls to c("uuid","uniqui" ,"loop_index", "variable", "old.value", "new.value", "issue")
+#' @param none_selection The `name` values of the columns that make all other answers in a select multiple invalid.
+#' If you're recoding a value in the `existing.v` column into one of these, all other replies for this question will be
+#' removed. If the correct response is `none`, other responses can't also be present. Change depending on your research cycle,
+#' c('do_not_know','prefer_not_to_answer','none','none_of_the_above','dont_know','do_not_want_to_answer') by default
 #'
 #' @return A dataframe for the changes that need to be applied to the data
 #' @export
@@ -787,7 +791,10 @@ recode.others_select_multiple <-
                        "variable",
                        "old.value",
                        "new.value",
-                       "issue")) {
+                       "issue"),
+           none_selection = c('do_not_know','prefer_not_to_answer',
+                              'none','none_of_the_above',
+                              'dont_know','do_not_want_to_answer')) {
     if (!'uuid' %in% names(data) & is.loop) {
       stop(
         print(
@@ -914,55 +921,74 @@ recode.others_select_multiple <-
                           label %in% chosen_labels) %>%
           dplyr::pull(choice_name)
 
-        # check if true.v is also not na
-        if (!is.na(or.row$true.v)) {
-          # in this case, simply add new choices
-          cl_sm_recode <- dplyr::bind_rows(
-            cl_sm_recode,
-            or.row %>%
-              dplyr::mutate(
-                variable = name,
-                old.value = !!rlang::sym(orig_response_col),
-                new.value = true.v,
-                issue = "Translating other response"
-              ) %>%
-              dplyr::select(any_of(CL_COLS))
-          )
+        if(!any(choices %in% none_selection)){
 
-          cl_sm_recode_add_choice <-
-            recode.multiple.add.choices(data.row,
-                                        or.row$ref.name,
-                                        choices,
-                                        "Recoding other response")
-
-          cl_sm_recode <-
-            cl_sm_recode %>% dplyr::mutate_all(as.character)
-          cl_sm_recode_add_choice <-
-            cl_sm_recode_add_choice %>% dplyr::mutate_all(as.character)
-          cl_sm_recode <-
-            dplyr::bind_rows(cl_sm_recode, cl_sm_recode_add_choice)
-        } else{
-          # read the previous choices and set selection to previous + new
-          old_choices <-
-            data.row[[or.row$ref.name]] %>% stringr::str_split(" ", simplify = T)
-          choices <- c(choices, old_choices[old_choices != "other"])
-
-          cl_sm_recode_add_ch <-
-            recode.multiple.set.choices(
-              data.row,
-              or.row$ref.name,
-              choices,
-              "Recoding other response",
-              other_var_name = or.row$name,
-              tool.survey = tool.survey_others,
-              tool.choices = tool.choices_others
+          # check if true.v is also not na
+          if (!is.na(or.row$true.v)) {
+            # in this case, simply add new choices
+            cl_sm_recode <- dplyr::bind_rows(
+              cl_sm_recode,
+              or.row %>%
+                dplyr::mutate(
+                  variable = name,
+                  old.value = !!rlang::sym(orig_response_col),
+                  new.value = true.v,
+                  issue = "Translating other response"
+                ) %>%
+                dplyr::select(any_of(CL_COLS))
             )
 
-          cl_sm_recode_add_ch <-
-            cl_sm_recode_add_ch %>% dplyr::mutate_all(as.character)
+            cl_sm_recode_add_choice <-
+              recode.multiple.add.choices(data.row,
+                                          or.row$ref.name,
+                                          choices,
+                                          "Recoding other response")
 
+            cl_sm_recode <-
+              cl_sm_recode %>% dplyr::mutate_all(as.character)
+            cl_sm_recode_add_choice <-
+              cl_sm_recode_add_choice %>% dplyr::mutate_all(as.character)
+            cl_sm_recode <-
+              dplyr::bind_rows(cl_sm_recode, cl_sm_recode_add_choice)
+          } else{
+            # read the previous choices and set selection to previous + new
+            old_choices <-
+              data.row[[or.row$ref.name]] %>% stringr::str_split(" ", simplify = T)
+            choices <- c(choices, old_choices[old_choices != "other"])
+
+            cl_sm_recode_add_ch <-
+              recode.multiple.set.choices(
+                data.row,
+                or.row$ref.name,
+                choices,
+                "Recoding other response",
+                other_var_name = or.row$name,
+                tool.survey = tool.survey_others,
+                tool.choices = tool.choices_others
+              )
+
+            cl_sm_recode_add_ch <-
+              cl_sm_recode_add_ch %>% dplyr::mutate_all(as.character)
+
+            cl_sm_recode <-
+              dplyr::bind_rows(cl_sm_recode, cl_sm_recode_add_ch)
+          }
+        }else{
+          choices_n <- intersect(choices,none_selection)
+
+          # recode binaries  --------------------------
+          cl_sm_recode_none <- recode.multiple.set.choices(
+            data.row,
+            or.row$ref.name,
+            choices_n,
+            "Recoding other response",
+            other_var_name = or.row$name,
+            tool.survey = tool.survey_others,
+            tool.choices = tool.choices_others
+          )
           cl_sm_recode <-
-            dplyr::bind_rows(cl_sm_recode, cl_sm_recode_add_ch)
+            dplyr::bind_rows(cl_sm_recode, cl_sm_recode_none)
+
         }
       }
     }
@@ -1028,6 +1054,10 @@ recode.others_select_multiple <-
 #' @param tool.choices The choices sheet of your kobo tool
 #' @param label_colname The name of your english label column. "label::English" by default
 #' @param id_col The name of your ID column if you're using neither `loop_index` nor `uuid`
+#' @param none_selection The `name` values of the columns that make all other answers in a select multiple invalid.
+#' If you're recoding a value in the `existing.v` column into one of these, all other replies for this question will be
+#' removed. If the correct response is `none`, other responses can't also be present. Change depending on your research cycle,
+#' c('do_not_know','prefer_not_to_answer','none','none_of_the_above','dont_know','do_not_want_to_answer') by default
 #'
 #' @return Dataframe containing cleaning log entries covering recoding others, constructed from `data` and `or.edited`
 #'
@@ -1046,7 +1076,10 @@ recode.others <-
            id_col=NULL,
            tool.survey,
            tool.choices,
-           label_colname  = "label::English") {
+           label_colname  = "label::English",
+           none_selection = c('do_not_know','prefer_not_to_answer',
+                              'none','none_of_the_above',
+                              'dont_know','do_not_want_to_answer')) {
     # a new thing: UNIQUI - universal unique identifier (either loop_index or uuid)
     # it will be used for matching records to or.edited entries :)
     if (!is.loop & is.null(id_col)) {
@@ -1164,7 +1197,8 @@ recode.others <-
           tool.survey_others = tool.survey,
           tool.choices_others = tool.choices,
           is.loop = is.loop,
-          label_colname = label_colname
+          label_colname = label_colname,
+          none_selection = none_selection
         )
     }
     # works fine for non-loops
@@ -1492,11 +1526,11 @@ recode.others.elsewhere <-
       data <- data %>%
         dplyr::mutate(uniqui = uuid)
     } else{
-        or.edited <- or.edited %>%
-          dplyr::mutate(uniqui = loop_index)
-        data <- data %>%
-          dplyr::mutate(uniqui = loop_index)
-      }
+      or.edited <- or.edited %>%
+        dplyr::mutate(uniqui = loop_index)
+      data <- data %>%
+        dplyr::mutate(uniqui = loop_index)
+    }
 
 
     if (any(!or.edited$uniqui %in% data$uniqui)) {
