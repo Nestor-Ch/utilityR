@@ -71,7 +71,7 @@ as invalid to speed up the recoding process'))
   if(any(or.edited$check == 1)){
     issue <- paste0('uuid: ', or.edited[or.edited$check == 1,]$uuid,
                     ', variable: ',or.edited[or.edited$check == 1,]$name)
-    stop(paste0('Some of your entries have errors, please double-check: ',
+    warning(paste0('Some of your rows have multiple entries in the tei columns, please double-check: ',
                 paste0(issue,collapse = '\n')))
   }
 
@@ -120,8 +120,8 @@ as invalid to speed up the recoding process'))
 Values please make sure that their choice names are present in the `none_selection` object.
 We have found the following cases: ",
 paste0('uuid: ',none_check$uuid,
-'ref.column: ',none_check$ref.name,
-'value:', none_check$existing.v,collapse=";"),
+' ref.column: ',none_check$ref.name,
+' value: ', none_check$existing.v,collapse=";\n"),
 '\nIf you recoded more `None` cases then we found, please make sure that their choice names are also present in the `none_selection` object'))
   }
 
