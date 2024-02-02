@@ -68,8 +68,6 @@ if(length(sheet_names_new)>0){
 }
 
 
-# If there were any changes in the tool during data collection, they can be run here
-source('src/sections/tool_modification.R')
 
 
 # select the columns in your data that contain date elements
@@ -81,6 +79,9 @@ raw.main <- raw.main %>%
   mutate_at(date_cols_main, ~ifelse(!str_detect(., '-'), as.character(convertToDateTime(as.numeric(.))), .))
 
 rm(date_cols_main)
+
+# If there were any changes in the tool during data collection, they can be run here
+source('src/sections/tool_modification.R')
 
 
 ```
