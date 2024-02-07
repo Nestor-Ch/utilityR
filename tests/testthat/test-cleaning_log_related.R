@@ -1,6 +1,6 @@
 
 
-testthat::test_that("apply.changes works", {
+testthat::test_that("apply.changes works - test 1 - general functionality", {
 
 
   # load the tool data
@@ -78,23 +78,103 @@ testthat::test_that("apply.changes works", {
                                    print_debug = T)
 
   testthat::expect_equal(actual_output, expected_output)
+})
 
-  # test 2 it should throw an error when we try to make it work like a loop on non-loop data
+testthat::test_that("apply.changes works -test 2 it should throw an error when we try to make it work like a loop on non-loop data", {
+
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices', col_types = 'text')
+
+  # get the change log file
+  filename <- testthat::test_path("fixtures","data_cl_log.xlsx")
+  cl_log <- readxl::read_excel(filename, col_types = 'text') %>%
+    dplyr::mutate(check = 2)
+
+  # get the dataframe
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`) %>%
+    dplyr::filter(uuid %in% cl_log$uuid)  # keep only the uuids I'll be changing
+
+
+  test_data <- test_data[,c('uuid', intersect(cl_log$variable, names(test_data)))] # keep only the colnames I'll be using
+
 
   testthat::expect_error(apply.changes(data = test_data,
                                        clog = cl_log,
                                        is.loop = T,
-                                       print_debug = T))
+                                       print_debug = T),"Parameter is.loop is = True, but data does not contain column 'loop_index'!\n
+              N.B.: for the future, you can use apply.changes without the is.loop parameter.\n")
+})
 
-  # test 3 - expect warning if the cl_log is empty
+
+testthat::test_that("apply.changes works - test 3 - expect error if the cl_log is empty", {
+
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices', col_types = 'text')
+
+  # get the change log file
+  filename <- testthat::test_path("fixtures","data_cl_log.xlsx")
+  cl_log <- readxl::read_excel(filename, col_types = 'text') %>%
+    dplyr::mutate(check = 2)
+
+  # get the dataframe
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`) %>%
+    dplyr::filter(uuid %in% cl_log$uuid)  # keep only the uuids I'll be changing
+
+
+  test_data <- test_data[,c('uuid', intersect(cl_log$variable, names(test_data)))] # keep only the colnames I'll be using
+
 
   testthat::expect_error(apply.changes(data = test_data,
                                        clog = cl_log[0,],
                                        is.loop = F,
                                        print_debug = T))
+})
+
+testthat::test_that("apply.changes works - test 4 - test that it gives me a warning if I insert a fake uuid", {
 
 
-  # test 4 - test that it gives me a warning if I insert a fake uuid
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices', col_types = 'text')
+
+  # get the change log file
+  filename <- testthat::test_path("fixtures","data_cl_log.xlsx")
+  cl_log <- readxl::read_excel(filename, col_types = 'text') %>%
+    dplyr::mutate(check = 2)
+
+  # get the dataframe
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`) %>%
+    dplyr::filter(uuid %in% cl_log$uuid)  # keep only the uuids I'll be changing
+
+
+  test_data <- test_data[,c('uuid', intersect(cl_log$variable, names(test_data)))] # keep only the colnames I'll be using
+
+
 
   cl_fake <- cl_log
   cl_fake[5,]$uuid <- 'fake'
@@ -103,10 +183,38 @@ testthat::test_that("apply.changes works", {
     apply.changes(data = test_data,
                   clog = cl_fake,
                   is.loop = F,
-                  print_debug = T)
+                  print_debug = T),
+    "uuids from cleaning log not found in data:\n\tfake"
   )
 
-  # test 5 - test that it gives me a warning if I insert a fake old.value
+})
+
+testthat::test_that("apply.changes works - test 5 - test that it gives me a warning if I insert a fake old.value", {
+
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices', col_types = 'text')
+
+  # get the change log file
+  filename <- testthat::test_path("fixtures","data_cl_log.xlsx")
+  cl_log <- readxl::read_excel(filename, col_types = 'text') %>%
+    dplyr::mutate(check = 2)
+
+  # get the dataframe
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`) %>%
+    dplyr::filter(uuid %in% cl_log$uuid)  # keep only the uuids I'll be changing
+
+
+  test_data <- test_data[,c('uuid', intersect(cl_log$variable, names(test_data)))] # keep only the colnames I'll be using
+
 
   cl_fake <- cl_log
   cl_fake[5,]$old.value <- 'fake'
@@ -115,10 +223,30 @@ testthat::test_that("apply.changes works", {
     apply.changes(data = test_data,
                   clog = cl_fake,
                   is.loop = F,
-                  print_debug = T)
+                  print_debug = T),
+    "Value in data is different than old.value in Cleaning log!\nUUID: bd005032-6f63-455f-8202-313583a128b1\tVariable: q7_2_2_initiate_compensation\tExpected: fake\t found: other\tReplacing with: NA"
   )
+})
 
-  # test 6 - test that it works with the loop
+
+testthat::test_that("apply.changes works - test 6 - test that it works with the loop", {
+
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices', col_types = 'text')
+
+  # get the change log file
+  filename <- testthat::test_path("fixtures","data_cl_log.xlsx")
+  cl_log <- readxl::read_excel(filename, col_types = 'text') %>%
+    dplyr::mutate(check = 2)
+
+
 
   filename <- testthat::test_path("fixtures","data_others.xlsx")
   test_data <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
@@ -150,17 +278,78 @@ testthat::test_that("apply.changes works", {
 
   testthat::expect_equal(expected_output,actual_output)
 
+})
 
-  # test 7 - expect warning if working with a loop but is.loop = F but should still run
+testthat::test_that(
+  "apply.changes works - test 7 - expect warning if working with a loop but is.loop = F but should still run", {
 
-  testthat::expect_warning(
-    apply.changes(data = test_data,
-                  clog = cl_log,
-                  is.loop = F,
-                  print_debug = T)
-  )
 
-  # test 8 - expect a warning about a missing loop index if one of them is wrong
+    # load the tool data
+    filename <- testthat::test_path("fixtures","tool_others.xlsx")
+    label_colname <- "label::English"
+    tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+    # get the tool.choices db
+    filename <- testthat::test_path("fixtures","tool_others.xlsx")
+    tool.choices <- readxl::read_excel(filename, sheet = 'choices', col_types = 'text')
+
+    # get the change log file
+    filename <- testthat::test_path("fixtures","data_cl_log.xlsx")
+    cl_log <- readxl::read_excel(filename, col_types = 'text') %>%
+      dplyr::mutate(check = 2)
+
+
+
+    filename <- testthat::test_path("fixtures","data_others.xlsx")
+    test_data <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+      dplyr::rename(loop_index = `_index`) %>%
+      dplyr::filter(loop_index %in% cl_log$loop_index)  # keep only the uuids I'll be changing
+
+
+    test_data <- test_data[,c('loop_index', intersect(cl_log$variable, names(test_data)))] # keep only the colnames I'll be using
+
+
+
+    testthat::expect_warning(
+      apply.changes(data = test_data,
+                    clog = cl_log,
+                    is.loop = F,
+                    print_debug = T),
+      "Parameter is.loop is = False, but data contains column 'loop_index'. It will be assumed that this data is, actually, a loop!\n
+              N.B.: for the future, you can use apply.changes without the is.loop parameter.\n"
+    )
+  })
+
+testthat::test_that("apply.changes works - test 8 - expect a warning about a missing loop index if one of them is wrong", {
+
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices', col_types = 'text')
+
+  # get the change log file
+  filename <- testthat::test_path("fixtures","data_cl_log.xlsx")
+  cl_log <- readxl::read_excel(filename, col_types = 'text') %>%
+    dplyr::mutate(check = 2)
+
+
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`) %>%
+    dplyr::filter(loop_index %in% cl_log$loop_index)  # keep only the uuids I'll be changing
+
+
+  test_data <- test_data[,c('loop_index', intersect(cl_log$variable, names(test_data)))] # keep only the colnames I'll be using
+
+
+
+
 
   cl_log_fake <- cl_log
   cl_log_fake[50,]$loop_index <- 'fake'
@@ -170,10 +359,39 @@ testthat::test_that("apply.changes works", {
     apply.changes(data = test_data,
                   clog = cl_log_fake,
                   is.loop = T,
-                  print_debug = T)
+                  print_debug = T),
+    "loop_indexes from cleaning log not found in data:\n\tfake"
   )
+})
 
-  # test 9 - expect a warning about a missing variable if one of them is wrong
+testthat::test_that("apply.changes works - test 9 - expect a warning about a missing variable if one of them is wrong", {
+
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices', col_types = 'text')
+
+  # get the change log file
+  filename <- testthat::test_path("fixtures","data_cl_log.xlsx")
+  cl_log <- readxl::read_excel(filename, col_types = 'text') %>%
+    dplyr::mutate(check = 2)
+
+
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`) %>%
+    dplyr::filter(loop_index %in% cl_log$loop_index)  # keep only the uuids I'll be changing
+
+
+  test_data <- test_data[,c('loop_index', intersect(cl_log$variable, names(test_data)))] # keep only the colnames I'll be using
+
+
 
   cl_log_fake <- cl_log
   cl_log_fake[50,]$variable <- 'fake'
@@ -182,11 +400,40 @@ testthat::test_that("apply.changes works", {
     apply.changes(data = test_data,
                   clog = cl_log_fake,
                   is.loop = T,
-                  print_debug = T)
+                  print_debug = T),
+    "variables from cleaning log not found in data:\n\tfake"
   )
 
+})
 
-  # test 10 - test if it gives a warning if I provide a wrong old.value to it
+
+testthat::test_that("apply.changes works - test 10 - test if it gives a warning if I provide a wrong old.value to it", {
+
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices', col_types = 'text')
+
+  # get the change log file
+  filename <- testthat::test_path("fixtures","data_cl_log.xlsx")
+  cl_log <- readxl::read_excel(filename, col_types = 'text') %>%
+    dplyr::mutate(check = 2)
+
+
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`) %>%
+    dplyr::filter(loop_index %in% cl_log$loop_index)  # keep only the uuids I'll be changing
+
+
+  test_data <- test_data[,c('loop_index', intersect(cl_log$variable, names(test_data)))] # keep only the colnames I'll be using
+
 
   cl_log_fake <- cl_log
   cl_log_fake[50,]$old.value <- 'fake'
@@ -195,7 +442,8 @@ testthat::test_that("apply.changes works", {
     apply.changes(data = test_data,
                   clog = cl_log_fake,
                   is.loop = T,
-                  print_debug = T)
+                  print_debug = T),
+    "Value in data is different than old.value in Cleaning log!\nloop_index: 486\tVariable: q2_3_3_1_employment_situation_other\tExpected: fake\t found: Часний підприємиць\tReplacing with: NA"
   )
 
 })
@@ -237,7 +485,7 @@ testthat::test_that("undo.changes works", {
 })
 
 
-testthat::test_that("make.logical.check.entry works", {
+testthat::test_that("make.logical.check.entry works - test 1 general functionality", {
 
   # get the dataframe
   filename <- testthat::test_path("fixtures","data_others.xlsx")
@@ -245,8 +493,6 @@ testthat::test_that("make.logical.check.entry works", {
     dplyr::rename(uuid = `_uuid`) %>%  # keep only the uuids I'll be changing
     dplyr::filter(uuid %in% c('00126b85-7083-4099-908b-0b93cd5fdde9','0024a26b-2bae-4f70-8a90-23a4b7e75c2d','00289e2e-4f0d-4155-a6e1-932833e3ab71'))
 
-
-  # test 1 general functionality
 
   actual_output <- make.logical.check.entry(check = test_data,
                                             id = 2,
@@ -272,7 +518,18 @@ testthat::test_that("make.logical.check.entry works", {
 
   testthat::expect_equal(actual_output, expected_output)
 
-  # test 2 - more data
+
+})
+
+testthat::test_that("make.logical.check.entry works -  test 2 - more data", {
+
+  # get the dataframe
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`) %>%  # keep only the uuids I'll be changing
+    dplyr::filter(uuid %in% c('00126b85-7083-4099-908b-0b93cd5fdde9','0024a26b-2bae-4f70-8a90-23a4b7e75c2d','00289e2e-4f0d-4155-a6e1-932833e3ab71'))
+
+
 
   actual_output <- make.logical.check.entry(check = test_data,
                                             id = 2,
@@ -299,9 +556,10 @@ testthat::test_that("make.logical.check.entry works", {
 
 
   testthat::expect_equal(actual_output, expected_output)
+})
 
+testthat::test_that("make.logical.check.entry works -  test 3 - what if we use a loop ?", {
 
-  # test 3 - what if we use a loop ?
 
   filename <- testthat::test_path("fixtures","data_others.xlsx")
   test_data <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
@@ -333,16 +591,36 @@ testthat::test_that("make.logical.check.entry works", {
     dplyr::arrange(uuid)
 
   testthat::expect_equal(actual_output, expected_output)
+})
 
-  # test 4 - warning
+testthat::test_that("make.logical.check.entry works -  test 4 - warning ?", {
+
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`,
+                  uuid = `_submission__uuid`) %>%
+    dplyr::filter(loop_index %in% c('904',"276","999"))
+
   testthat::expect_warning(make.logical.check.entry(check = test_data,
                                                     id = 2,
                                                     question.names = c('q2_3_4_employment_situation_last_month','q2_3_3_employment_situation'),
                                                     issue = 'test',
-                                                    is.loop = F))
+                                                    is.loop = F),
+                           "Parameter is.loop is = False, but check contains column 'loop_index'. It will be assumed that this data is, actually, a loop!\n
+              N.B.: for the future, you can use apply.changes without the is.loop parameter.\n")
+
+})
+
+testthat::test_that("make.logical.check.entry works -  test 5 what if the data doesn't have a loop_index column but is a loop?", {
 
 
-  # test 5 what if the data doesn't have a loop_index column but is a loop?
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`,
+                  uuid = `_submission__uuid`) %>%
+    dplyr::filter(loop_index %in% c('904',"276","999"))
+
 
   test_data <- test_data %>% dplyr::select(-loop_index)
 
@@ -350,7 +628,9 @@ testthat::test_that("make.logical.check.entry works", {
                                                   id = 2,
                                                   question.names = c('q2_3_4_employment_situation_last_month','q2_3_3_employment_situation'),
                                                   issue = 'test',
-                                                  is.loop = T))
+                                                  is.loop = T),
+                         "Parameter is.loop is = True, but check does not contain column 'loop_index'!\n
+              N.B.: for the future, you can use apply.changes without the is.loop parameter.\n")
 
 
 })
@@ -359,9 +639,7 @@ testthat::test_that("make.logical.check.entry works", {
 
 
 
-
-
-testthat::test_that("add.to.cleaning.log.other.remove works", {
+testthat::test_that("add.to.cleaning.log.other.remove works - test 1 - general functionality for select_one works - non-loop", {
 
 
   filename <- testthat::test_path("fixtures","data_others.xlsx")
@@ -373,8 +651,6 @@ testthat::test_that("add.to.cleaning.log.other.remove works", {
     dplyr::filter(invalid.v == 'yes',
                   is.na(loop_index))
 
-
-  # test 1 - general functionality for select_one works - non-loop
 
   actual_output <- add.to.cleaning.log.other.remove(data = test_data, other_requests = other_requests[1,], is.loop = F)
 
@@ -388,9 +664,19 @@ testthat::test_that("add.to.cleaning.log.other.remove works", {
   )
 
   testthat::expect_equal(actual_output,expected_output)
+})
+
+testthat::test_that("add.to.cleaning.log.other.remove works - test 2 - general functionality for select_multiple works - loop", {
 
 
-  # test 2 - general functionality for select_multiple works - loop
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::filter(invalid.v == 'yes',
+                  is.na(loop_index))
 
   actual_output <- add.to.cleaning.log.other.remove(data = test_data, other_requests = other_requests[3,], is.loop = F)
 
@@ -406,15 +692,40 @@ testthat::test_that("add.to.cleaning.log.other.remove works", {
   )
   testthat::expect_equal(actual_output,expected_output)
 
+})
 
-  # test 3 - we've indicated loop on non-loop data
+testthat::test_that("add.to.cleaning.log.other.remove works -  test 3 - we've indicated loop on non-loop data", {
+
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::filter(invalid.v == 'yes',
+                  is.na(loop_index))
+
 
   testthat::expect_error(
-    add.to.cleaning.log.other.remove(data = test_data, other_requests = other_requests[1,], is.loop = T)
+    add.to.cleaning.log.other.remove(data = test_data, other_requests = other_requests[1,], is.loop = T),
+    "Parameter is.loop is = True, but data does not contain column 'loop_index'!\n"
   )
 
+})
 
-  # test 4 - select_multiple functionality with loop data that doesn't need all binaries to be transformed into 0
+testthat::test_that("add.to.cleaning.log.other.remove works -  test 4 - select_multiple functionality with loop data that doesn't need all binaries to be transformed into 0", {
+
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::filter(invalid.v == 'yes',
+                  is.na(loop_index))
+
 
   # I didn't prepare any cases for this, so I'll insert it here
   other_requests <- rbind(other_requests,
@@ -446,8 +757,10 @@ testthat::test_that("add.to.cleaning.log.other.remove works", {
   )
 
   testthat::expect_equal(actual_output,expected_output)
+})
 
-  # test 5 - basic select_one functionality with a loop
+testthat::test_that("add.to.cleaning.log.other.remove works -  test 5 - basic select_one functionality with a loop", {
+
 
   filename <- testthat::test_path("fixtures","data_others.xlsx")
   test_data <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
@@ -473,7 +786,22 @@ testthat::test_that("add.to.cleaning.log.other.remove works", {
 
   testthat::expect_equal(actual_output,expected_output)
 
-  # test 6 - basic select_multiple functionality with a loop
+})
+
+testthat::test_that("add.to.cleaning.log.other.remove works -  test 6 - basic select_multiple functionality with a loop", {
+
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`,
+                  uuid = `_submission__uuid`)
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::filter(invalid.v == 'yes',
+                  !is.na(loop_index))
+
+
 
   actual_output <- add.to.cleaning.log.other.remove(data = test_data, other_requests = other_requests[3,], is.loop = T)
 
@@ -489,14 +817,40 @@ testthat::test_that("add.to.cleaning.log.other.remove works", {
   )
 
   testthat::expect_equal(actual_output,expected_output)
+})
 
-  # test 7 - shoots a warning if you're working with a loop but didn't say it's a loop
+testthat::test_that("add.to.cleaning.log.other.remove works -  test 7 - shoots a warning if you're working with a loop but didn't say it's a loop", {
+
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`,
+                  uuid = `_submission__uuid`)
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::filter(invalid.v == 'yes',
+                  !is.na(loop_index))
+
 
   testthat::expect_warning(
-    add.to.cleaning.log.other.remove(data = test_data, other_requests = other_requests[3,], is.loop = F)
+    add.to.cleaning.log.other.remove(data = test_data, other_requests = other_requests[3,], is.loop = F),
+    "Parameter is.loop is = False, but data contains column 'loop_index'. It will be assumed that this data is, actually, a loop!"
   )
+})
 
-  # test 8 - wrong entry
+testthat::test_that("add.to.cleaning.log.other.remove works -  test 8 - wrong entry", {
+
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`,
+                  uuid = `_submission__uuid`)
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::filter(invalid.v == 'yes',
+                  !is.na(loop_index))
 
   other_requests <- rbind(other_requests,
                           data.frame(
@@ -515,15 +869,14 @@ testthat::test_that("add.to.cleaning.log.other.remove works", {
                           ))
 
   testthat::expect_error(
-    add.to.cleaning.log.other.remove(data = test_data, other_requests = other_requests[5,], is.loop = T)
+    add.to.cleaning.log.other.remove(data = test_data, other_requests = other_requests[5,], is.loop = T),
+    'One of the entries in your name column in the other_requests file is not present in the columns of the dataframe:\nfake'
   )
 })
 
 
 
-
-
-testthat::test_that("vectorized.add.to.cleaning.log.other.remove works", {
+testthat::test_that("vectorized.add.to.cleaning.log.other.remove works - test 1 - basic functionality - non-loop data", {
 
   filename <- testthat::test_path("fixtures","data_others.xlsx")
   test_data <- readxl::read_excel(filename, col_types = 'text')%>%
@@ -538,7 +891,6 @@ testthat::test_that("vectorized.add.to.cleaning.log.other.remove works", {
     dplyr::filter(invalid.v == 'yes')
 
 
-  # test 1 - basic functionality - non-loop data
 
   actual_output <- vectorized.add.to.cleaning.log.other.remove(data = test_data,is.loop=F,
                                                                other_requests = other_requests%>% dplyr::filter(is.na(loop_index)))
@@ -561,15 +913,45 @@ testthat::test_that("vectorized.add.to.cleaning.log.other.remove works", {
   )
 
   testthat::expect_equal(actual_output,expected_output)
+})
 
-  # test 2 - called loop functionality on non-loop data
+testthat::test_that("vectorized.add.to.cleaning.log.other.remove works - test 2 - called loop functionality on non-loop data", {
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
+
+  test_data_l <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`,
+                  uuid = `_submission__uuid`)
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::filter(invalid.v == 'yes')
+
 
   testthat::expect_error(
-  vectorized.add.to.cleaning.log.other.remove(data = test_data,is.loop=T,
-                                              other_requests = other_requests%>% dplyr::filter(is.na(loop_index)))
+    vectorized.add.to.cleaning.log.other.remove(data = test_data,is.loop=T,
+                                                other_requests = other_requests%>% dplyr::filter(is.na(loop_index))),
+    "Parameter is.loop is = True, but data does not contain column 'loop_index'!\n"
   )
 
-  # test 3 - basic functionality - loop data
+})
+
+testthat::test_that("vectorized.add.to.cleaning.log.other.remove works - test 3 - basic functionality - loop data", {
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
+
+  test_data_l <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`,
+                  uuid = `_submission__uuid`)
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::filter(invalid.v == 'yes')
+
 
   actual_output <- vectorized.add.to.cleaning.log.other.remove(data = test_data_l,is.loop=T,
                                                                other_requests = other_requests%>% dplyr::filter(!is.na(loop_index)))
@@ -592,19 +974,48 @@ testthat::test_that("vectorized.add.to.cleaning.log.other.remove works", {
     new.value = NA
   )
 
-   testthat::expect_equal(actual_output,expected_output)
+  testthat::expect_equal(actual_output,expected_output)
+})
 
-  # test 4 - expect error if out other.requests file was not good enough
+testthat::test_that("vectorized.add.to.cleaning.log.other.remove works - test 4 - expect error if out other.requests file was not good enough", {
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
+
+  test_data_l <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`,
+                  uuid = `_submission__uuid`)
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::filter(invalid.v == 'yes')
+
   other_requests_f <- other_requests
   other_requests_f[1,]$invalid.v <- ''
 
   testthat::expect_error(
     vectorized.add.to.cleaning.log.other.remove(data = test_data_l, is.loop = T,
-                                                other_requests = other_requests_f%>% dplyr::filter(!is.na(loop_index)))
+                                                other_requests = other_requests_f%>% dplyr::filter(!is.na(loop_index))),
+    "Not all of the rows in the invalid column are equal to 'yes', are you sure you're uploading only invalid entries?"
 
   )
+})
 
-  # test 5 - expect a warning when we run the file with an incorrect other.requests. But it should still give is a correct result
+testthat::test_that("vectorized.add.to.cleaning.log.other.remove works - test 5 - expect a warning when we run the file with an incorrect other.requests. But it should still give is a correct result", {
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
+
+  test_data_l <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`,
+                  uuid = `_submission__uuid`)
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::filter(invalid.v == 'yes')
+
 
   testthat::expect_warning(
     actual_output <- vectorized.add.to.cleaning.log.other.remove(data = test_data_l,is.loop =T,
@@ -629,12 +1040,28 @@ testthat::test_that("vectorized.add.to.cleaning.log.other.remove works", {
   )
 
   testthat::expect_equal(actual_output,expected_output)
+})
 
-  # test 6 - provided non-loop data as a loop
+
+testthat::test_that("vectorized.add.to.cleaning.log.other.remove works - test 6 - provided non-loop data as a loop", {
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
+
+  test_data_l <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`,
+                  uuid = `_submission__uuid`)
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::filter(invalid.v == 'yes')
+
 
   testthat::expect_error(
     vectorized.add.to.cleaning.log.other.remove(data = test_data,is.loop=T,
-                                                other_requests = other_requests%>% dplyr::filter(!is.na(loop_index)))
+                                                other_requests = other_requests%>% dplyr::filter(!is.na(loop_index))),
+    "Parameter is.loop is = True, but data does not contain column 'loop_index'!\n"
   )
 
 })
@@ -665,7 +1092,7 @@ testthat::test_that("add.to.cleaning.log.trans.remove works", {
 
 })
 
-testthat::test_that("add.to.cleaning.log.other.recode.one works", {
+testthat::test_that("add.to.cleaning.log.other.recode.one works- test 1 - basic functionality on non-loop data", {
 
 
   filename <- testthat::test_path("fixtures","data_others.xlsx")
@@ -691,7 +1118,6 @@ testthat::test_that("add.to.cleaning.log.other.recode.one works", {
   tool.choices <- readxl::read_excel(filename, sheet = 'choices', col_types = 'text')
 
 
-  # test 1 - basic functionality on non-loop data
 
   actual_output <- add.to.cleaning.log.other.recode.one(
     data = test_data,
@@ -712,7 +1138,33 @@ testthat::test_that("add.to.cleaning.log.other.recode.one works", {
 
   testthat::expect_equal(actual_output,expected_output)
 
-  # test 2 trying to run a loop on non loop data
+})
+
+testthat::test_that("add.to.cleaning.log.other.recode.one works- test 2 trying to run a loop on non loop data", {
+
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
+
+  test_data_l <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`,
+                  uuid = `_submission__uuid`)
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::filter(ref.type == 'select_one',
+                  !is.na(existing.v))
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices', col_types = 'text')
+
 
   testthat::expect_error(
     actual_output <- add.to.cleaning.log.other.recode.one(
@@ -721,10 +1173,35 @@ testthat::test_that("add.to.cleaning.log.other.recode.one works", {
       is.loop = T,
       tool.survey = tool.survey,
       tool.choices = tool.choices
-    )
+    ),"Parameter is.loop is = True, but data does not contain column 'loop_index'!\n"
   )
+})
 
-  # test 3 - basic functionality on loop data
+testthat::test_that("add.to.cleaning.log.other.recode.one works- test 3 - basic functionality on loop data", {
+
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
+
+  test_data_l <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`,
+                  uuid = `_submission__uuid`)
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::filter(ref.type == 'select_one',
+                  !is.na(existing.v))
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices', col_types = 'text')
+
 
   actual_output <- add.to.cleaning.log.other.recode.one(
     data = test_data_l,
@@ -744,9 +1221,33 @@ testthat::test_that("add.to.cleaning.log.other.recode.one works", {
   )
 
   testthat::expect_equal(actual_output,expected_output)
+})
+
+testthat::test_that("add.to.cleaning.log.other.recode.one works- test 4 - indicating non loop on loop data", {
 
 
-  # test 4 - indicating non loop on loop data
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
+
+  test_data_l <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`,
+                  uuid = `_submission__uuid`)
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::filter(ref.type == 'select_one',
+                  !is.na(existing.v))
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices', col_types = 'text')
+
 
   testthat::expect_warning(
     actual_output <- add.to.cleaning.log.other.recode.one(
@@ -755,10 +1256,35 @@ testthat::test_that("add.to.cleaning.log.other.recode.one works", {
       is.loop = F,
       tool.survey = tool.survey,
       tool.choices = tool.choices
-    )
+    ),"Parameter is.loop is = False, but data contains column 'loop_index'. It will be assumed that this data is, actually, a loop!"
   )
+})
 
-  # test 5 - multiple choices on select_one produce an error
+testthat::test_that("add.to.cleaning.log.other.recode.one works- test 5 - multiple choices on select_one produce an error", {
+
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
+
+  test_data_l <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`,
+                  uuid = `_submission__uuid`)
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::filter(ref.type == 'select_one',
+                  !is.na(existing.v))
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices', col_types = 'text')
+
   other_requests_f <- other_requests
   other_requests_f[1,'existing.v'] <- 'fake1;fake2'
 
@@ -769,10 +1295,40 @@ testthat::test_that("add.to.cleaning.log.other.recode.one works", {
       is.loop = T,
       tool.survey = tool.survey,
       tool.choices = tool.choices
-    )
+    ),
+    "More than one existing.option for a select_one question"
   )
 
-  # test 6 - wrong choices produce an error
+})
+
+testthat::test_that("add.to.cleaning.log.other.recode.one works- test 6 - wrong choices produce an error", {
+
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
+
+  test_data_l <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`,
+                  uuid = `_submission__uuid`)
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::filter(ref.type == 'select_one',
+                  !is.na(existing.v))
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices', col_types = 'text')
+
+  other_requests_f <- other_requests
+
+
   other_requests_f[1,'existing.v'] <- 'fake1'
 
   testthat::expect_error(
@@ -782,9 +1338,39 @@ testthat::test_that("add.to.cleaning.log.other.recode.one works", {
       is.loop = T,
       tool.survey = tool.survey,
       tool.choices = tool.choices
-    )
+    ),'Choice is not in the list. UUID: 3dc15f20-8964-419c-9ab0-f7b9d367120e; recode.into: fake1'
   )
-  # test 7 - non-existing variables produce an error
+
+})
+
+testthat::test_that("add.to.cleaning.log.other.recode.one works- test 7 - non-existing variables produce an error", {
+
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
+
+  test_data_l <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`,
+                  uuid = `_submission__uuid`)
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::filter(ref.type == 'select_one',
+                  !is.na(existing.v))
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices', col_types = 'text')
+
+  other_requests_f <- other_requests
+
+
   other_requests_f[1,'name'] <- 'fake1'
 
   testthat::expect_error(
@@ -794,10 +1380,35 @@ testthat::test_that("add.to.cleaning.log.other.recode.one works", {
       is.loop = T,
       tool.survey = tool.survey,
       tool.choices = tool.choices
-    )
+    ),'One of the entries in your name column in the other_requests file is not present in the columns of the dataframe:\nfake1'
   )
+})
 
-  # test 8  - wrong 'existing column
+testthat::test_that("add.to.cleaning.log.other.recode.one works- test 8  - wrong 'existing' column", {
+
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
+
+  test_data_l <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`,
+                  uuid = `_submission__uuid`)
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::filter(ref.type == 'select_one',
+                  !is.na(existing.v))
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices', col_types = 'text')
+
   other_requests_f <- other_requests
   other_requests_f <- other_requests_f %>%  dplyr::rename(existing = existing.v)
 
@@ -808,13 +1419,14 @@ testthat::test_that("add.to.cleaning.log.other.recode.one works", {
       is.loop = T,
       tool.survey = tool.survey,
       tool.choices = tool.choices
-    )
+    ),'Your other_requests file does not containt the existing.v column.
+                If your existing column has another name please make sure to write it in the existing argument of this function'
   )
 
 })
 
 
-testthat::test_that("add.to.cleaning.log.other.recode.multiple works", {
+testthat::test_that("add.to.cleaning.log.other.recode.multiple works - test 1 - basic functionality on non-loop data", {
 
 
   filename <- testthat::test_path("fixtures","data_others.xlsx")
@@ -840,8 +1452,6 @@ testthat::test_that("add.to.cleaning.log.other.recode.multiple works", {
   tool.choices <- readxl::read_excel(filename, sheet = 'choices', col_types = 'text')
 
 
-  # test 1 - basic functionality on non-loop data
-
   actual_output <- add.to.cleaning.log.other.recode.multiple(
     data = test_data,
     other_requests = other_requests[1,],
@@ -863,8 +1473,33 @@ testthat::test_that("add.to.cleaning.log.other.recode.multiple works", {
   )
 
   testthat::expect_equal(actual_output,expected_output)
+})
 
-  # test 2 - trying to call loop for non-loop data
+testthat::test_that("add.to.cleaning.log.other.recode.multiple works - test 2 - trying to call loop for non-loop data", {
+
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
+
+  test_data_l <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`,
+                  uuid = `_submission__uuid`)
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::filter(ref.type == 'select_multiple',
+                  !is.na(existing.v))
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices', col_types = 'text')
+
 
   testthat::expect_error(
     add.to.cleaning.log.other.recode.multiple(
@@ -873,10 +1508,35 @@ testthat::test_that("add.to.cleaning.log.other.recode.multiple works", {
       is.loop = T,
       tool.survey = tool.survey,
       tool.choices = tool.choices
-    )
+    ),"Parameter is.loop is = True, but data does not contain column 'loop_index'!\n"
   )
+})
 
-  # test 3 - loop data, cumulative only has the 'other' response
+testthat::test_that("add.to.cleaning.log.other.recode.multiple works - test 3 - loop data, cumulative only has the 'other' response", {
+
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
+
+  test_data_l <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`,
+                  uuid = `_submission__uuid`)
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::filter(ref.type == 'select_multiple',
+                  !is.na(existing.v))
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices', col_types = 'text')
+
 
   actual_output <- add.to.cleaning.log.other.recode.multiple(
     data = test_data_l,
@@ -898,8 +1558,33 @@ testthat::test_that("add.to.cleaning.log.other.recode.multiple works", {
     new.value = c(NA,'0','1','person_with_disabilities')
   )
   testthat::expect_equal(actual_output,expected_output)
+})
 
-  # test 4 - loop data, cumulative has the 'other' response + some others
+testthat::test_that("add.to.cleaning.log.other.recode.multiple works - test 4 - loop data, cumulative has the 'other' response + some others", {
+
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
+
+  test_data_l <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`,
+                  uuid = `_submission__uuid`)
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::filter(ref.type == 'select_multiple',
+                  !is.na(existing.v))
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices', col_types = 'text')
+
 
   actual_output <- add.to.cleaning.log.other.recode.multiple(
     data = test_data_l,
@@ -921,8 +1606,33 @@ testthat::test_that("add.to.cleaning.log.other.recode.multiple works", {
     new.value = c(NA,'0','1','chronic_illness_which_affects_the_quality_of_life person_with_disabilities')
   )
   testthat::expect_equal(actual_output,expected_output)
+})
 
-  # test 5 calling non-loop on loop value
+testthat::test_that("add.to.cleaning.log.other.recode.multiple works - test 5 calling non-loop on loop value", {
+
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
+
+  test_data_l <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`,
+                  uuid = `_submission__uuid`)
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::filter(ref.type == 'select_multiple',
+                  !is.na(existing.v))
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices', col_types = 'text')
+
   testthat::expect_warning(
     add.to.cleaning.log.other.recode.multiple(
       data = test_data_l,
@@ -930,9 +1640,34 @@ testthat::test_that("add.to.cleaning.log.other.recode.multiple works", {
       is.loop = F,
       tool.survey = tool.survey,
       tool.choices = tool.choices
-    ))
+    ),"Parameter is.loop is = False, but data contains column 'loop_index'. It will be assumed that this data is, actually, a loop!")
+})
 
-  # test 6 using a fake variable should produce an error
+testthat::test_that("add.to.cleaning.log.other.recode.multiple works - test 6 using a fake variable should produce an error", {
+
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
+
+  test_data_l <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`,
+                  uuid = `_submission__uuid`)
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::filter(ref.type == 'select_multiple',
+                  !is.na(existing.v))
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices', col_types = 'text')
+
   other_requests_f <- other_requests
   other_requests_f$name <- 'fake'
 
@@ -942,10 +1677,35 @@ testthat::test_that("add.to.cleaning.log.other.recode.multiple works", {
       other_requests = other_requests_f[4,],
       is.loop = T,
       tool.survey = tool.survey,
-      tool.choices = tool.choices)
+      tool.choices = tool.choices),
+    'One of the entries in your name column in the other_requests file is not present in the columns of the dataframe:\nfake'
   )
+})
 
-  # test 7, multiple choices from select_multiple fit our requirements
+testthat::test_that("add.to.cleaning.log.other.recode.multiple works - test 7, multiple choices from select_multiple fit our requirements", {
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
+
+  test_data_l <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`,
+                  uuid = `_submission__uuid`)
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::filter(ref.type == 'select_multiple',
+                  !is.na(existing.v))
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices', col_types = 'text')
+
 
   other_requests_f <- other_requests
   other_requests_f[4,]$existing.v <- paste0(other_requests_f[4,]$existing.v,'; Older person')
@@ -972,8 +1732,31 @@ testthat::test_that("add.to.cleaning.log.other.recode.multiple works", {
 
 
   testthat::expect_equal(actual_output,expected_output)
+})
 
-  # test 8  - using a wrong choice name when recoding
+testthat::test_that("add.to.cleaning.log.other.recode.multiple works - test 8  - using a wrong choice name when recoding", {
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
+
+  test_data_l <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`,
+                  uuid = `_submission__uuid`)
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::filter(ref.type == 'select_multiple',
+                  !is.na(existing.v))
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices', col_types = 'text')
 
 
   other_requests_f <- other_requests
@@ -985,11 +1768,36 @@ testthat::test_that("add.to.cleaning.log.other.recode.multiple works", {
       other_requests = other_requests_f[4,],
       is.loop = T,
       tool.survey = tool.survey,
-      tool.choices = tool.choices)
+      tool.choices = tool.choices),'Choice is not in the list. UUID: efab8f40-dcb4-47c6-ba3f-fd89237a6f14; recode.into: fake'
   )
 
+})
 
-  # test 9  - wrong 'existing column
+testthat::test_that("add.to.cleaning.log.other.recode.multiple works - test 9  - wrong 'existing column", {
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
+
+  test_data_l <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`,
+                  uuid = `_submission__uuid`)
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::filter(ref.type == 'select_multiple',
+                  !is.na(existing.v))
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices', col_types = 'text')
+
+
   other_requests_f <- other_requests
   other_requests_f <- other_requests_f %>%  dplyr::rename(existing = existing.v)
 
@@ -999,7 +1807,8 @@ testthat::test_that("add.to.cleaning.log.other.recode.multiple works", {
       other_requests = other_requests_f[4,],
       is.loop = T,
       tool.survey = tool.survey,
-      tool.choices = tool.choices)
+      tool.choices = tool.choices),'Your other_requests file does not containt the existing.v column.
+                If your existing column has another name please make sure to write it in the existing argument of this function'
   )
 
 })
@@ -1007,7 +1816,7 @@ testthat::test_that("add.to.cleaning.log.other.recode.multiple works", {
 
 
 
-testthat::test_that("add.to.cleaning.log.other.recode works", {
+testthat::test_that("add.to.cleaning.log.other.recode works - test 1 - select_one loop", {
 
 
   filename <- testthat::test_path("fixtures","data_others.xlsx")
@@ -1031,7 +1840,6 @@ testthat::test_that("add.to.cleaning.log.other.recode works", {
   filename <- testthat::test_path("fixtures","tool_others.xlsx")
   tool.choices <- readxl::read_excel(filename, sheet = 'choices', col_types = 'text')
 
-  # test 1 - select_one loop
 
   actual_output <- add.to.cleaning.log.other.recode(
     data = test_data_l, other_requests= other_requests[1,],
@@ -1050,8 +1858,31 @@ testthat::test_that("add.to.cleaning.log.other.recode works", {
 
 
   testthat::expect_equal(actual_output,expected_output)
+})
 
-  # test 2 - select_multiple loop
+testthat::test_that("add.to.cleaning.log.other.recode works - test 2 - select_multiple loop", {
+
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
+
+  test_data_l <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`,
+                  uuid = `_submission__uuid`)
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::filter(!is.na(existing.v))
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices', col_types = 'text')
 
 
   actual_output <- add.to.cleaning.log.other.recode(
@@ -1072,8 +1903,32 @@ testthat::test_that("add.to.cleaning.log.other.recode works", {
     new.value = c(NA,'0','1','person_with_disabilities')
   )
   testthat::expect_equal(actual_output,expected_output)
+})
 
-  # test 3 - non-loop data select_one
+testthat::test_that("add.to.cleaning.log.other.recode works - test 3 - non-loop data select_one", {
+
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
+
+  test_data_l <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`,
+                  uuid = `_submission__uuid`)
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::filter(!is.na(existing.v))
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices', col_types = 'text')
+
 
   actual_output <- add.to.cleaning.log.other.recode(
     data = test_data, other_requests= other_requests[3,],
@@ -1091,8 +1946,32 @@ testthat::test_that("add.to.cleaning.log.other.recode works", {
   )
 
   testthat::expect_equal(actual_output,expected_output)
+})
 
-  # test 4 - non-loop data select_one
+testthat::test_that("add.to.cleaning.log.other.recode works - test 4 - non-loop data select_one", {
+
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
+
+  test_data_l <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`,
+                  uuid = `_submission__uuid`)
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::filter(!is.na(existing.v))
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices', col_types = 'text')
+
 
   actual_output <- add.to.cleaning.log.other.recode(
     data = test_data, other_requests= other_requests[5,],
@@ -1118,7 +1997,7 @@ testthat::test_that("add.to.cleaning.log.other.recode works", {
 
 
 
-testthat::test_that("add.to.cleaning.log.other.recode works", {
+testthat::test_that("add.to.cleaning.log.other.recode works - test 1 - loop", {
 
 
   filename <- testthat::test_path("fixtures","data_others.xlsx")
@@ -1142,7 +2021,6 @@ testthat::test_that("add.to.cleaning.log.other.recode works", {
   filename <- testthat::test_path("fixtures","tool_others.xlsx")
   tool.choices <- readxl::read_excel(filename, sheet = 'choices', col_types = 'text')
 
-  # test 1 - loop
 
   actual_output <- vectorized.add.to.cleaning.log.other.recode(
     data = test_data_l,
@@ -1159,8 +2037,8 @@ testthat::test_that("add.to.cleaning.log.other.recode works", {
     loop_index = c(rep('2802',2),rep('486',2),rep('494',4),rep('1168',4)),
     variable = c(rep(c('q2_3_3_1_employment_situation_other','q2_3_3_employment_situation'),2),
                  rep(c('q2_1_4_1_members_vulnerabilities_other','q2_1_4_members_vulnerabilities/other',
-                 'q2_1_4_members_vulnerabilities/person_with_disabilities',
-                 'q2_1_4_members_vulnerabilities'),2)),
+                       'q2_1_4_members_vulnerabilities/person_with_disabilities',
+                       'q2_1_4_members_vulnerabilities'),2)),
     issue= "Recoding other response",
     old.value = c('17 років, навчання в школі','other','Часний підприємиць','other','3 група інвалідності',
                   '1','0','other','Оформлюють інвалідність','1','0','chronic_illness_which_affects_the_quality_of_life other'),
@@ -1169,21 +2047,87 @@ testthat::test_that("add.to.cleaning.log.other.recode works", {
   )
 
   testthat::expect_equal(actual_output,expected_output)
+})
 
-  # test 2
+testthat::test_that("add.to.cleaning.log.other.recode works - test 2 get a warning but the output is still good", {
+
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
+
+  test_data_l <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`,
+                  uuid = `_submission__uuid`)
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::filter(!is.na(existing.v))
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices', col_types = 'text')
+
+
   testthat::expect_warning(
     actual_output2 <- vectorized.add.to.cleaning.log.other.recode(
-    data = test_data_l,
-    other_requests= other_requests[c(1,2,7,8),],
-    is.loop = F,
-    tool.survey=tool.survey,
-    tool.choices=tool.choices
-  ))
+      data = test_data_l,
+      other_requests= other_requests[c(1,2,7,8),],
+      is.loop = F,
+      tool.survey=tool.survey,
+      tool.choices=tool.choices
+    ))
+
+  expected_output <- data.frame(
+    uuid = c(rep('3dc15f20-8964-419c-9ab0-f7b9d367120e',2),rep('3402ebff-f400-478b-a77e-0153eeb67a86',2),
+             rep('5f5bac4d-b250-41dc-93de-1b27043a2869',4),rep('efab8f40-dcb4-47c6-ba3f-fd89237a6f14',4)),
+    loop_index = c(rep('2802',2),rep('486',2),rep('494',4),rep('1168',4)),
+    variable = c(rep(c('q2_3_3_1_employment_situation_other','q2_3_3_employment_situation'),2),
+                 rep(c('q2_1_4_1_members_vulnerabilities_other','q2_1_4_members_vulnerabilities/other',
+                       'q2_1_4_members_vulnerabilities/person_with_disabilities',
+                       'q2_1_4_members_vulnerabilities'),2)),
+    issue= "Recoding other response",
+    old.value = c('17 років, навчання в школі','other','Часний підприємиць','other','3 група інвалідності',
+                  '1','0','other','Оформлюють інвалідність','1','0','chronic_illness_which_affects_the_quality_of_life other'),
+    new.value = c(NA,'student_not_working',NA,'officially_employed_permanen_job',NA,'0','1','person_with_disabilities',
+                  NA,'0','1','chronic_illness_which_affects_the_quality_of_life person_with_disabilities')
+  )
+
+
   # but still equal to the output we need
   testthat::expect_equal(actual_output2,expected_output)
 
+})
 
-  # test 3 - non_loop
+testthat::test_that("add.to.cleaning.log.other.recode works - test 3 - non_loop", {
+
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
+
+  test_data_l <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`,
+                  uuid = `_submission__uuid`)
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::filter(!is.na(existing.v))
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices', col_types = 'text')
+
 
   actual_output <- vectorized.add.to.cleaning.log.other.recode(
     data = test_data,
@@ -1204,29 +2148,80 @@ testthat::test_that("add.to.cleaning.log.other.recode works", {
                  'q10_2_1_discrimination_idp',
                  'q2_4_3_1_main_cause_other',"q2_4_3_main_cause/other","q2_4_3_main_cause/security_considerations",
                  'q2_4_3_main_cause'
-                 ),
+    ),
     issue= "Recoding other response",
     old.value = c('29','other','29','other','Так зі сторони проживаючих тут студентів','1','0','other',
                   'Окупована територія','1','0','other'),
     new.value = c(NA,'UKRs006888',NA,'UKRs006888',NA,'0','1',
                   'yes_we_feel_discriminated_against_when_trying_to_access_basic_services',
                   NA,'0','1','security_considerations'
-                  )
+    )
   )
 
   testthat::expect_equal(actual_output,expected_output)
+})
 
-  # test 4 - calling loop on non loop data
+testthat::test_that("add.to.cleaning.log.other.recode works - test 4 - calling loop on non loop data", {
+
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
+
+  test_data_l <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`,
+                  uuid = `_submission__uuid`)
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::filter(!is.na(existing.v))
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices', col_types = 'text')
+
+
   testthat::expect_error(
-  vectorized.add.to.cleaning.log.other.recode(
-    data = test_data,
-    other_requests= other_requests[c(3:6),],
-    is.loop = T,
-    tool.survey=tool.survey,
-    tool.choices=tool.choices
-  ))
+    vectorized.add.to.cleaning.log.other.recode(
+      data = test_data,
+      other_requests= other_requests[c(3:6),],
+      is.loop = T,
+      tool.survey=tool.survey,
+      tool.choices=tool.choices
+    ),"Parameter is.loop is = True, but data does not contain column 'loop_index'!\n")
+})
 
-  # test 5 - some of the rows of the existing variable are empty
+testthat::test_that("add.to.cleaning.log.other.recode works - test 5 - some of the rows of the existing variable are empty", {
+
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
+
+  test_data_l <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`,
+                  uuid = `_submission__uuid`)
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::filter(!is.na(existing.v))
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices', col_types = 'text')
+
+
+
   other_requests_f <- other_requests
   other_requests_f[3,'existing.v'] <- NA
 
@@ -1237,24 +2232,65 @@ testthat::test_that("add.to.cleaning.log.other.recode works", {
       is.loop = T,
       tool.survey=tool.survey,
       tool.choices=tool.choices
-    )
-    )
+    ),"Some of the rows in the existing column are NA, are you sure you're uploading only existing entries?"
+  )
+})
 
-  # test 6 some of the columns provided in the other_requests are not in the data
+testthat::test_that("add.to.cleaning.log.other.recode works - test 6 some of the columns provided in the other_requests are not in the data", {
+
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
+
+  test_data_l <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`,
+                  uuid = `_submission__uuid`)
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::filter(!is.na(existing.v))
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices', col_types = 'text')
+  expected_output <- data.frame(
+    uuid = c(rep('a46a1c10-bf18-4594-a0be-99447fa22116',2),rep('51862558-1b68-466a-8e71-be2817dce5aa',2),
+             rep('f79999d6-192f-4b9b-aee9-5f613bd4e770',8)),
+    loop_index = NA_character_,
+    variable = c(rep(c('q0_4_2_1_center_idp_other','q0_4_2_center_idp'),2),
+                 'q10_2_1_1_discrimination_idp_other',"q10_2_1_discrimination_idp/other" ,
+                 "q10_2_1_discrimination_idp/yes_we_feel_discriminated_against_when_trying_to_access_basic_services",
+                 'q10_2_1_discrimination_idp',
+                 'q2_4_3_1_main_cause_other',"q2_4_3_main_cause/other","q2_4_3_main_cause/security_considerations",
+                 'q2_4_3_main_cause'
+    ),
+    issue= "Recoding other response",
+    old.value = c('29','other','29','other','Так зі сторони проживаючих тут студентів','1','0','other',
+                  'Окупована територія','1','0','other'),
+    new.value = c(NA,'UKRs006888',NA,'UKRs006888',NA,'0','1',
+                  'yes_we_feel_discriminated_against_when_trying_to_access_basic_services',
+                  NA,'0','1','security_considerations'
+    )
+  )
+
 
   testthat::expect_warning(
-  actual_output3 <- vectorized.add.to.cleaning.log.other.recode(
-    data = test_data,
-    other_requests= other_requests[c(2:6),],
-    is.loop = F,
-    tool.survey=tool.survey,
-    tool.choices=tool.choices
-  ))
+    actual_output3 <- vectorized.add.to.cleaning.log.other.recode(
+      data = test_data,
+      other_requests= other_requests[c(2:6),],
+      is.loop = F,
+      tool.survey=tool.survey,
+      tool.choices=tool.choices
+    ))
+
   # but still it should give us the correct resuls
-
   testthat::expect_equal(actual_output3,expected_output)
-
-
 
 })
 

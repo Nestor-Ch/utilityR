@@ -1,4 +1,4 @@
-testthat::test_that('select.multiple.check works',{
+testthat::test_that('select.multiple.check works, test 1 test correctness of the work when empty output',{
 
   tool.survey_test_dir <- testthat::test_path('fixtures','tool.survey_full.xlsx')
   test_tool.survey <- readxl::read_excel(tool.survey_test_dir)
@@ -11,16 +11,30 @@ testthat::test_that('select.multiple.check works',{
   test_raw.main <- test_raw.main %>% dplyr::rename(uuid=`_uuid`)
   output <- select.multiple.check(test_raw.main, test_tool.survey, id_col="uuid")
   testthat::expect_equal(nrow(output), 20)
+})
 
-  # test correctness of the work when tool.survey doesn't match data
+testthat::test_that('select.multiple.check works, test 2  test correctness of the work when tool.survey doesnt match data',{
+
+  tool.survey_test_dir <- testthat::test_path('fixtures','tool.survey_full.xlsx')
+  test_tool.survey <- readxl::read_excel(tool.survey_test_dir)
+
+  raw.data_test_dir <- testthat::test_path('fixtures','utilityR_raw_data.xlsx')
+  test_raw.main <- readxl::read_excel(raw.data_test_dir)[1:100,]
+  test_raw.main <- test_raw.main %>% dplyr::rename(uuid=`_uuid`)
+
 
   tool.wrong_survey_test_dir <- testthat::test_path('fixtures','tool.survey_wrong.xlsx')
   test_tool.wrong_survey <- readxl::read_excel(tool.wrong_survey_test_dir)
 
   testthat::expect_error(select.multiple.check(test_raw.main,
-                                               test_tool.wrong_survey, id_col="uuid"))
+                                               test_tool.wrong_survey, id_col="uuid"),
+                         "Tool.survey mismatches data or data doesn't have any select_multiple questions")
+})
 
-  # test correctness of the work on the real data
+testthat::test_that('select.multiple.check works, test 3 test correctness of the work on the real data',{
+  tool.survey_test_dir <- testthat::test_path('fixtures','tool.survey_full.xlsx')
+  test_tool.survey <- readxl::read_excel(tool.survey_test_dir)
+
 
   raw.data_test_dir <- testthat::test_path('fixtures','utilityR_raw_data.xlsx')
   test_raw.main <- readxl::read_excel(raw.data_test_dir)
@@ -39,8 +53,10 @@ testthat::test_that('select.multiple.check works',{
   test_raw.main[2, "b7_vehicle_fuel/diesel_vehicles"] = "1"
   output <- select.multiple.check(test_raw.main, test_tool.survey, id_col="uuid")
   testthat::expect_equal(nrow(output), 93)
+})
 
-  # test error when tool.survey doesn't consist select_multiple questions
+testthat::test_that('select.multiple.check works, test 4 error when tool.survey doesnt consist select_multiple questions',{
+
 
   survey.df <- data.frame(
     type = c("select_one", "text", "text", "integer"),
@@ -53,7 +69,11 @@ testthat::test_that('select.multiple.check works',{
     name = rep("Alex", 5)
   )
 
-  testthat::expect_error(select.multiple.check(data, survey.df, id_col="uuid"))
+  testthat::expect_error(select.multiple.check(data, survey.df, id_col="uuid"),
+                         "Tool.survey mismatches data or data doesn't have any select_multiple questions")
+})
+
+testthat::test_that('select.multiple.check works, test 4 - propper input, proper output',{
 
   # test correctness
 

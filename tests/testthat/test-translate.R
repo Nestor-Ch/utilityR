@@ -1,4 +1,4 @@
-testthat::test_that("find.responses works", {
+testthat::test_that("find.responses works - different mini tests on fake data.", {
   #test 1
   q.db <- data.frame()
   testdata <- data.frame(age = c(21,32), occupation = c("cook","train conductor"),uuid = c("abc","def"))
@@ -76,19 +76,22 @@ testthat::test_that("find.responses works", {
 
 
 
-testthat::test_that("translate.responses works", {
+testthat::test_that("translate.responses works test 0  - no api key provided", {
 
-  # test  0
   test_data <-  data.frame(response = c("Тест","Українською","Мовою","Майже","Як","ЗНО"))
 
   testthat::expect_error(
-    translate.responses(test_data, values_from = 'response',directory = tmp_dir)
+    translate.responses(test_data, values_from = 'response',directory = tmp_dir),
+    'Please input the api key. Usually we store ours in "resources/microsoft.api.key_regional.R", copy it from there and insert.'
   )
 
+})
+
+testthat::test_that("translate.responses works test 1  - normal run", {
+
+  test_data <-  data.frame(response = c("Тест","Українською","Мовою","Майже","Як","ЗНО"))
 
   api_path <- Sys.getenv("API_KEY")
-
-  #test 1 - normal run
 
 
   tmp_dir <- tempdir()
@@ -104,8 +107,17 @@ testthat::test_that("translate.responses works", {
   testthat::expect_true(file.exists(paste0(tmp_dir, "translate_info.csv")))
 
 
-  # test 2 test that the file will be appended if we run it 2 times
+  unlink(paste0(tmp_dir, "translate_info.csv"))
+})
 
+
+testthat::test_that("translate.responses works test  2 test that the file will be appended if we run it 2 times", {
+
+  test_data <-  data.frame(response = c("Тест","Українською","Мовою","Майже","Як","ЗНО"))
+
+  api_path <- Sys.getenv("API_KEY")
+
+  tmp_dir <- tempdir()
 
   test_data <-  data.frame(response = c("Тест","два"))
 
@@ -117,9 +129,18 @@ testthat::test_that("translate.responses works", {
                                 response.en = c('test','two')
   )
 
-  unlink(paste0(tmp_dir, "translate_info.csv"))
+  testthat::expect_equal(actual_result,expected_result)
 
-#  test 3 - empty df is fed
+  unlink(paste0(tmp_dir, "translate_info.csv"))
+})
+
+testthat::test_that("translate.responses works, test 3 - empty df is fed", {
+
+  test_data <-  data.frame(response = c("Тест","Українською","Мовою","Майже","Як","ЗНО"))
+
+  api_path <- Sys.getenv("API_KEY")
+
+
   tmp_dir <- tempdir()
 
   test_data <-  data.frame(response = NA_character_)
@@ -132,11 +153,14 @@ testthat::test_that("translate.responses works", {
 
   testthat::expect_true(file.exists(paste0(tmp_dir, "translate_info.csv")))
   unlink(paste0(tmp_dir, "translate_info.csv"))
+})
 
 
+testthat::test_that("translate.responses works, test X - super large vector, we'll cancel that one.", {
 
-  #test X - super large vector, we'll cancel that one.
   tmp_dir <- tempdir()
+  api_path <- Sys.getenv("API_KEY")
+
 
   test_data <-  data.frame(response = OpenRepGrid::randomSentences(10000,nwords = 15))
 

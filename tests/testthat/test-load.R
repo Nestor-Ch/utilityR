@@ -4,7 +4,7 @@ testthat::test_that("load.label_colname works", {
   testthat::expect_equal(actual_output,"label::English")
 })
 
-testthat::test_that("load.tool.choices works", {
+testthat::test_that("load.tool.choices works - test 1 - small data", {
   ## colnames are correct
   testdata <- testthat::test_path("fixtures","tool.xlsx")
   label_colname <- "label::English"
@@ -15,6 +15,9 @@ testthat::test_that("load.tool.choices works", {
     dplyr::rename("label::English" = `label..English`)%>% names
 
   testthat::expect_equal(actual_output,expected_output)
+})
+
+testthat::test_that("load.tool.choices works - test 2 - full data", {
 
   ## Correct output
   testdata <- testthat::test_path("fixtures","tool.xlsx")
@@ -44,7 +47,7 @@ testthat::test_that("load.tool.choices works", {
 })
 
 
-testthat::test_that("load.tool.survey works", {
+testthat::test_that("load.tool.survey works, general functionality", {
   testdata <- testthat::test_path("fixtures","tool.xlsx")
   label_colname <- "label::English"
   actual_output <- load.tool.survey(testdata,label_colname, keep_cols=F)
@@ -96,7 +99,7 @@ testthat::test_that("load.tool.survey works", {
 
 
 
-testthat::test_that("load.tool.survey works", {
+testthat::test_that("load.tool.survey works,  general functionality", {
   testdata <- testthat::test_path("fixtures","tool.xlsx")
   label_colname <- "label::English"
   actual_output <- load.tool.survey(testdata,label_colname, keep_cols=F)
@@ -149,7 +152,7 @@ testthat::test_that("load.tool.survey works", {
 
 
 
-testthat::test_that("load.requests works", {
+testthat::test_that("load.requests works, test 1 general functionality", {
 
   expected_output <- data.frame(uuid = c('a46a1c10-bf18-4594-a0be-99447fa22116','51862558-1b68-466a-8e71-be2817dce5aa','51862558-1b68-466a-8e71-be2817dce5aa',
                                          '0cc0f1d0-ff99-46e7-87c3-5699174dc033','6d4506b5-f3ab-4d88-abf3-48c1eb5171f6'),
@@ -171,30 +174,52 @@ testthat::test_that("load.requests works", {
   actual_output <- load.requests(dir = test_dir,filename.pattern ='test_requests_1', sheet = 'Sheet2')
 
   testthat::expect_equal(expected_output, actual_output)
+})
 
+testthat::test_that("load.requests works test 2 - expect error if the filename is wrong", {
+  test_dir = testthat::test_path('fixtures')
   # expect error if the filename is wrong
 
+  testthat::expect_warning(load.requests(dir = test_dir,filename.pattern ='fake_error',
+                                         sheet = 'Sheet2', validate = TRUE),
+                           "Files with fake error requests not found!")
+})
 
-  testthat::expect_warning(load.requests(dir = test_dir,filename.pattern ='fake_error', sheet = 'Sheet2', validate = TRUE))
+testthat::test_that("load.requests works test 3 - expect warning for the case if the ncol is different", {
+  test_dir = testthat::test_path('fixtures')
 
-  # expect warning for the case if the ncol is different
+  testthat::expect_warning(load.requests(dir = test_dir,filename.pattern ='test_requests_', sheet = 'Sheet2'),
+                           "Number of columns differs between files! Check them to make sure everything is correct, please!")
+})
 
-  testthat::expect_warning(load.requests(dir = test_dir,filename.pattern ='test_requests_', sheet = 'Sheet2'))
+testthat::test_that("load.requests works test 4 - expect warning in the case of validation - one of the columns is missing all entries", {
+  test_dir = testthat::test_path('fixtures')
 
-  # expect warning in the case of validation - one of the columns is missing all entries
+  testthat::expect_warning(load.requests(dir = test_dir,filename.pattern ='test_requests_1_1',
+                                         sheet = 'Sheet2', validate = TRUE),
+                           'Missing entries:\n 51862558-1b68-466a-8e71-be2817dce5aa')
+})
 
-  testthat::expect_warning(load.requests(dir = test_dir,filename.pattern ='test_requests_1_1', sheet = 'Sheet2', validate = TRUE))
+testthat::test_that("load.requests works test 5 - expect warning, one column has multiple entries", {
+  test_dir = testthat::test_path('fixtures')
 
-  # expect warning, one column has multiple entries
+  testthat::expect_warning(load.requests(dir = test_dir,filename.pattern ='test_requests_1_2',
+                                         sheet = 'Sheet2', validate = TRUE),
+                           'Multiple columns selected:\n 6d4506b5-f3ab-4d88-abf3-48c1eb5171f6')
+})
 
-  testthat::expect_warning(load.requests(dir = test_dir,filename.pattern ='test_requests_1_2', sheet = 'Sheet2', validate = TRUE))
+testthat::test_that("load.requests works test 6 - expect warning, missing TRUE column", {
+  test_dir = testthat::test_path('fixtures')
 
-  # expect warning, missing TRUE column
+  testthat::expect_error(load.requests(dir = test_dir,
+                                       filename.pattern ='test_requestsmissing_v_column',
+                                       sheet = 'Sheet2', validate = TRUE),
+                         "One or more of 'true', 'existing', 'invalid' columns not found in requests files.")
 
-  testthat::expect_error(load.requests(dir = test_dir,filename.pattern ='test_requestsmissing_v_column', sheet = 'Sheet2', validate = TRUE))
+})
 
-
-  # no ref.type column
+testthat::test_that("load.requests works test 7 - no ref.type column but should still work", {
+  test_dir = testthat::test_path('fixtures')
 
   expected_output_2 <- data.frame(uuid = c('0cc0f1d0-ff99-46e7-87c3-5699174dc033','6d4506b5-f3ab-4d88-abf3-48c1eb5171f6'),
                                   loop_index = as.character(rep(NA,2)),
@@ -210,7 +235,8 @@ testthat::test_that("load.requests works", {
                                   check = c(2,2)
   ) %>% dplyr::tibble()
 
-  actual_output_2 <- load.requests(dir = test_dir,filename.pattern ='test_requestsnoref_column', sheet = 'Sheet2', validate=T)
+  actual_output_2 <- load.requests(dir = test_dir,filename.pattern ='test_requestsnoref_column',
+                                   sheet = 'Sheet2', validate=T)
 
   testthat::expect_equal(expected_output_2, actual_output_2)
 
@@ -219,7 +245,7 @@ testthat::test_that("load.requests works", {
 
 
 
-testthat::test_that('load.audit.files works',{
+testthat::test_that('load.audit.files works, tests of general functionality',{
 
   test_audit_path <- testthat::test_path('fixtures/audits_test')
 
@@ -282,17 +308,41 @@ testthat::test_that('load.audit.files works',{
     ) %>%
     dplyr::mutate(across(dplyr::ends_with('value'),~ ifelse(.x == '' |.x == ' '|.x == '\n',NA_character_, .x )))
   testthat::expect_equal(actual_result,expected_output)
+})
 
-  # test 3 - throw a warning if I didn't provide the correct dir
+testthat::test_that('load.audit.files works, warning if the dir is wrong',{
+
+  test_path <- testthat::test_path('fixtures',"data_others.xlsx")
+  test_data <-  readxl::read_excel(test_path, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
+
   test_audit_path <- testthat::test_path('fixtures/audits_test/empty_test')
   testthat::expect_warning(
   load.audit.files(dir.audits = test_audit_path,add.uuid2=F,
-                   uuids = test_data$uuid)
+                   uuids = test_data$uuid),
+  "No relevant audit logs found!"
   )
+})
 
+testthat::test_that('load.audit.files works, should work if we specify add.uuid2 = T',{
+
+  test_path <- testthat::test_path('fixtures',"data_others.xlsx")
+  test_data <-  readxl::read_excel(test_path, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
 
   # test 4 if add uuid2
   test_audit_path <- testthat::test_path('fixtures/audits_test')
+
+  ls <- list.files(test_audit_path, pattern="audit.csv", recursive=TRUE, full.names=TRUE)
+  data_test <- data.frame()
+  for (link in ls){
+    sp <- stringr::str_split(link, "\\/")[[1]]
+    uuid <- sp[length(sp)-1]
+    tata_temp <- readr::read_csv(link, show_col_types = FALSE, locale = readr::locale(encoding = "UTF-8")) %>%
+      dplyr::mutate(uuid=uuid, .before=1)
+    data_test = rbind(data_test,tata_temp)
+  }
+
 
   actual_result <- load.audit.files(dir.audits = test_audit_path, track.changes = T,
                                     uuids = test_data$uuid, add.uuid2 =T)
@@ -318,15 +368,4 @@ testthat::test_that('load.audit.files works',{
 
 
 })
-
-
-
-
-
-
-
-
-
-
-
 

@@ -1,4 +1,4 @@
-testthat::test_that("create.deletion.log works", {
+testthat::test_that("create.deletion.log works - test 1 - general functionality", {
 
   # get the dataframe
   filename <- testthat::test_path("fixtures","data_others.xlsx")
@@ -24,9 +24,19 @@ testthat::test_that("create.deletion.log works", {
     dplyr::tibble()
 
   testthat::expect_equal(actual_output,expected_output)
+})
+
+testthat::test_that("create.deletion.log works - test 2 - test that it returns an empty df if you feed it an empty df", {
+
+  # get the dataframe
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
 
 
-  # test 2 - test that it returns an empty df if you feed it an empty df
+  del_test <- dplyr::filter(test_data, uuid %in% c("37a0e3d8-8081-4b01-be36-aecf37495a31","98201d53-a8fa-4e10-84f2-e48ec3f8f98b",
+                                                   "39c79139-987d-4f57-a21b-a5a3e92a22e7"))
+
 
   actual_output <- create.deletion.log(data = del_test[0,],
                                        col_enum = 'q0_2_enum_id',
@@ -34,19 +44,40 @@ testthat::test_that("create.deletion.log works", {
                                        reason = 'test')
 
   testthat::expect_equal(actual_output,data.frame())
+})
 
-  # test 3 - expect an error if we provide a non-existent col_enum
+testthat::test_that("create.deletion.log works - test 3 - expect an error if we provide a non-existent col_enum", {
+
+  # get the dataframe
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
+
+
+  del_test <- dplyr::filter(test_data, uuid %in% c("37a0e3d8-8081-4b01-be36-aecf37495a31","98201d53-a8fa-4e10-84f2-e48ec3f8f98b",
+                                                   "39c79139-987d-4f57-a21b-a5a3e92a22e7"))
+
 
   testthat::expect_error(
-
     actual_output <- create.deletion.log(data = del_test,
                                          col_enum = 'fake_col',
                                          is.loop = F,
                                          reason = 'test')
 
   )
+})
 
-  # test 4 - expect an error if say that our data is a loop but it isn't
+testthat::test_that("create.deletion.log works - test 4 - expect an error if say that our data is a loop but it isn't", {
+
+  # get the dataframe
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
+
+
+  del_test <- dplyr::filter(test_data, uuid %in% c("37a0e3d8-8081-4b01-be36-aecf37495a31","98201d53-a8fa-4e10-84f2-e48ec3f8f98b",
+                                                   "39c79139-987d-4f57-a21b-a5a3e92a22e7"))
+
 
   testthat::expect_error(
 
@@ -54,16 +85,21 @@ testthat::test_that("create.deletion.log works", {
                                          data.main = test_data,
                                          col_enum = 'q0_2_enum_id',
                                          is.loop = T,
-                                         reason = 'test')
+                                         reason = 'test'),
+    "Parameter is.loop is = True, but data does not contain column 'loop_index'!\n"
   )
 
+})
 
-  # test 5 - the function works with loops
+testthat::test_that("create.deletion.log works - test 5 - the function works with loops", {
 
   filename <- testthat::test_path("fixtures","data_others.xlsx")
   test_data_l <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
     dplyr::rename(loop_index = `_index`,
                   uuid = `_submission__uuid`)
+
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
 
 
   del_test <- dplyr::filter(test_data_l, loop_index %in% c('904',"276","999"))
@@ -83,39 +119,87 @@ testthat::test_that("create.deletion.log works", {
     dplyr::tibble()
 
   testthat::expect_equal(actual_output,expected_output)
+})
+
+testthat::test_that("create.deletion.log works - test 6 - is loop = T, but we haven't provided the main data", {
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data_l <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`,
+                  uuid = `_submission__uuid`)
+
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
 
 
-  # test 6 - is loop = T, but we haven't provided the main data
+  del_test <- dplyr::filter(test_data_l, loop_index %in% c('904',"276","999"))
+
 
   testthat::expect_error(
     create.deletion.log(data = del_test,
                         col_enum = 'q0_2_enum_id',
                         is.loop = T,
-                        reason = 'test')
+                        reason = 'test'),
+    "Your data is a loop but you haven't provided the main dataframe. Please enter the data.main parameter"
   )
+})
 
-  # test 7 - is loop = F, but our data is a loop, and we haven't provided the main data
-  # we should get both a warning and an error
+testthat::test_that(
+  "create.deletion.log works - test 7 - is loop = F, but our data is a loop,
+  and we haven't provided the main data we should get both a warning and an error", {
 
-  testthat::expect_error(
-    testthat::expect_warning(
-      create.deletion.log(data = del_test,
-                          col_enum = 'q0_2_enum_id',
-                          is.loop = F,
-                          reason = 'test')
-    ))
+    filename <- testthat::test_path("fixtures","data_others.xlsx")
+    test_data_l <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+      dplyr::rename(loop_index = `_index`,
+                    uuid = `_submission__uuid`)
+    del_test <- dplyr::filter(test_data_l, loop_index %in% c('904',"276","999"))
 
-  # test 8 - is loop = F, but our data is aloop
+
+    testthat::expect_error(
+      testthat::expect_warning(
+        create.deletion.log(data = del_test,
+                            col_enum = 'q0_2_enum_id',
+                            is.loop = F,
+                            reason = 'test'),
+        "Parameter is.loop is = False, but data contains column 'loop_index'. It will be assumed that this data is, actually, a loop!\n
+              N.B.: for the future, you can use apply.changes without the is.loop parameter.\n"
+        ),"Your data is a loop but you haven't provided the main dataframe. Please enter the data.main parameter"
+      )
+
+  })
+
+
+testthat::test_that("create.deletion.log works - test 8 - is loop = F, but our data is aloop", {
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data_l <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`,
+                  uuid = `_submission__uuid`)
+
+  test_data <- readxl::read_excel(filename, col_types = 'text')%>%
+    dplyr::rename(uuid = `_uuid`)
+
+  del_test <- dplyr::filter(test_data_l, loop_index %in% c('904',"276","999"))
 
   testthat::expect_warning(
     create.deletion.log(data = del_test,
                         data.main = test_data,
                         col_enum = 'q0_2_enum_id',
                         is.loop = F,
-                        reason = 'test')
+                        reason = 'test'),
+    "Parameter is.loop is = False, but data contains column 'loop_index'. It will be assumed that this data is, actually, a loop!\n
+              N.B.: for the future, you can use apply.changes without the is.loop parameter.\n"
   )
 
-  # test 9 - our data doesn't have a uuid column
+})
+
+testthat::test_that("create.deletion.log works - test 9 - our data doesn't have a uuid column", {
+
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data_l <- readxl::read_excel(filename, col_types = 'text', sheet = 'loop')%>%
+    dplyr::rename(loop_index = `_index`,
+                  uuid = `_submission__uuid`)
+
 
   del_test <- dplyr::filter(test_data_l, loop_index %in% c('904',"276","999")) %>%
     dplyr::select(-uuid)
@@ -126,14 +210,15 @@ testthat::test_that("create.deletion.log works", {
                         data.main = test_data,
                         col_enum = 'q0_2_enum_id',
                         is.loop = T,
-                        reason = 'test')
+                        reason = 'test'),
+    "Your data doesn't have a uuid column, please add it and re-run the script"
   )
 
 })
 
 
 
-testthat::test_that('create.follow.up.requests works',{
+testthat::test_that('create.follow.up.requests works - test 1 general functionality',{
 
   test_frame <- data.frame(
     uuid = c('uuid','uuid2'),
@@ -157,7 +242,10 @@ testthat::test_that('create.follow.up.requests works',{
 
   testthat::expect_true(file.exists(paste0(temp_dir, "testo.xlsx")))
 
-  # test 2
+})
+
+testthat::test_that('create.follow.up.requests works - test 2',{
+
 
   test_frame <- data.frame(
     uuid = c('uuid','uuid2'),
@@ -204,8 +292,8 @@ testthat::test_that('create.translate.requests works',{
 
 
   actual_result <- create.translate.requests(
-                                             responses.j = test_frame,
-                                             response_colname = 'responses')
+    responses.j = test_frame,
+    response_colname = 'responses')
   expected_result <- dplyr::tibble(
     uuid = c('test_uuid','testo_2','testo_3'),
     loop_index = NA,
@@ -219,18 +307,12 @@ testthat::test_that('create.translate.requests works',{
     "TRUE other (provide a better translation if necessary)" = NA,
     "EXISTING other (copy the exact wording from the options in column choices.label)"=NA,
     "INVALID other (insert yes or leave blank)"=NA
-    )
+  )
 
   testthat::expect_equal(actual_result,expected_result)
 
 
 })
-
-
-
-
-
-
 
 
 

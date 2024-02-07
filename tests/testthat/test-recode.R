@@ -1,4 +1,4 @@
-testthat::test_that("recode.set.NA.if works", {
+testthat::test_that("recode.set.NA.if works, test 1 - basic functionality", {
 
   #upload the relevant data
   test_path <- testthat::test_path("fixtures","utilityR_raw_data.xlsx")
@@ -19,13 +19,30 @@ testthat::test_that("recode.set.NA.if works", {
                   issue = 'test_issue')
 
   testthat::expect_equal(actual_output,expected_output_1)
+})
 
-  # Test 2
+testthat::test_that("recode.set.NA.if works, test 2 gives an error when one of the variables is non-existant", {
+
+  #upload the relevant data
+  test_path <- testthat::test_path("fixtures","utilityR_raw_data.xlsx")
+  test_data <- readxl::read_excel(test_path)[1:10,]
+
+  num_test <- c('b11_gas_heating_price','b10_gas_vehicle_price','b9_diesel_official_price','b8_petrol_official_price')
+  code_test_1 <- c('7.96','22','22','50')
+
+
   text_test <- c('Fake_var_for_test','Fake_var_2','b7_vehicle_fuel','b18_financial_factors','c3_ukrposhta_available')
 
-  testthat::expect_error(recode.set.NA.if(test_data,text_test, code_test_1, issue= 'test_issue'))
+  testthat::expect_error(recode.set.NA.if(test_data,text_test, code_test_1, issue= 'test_issue'),
+                         'Selected variable names are not present in the data: Fake_var_for_test, Fake_var_2')
+})
 
-  # Test 3
+testthat::test_that("recode.set.NA.if works, test 3 non numeric entries", {
+
+  #upload the relevant data
+  test_path <- testthat::test_path("fixtures","utilityR_raw_data.xlsx")
+  test_data <- readxl::read_excel(test_path)[1:10,]
+
 
   text_test_2 <- c('b7_vehicle_fuel','b18_financial_factors')
   code_test_2 <- c('none','not_afford')
@@ -38,8 +55,14 @@ testthat::test_that("recode.set.NA.if works", {
                   issue = 'test_issue')
 
   testthat::expect_equal(expected_output_2,actual_output)
+})
 
-  # Test 4
+
+testthat::test_that("recode.set.NA.if works, test 4 entering a single entry", {
+
+  #upload the relevant data
+  test_path <- testthat::test_path("fixtures","utilityR_raw_data.xlsx")
+  test_data <- readxl::read_excel(test_path)[1:10,]
 
   text_test_3 <- c('a2_partner')
   code_test_3 <- c('JERU')
@@ -56,18 +79,25 @@ testthat::test_that("recode.set.NA.if works", {
 })
 
 
-testthat::test_that("recode.set.NA.regex works", {
+testthat::test_that("recode.set.NA.regex works, test 1, error when non-existent variable is provided.", {
 
   #upload the relevant data
   test_path <- testthat::test_path("fixtures","utilityR_raw_data.xlsx")
   test_data <- readxl::read_excel(test_path)[1:10,]
 
-  # Test 1
 
   text_test <- c('Fake_var_for_test','Fake_var_2','b7_vehicle_fuel','b18_financial_factors','c3_ukrposhta_available')
-  testthat::expect_error(recode.set.NA.regex(test_data,text_test, pattern = '^J.*', issue= 'test_issue'))
+  testthat::expect_error(recode.set.NA.regex(test_data,text_test, pattern = '^J.*', issue= 'test_issue'),
+                         'Selected variable names are not present in the data: Fake_var_for_test, Fake_var_2')
+})
 
-  # Test 2
+testthat::test_that("recode.set.NA.regex works, test 2, basic functionality works", {
+
+  #upload the relevant data
+  test_path <- testthat::test_path("fixtures","utilityR_raw_data.xlsx")
+  test_data <- readxl::read_excel(test_path)[1:10,]
+
+
 
   text_test_2 <- c('a2_partner','a2_1_enum_id')
 
@@ -82,18 +112,25 @@ testthat::test_that("recode.set.NA.regex works", {
 
 })
 
-testthat::test_that("recode.set.NA works", {
+
+testthat::test_that("recode.set.NA works, test 1, breaks if you provide it with a non-existant variable", {
 
   #upload the relevant data
   test_path <- testthat::test_path("fixtures","utilityR_raw_data.xlsx")
   test_data <- readxl::read_excel(test_path)[1:10,]
 
-  # Test 1
 
   text_test <- c('Fake_var_for_test','Fake_var_2','b7_vehicle_fuel','b18_financial_factors','c3_ukrposhta_available')
-  testthat::expect_error(recode.set.NA(test_data,text_test, issue= 'test_issue'))
+  testthat::expect_error(recode.set.NA(test_data,text_test, issue= 'test_issue'),
+                         'Selected variable names are not present in the data: Fake_var_for_test, Fake_var_2')
+})
 
-  # Test 2
+
+testthat::test_that("recode.set.NA works, test 2 basic functionality", {
+  #upload the relevant data
+  test_path <- testthat::test_path("fixtures","utilityR_raw_data.xlsx")
+  test_data <- readxl::read_excel(test_path)[1:10,]
+
 
   text_test_2 <- c('a2_partner')
 
@@ -109,19 +146,25 @@ testthat::test_that("recode.set.NA works", {
 })
 
 
-testthat::test_that("recode.set.value.regex works", {
+testthat::test_that("recode.set.value.regex works, test 1 - breaks if provided with a non-existant variable", {
 
   #upload the relevant data
   test_path <- testthat::test_path("fixtures","utilityR_raw_data.xlsx")
   test_data <- readxl::read_excel(test_path)[11:20,]
 
-  # Test 1
-
   text_test <- c('Fake_var_for_test','Fake_var_2','b7_vehicle_fuel','b18_financial_factors','c3_ukrposhta_available')
   testthat::expect_error(recode.set.value.regex(test_data,text_test, pattern = '^J.*',
-                                                new.value='testo', issue = 'test_issue'))
+                                                new.value='testo', issue = 'test_issue'),
+                         'Selected variable names are not present in the data: Fake_var_for_test, Fake_var_2')
+})
 
-  # Test 2
+
+testthat::test_that("recode.set.value.regex works, test 2 - basic functionality", {
+
+  #upload the relevant data
+  test_path <- testthat::test_path("fixtures","utilityR_raw_data.xlsx")
+  test_data <- readxl::read_excel(test_path)[11:20,]
+
 
   text_test_2 <- c('b2_hygiene','b3_vehicle_fuel')
 
@@ -136,8 +179,14 @@ testthat::test_that("recode.set.value.regex works", {
 
   testthat::expect_equal(expected_output_2,actual_output)
 
+})
 
-  # Test 3
+testthat::test_that("recode.set.value.regex works, test 3 - added or condition in the regex", {
+
+  #upload the relevant data
+  test_path <- testthat::test_path("fixtures","utilityR_raw_data.xlsx")
+  test_data <- readxl::read_excel(test_path)[11:20,]
+
 
   text_test_2 <- c('b8_petrol_official_price','b9_diesel_official_price')
 
@@ -156,7 +205,7 @@ testthat::test_that("recode.set.value.regex works", {
 })
 
 
-testthat::test_that("recode.multiple.set.NA works", {
+testthat::test_that("recode.multiple.set.NA works, test 1 - basic case", {
 
   #upload the relevant data
   test_path <- testthat::test_path("fixtures","utilityR_raw_data.xlsx")
@@ -165,7 +214,6 @@ testthat::test_that("recode.multiple.set.NA works", {
   # set up loop index to test if it works
   test_data$loop_index = 1:10
 
-  # test 1 - basic case
 
   actual_output <- recode.multiple.set.NA(test_data, 'b7_vehicle_fuel', issue = 'test_issue')
 
@@ -185,9 +233,17 @@ testthat::test_that("recode.multiple.set.NA works", {
 
 
   testthat::expect_equal(expected_output ,actual_output)
+})
 
+testthat::test_that("recode.multiple.set.NA works,  test 2 - there's an '_other' column", {
 
-  # test 2 - there's an '_other' column
+  #upload the relevant data
+  test_path <- testthat::test_path("fixtures","utilityR_raw_data.xlsx")
+  test_data <- readxl::read_excel(test_path)[41:50,] %>%
+    dplyr::rename(uuid = `_uuid`)
+  # set up loop index to test if it works
+  test_data$loop_index = 1:10
+
 
   actual_output2 <- recode.multiple.set.NA(test_data, 'b18_financial_factors', issue = 'test_issue', other_var_name = 'b18_1_financial_factors_other')
 
@@ -208,12 +264,29 @@ testthat::test_that("recode.multiple.set.NA works", {
     dplyr::filter(!is.na(old.value))
 
   testthat::expect_equal(expected_output2 ,actual_output2)
+})
+
+testthat::test_that("recode.multiple.set.NA works,  test 3 - throws an error when provided with a non-existant variable", {
+
+  #upload the relevant data
+  test_path <- testthat::test_path("fixtures","utilityR_raw_data.xlsx")
+  test_data <- readxl::read_excel(test_path)[41:50,] %>%
+    dplyr::rename(uuid = `_uuid`)
+  # set up loop index to test if it works
+  test_data$loop_index = 1:10
 
   # test 3 - throws error when needed
 
-  testthat::expect_error(recode.multiple.set.NA(test_data, 'fakevar', issue = 'test_issue', other_var_name = 'b18_1_financial_factors_other'))
+  testthat::expect_error(recode.multiple.set.NA(test_data, 'fakevar', issue = 'test_issue', other_var_name = 'b18_1_financial_factors_other'),
+                         'Selected variable names are not present in the data: fakevar')
+})
 
-  # test 4 returns empty df when passed an empty df
+testthat::test_that("recode.multiple.set.NA works,  test 4 returns empty df when passed an empty df", {
+
+  #upload the relevant data
+  test_path <- testthat::test_path("fixtures","utilityR_raw_data.xlsx")
+  test_data <- readxl::read_excel(test_path)[41:50,] %>%
+    dplyr::rename(uuid = `_uuid`)
 
   test_df_empty <-  data.frame(matrix(nrow = 0 , ncol = ncol(test_data)))
   names(test_df_empty) <- names(test_data)
@@ -226,7 +299,7 @@ testthat::test_that("recode.multiple.set.NA works", {
 
 
 
-testthat::test_that("recode.multiple.set.choices works", {
+testthat::test_that("recode.multiple.set.choices works,  Test 0 - expect error with wrong names", {
   # upload the data
 
   test_path <- testthat::test_path("fixtures","utilityR_raw_data.xlsx")
@@ -242,13 +315,27 @@ testthat::test_that("recode.multiple.set.choices works", {
   tool.survey <- utilityR::load.tool.survey(filename,label_colname)
 
 
-  # Test 0 - expect error with wrong names
-
   testthat::expect_error(recode.multiple.set.choices(test_data, 'b7_1_heating_fuel','fake_option',issue='test_issue', tool.survey = tool.survey,
-                                                     tool.choices =tool.choices))
+                                                     tool.choices =tool.choices),
+                         'Columns b7_1_heating_fuel/fake_option not present in data!')
+
+})
 
 
-  # Test 1 - test if it works as expected with 1 variable
+testthat::test_that("recode.multiple.set.choices works,  Test  1 - test if it works as expected with 1 variable", {
+  # upload the data
+
+  test_path <- testthat::test_path("fixtures","utilityR_raw_data.xlsx")
+  test_data <- readxl::read_excel(test_path)[41:50,] %>%
+    dplyr::rename(uuid = `_uuid`)
+  # set up loop index to test if it works
+  test_data$loop_index = 1:10
+
+  # load the tool data
+
+  filename <- testthat::test_path("fixtures","tool.survey_full.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
 
 
   # rename the tool.choices db
@@ -269,8 +356,29 @@ testthat::test_that("recode.multiple.set.choices works", {
 
 
   testthat::expect_equal(expected_output, actual_output)
+})
 
-  # test 4 test if the function recodes multiple choices correctly + works with _other variables
+
+testthat::test_that("recode.multiple.set.choices works,  Test  2 test if the function recodes multiple choices correctly + works with _other variables", {
+  # upload the data
+
+  test_path <- testthat::test_path("fixtures","utilityR_raw_data.xlsx")
+  test_data <- readxl::read_excel(test_path)[41:50,] %>%
+    dplyr::rename(uuid = `_uuid`)
+  # set up loop index to test if it works
+  test_data$loop_index = 1:10
+
+  # load the tool data
+
+  filename <- testthat::test_path("fixtures","tool.survey_full.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+
+  # rename the tool.choices db
+  tool.choices <- utilityR::utilityR_choices
+
+
 
   # set up the data
   test_data <- test_data %>%
@@ -304,9 +412,85 @@ testthat::test_that("recode.multiple.set.choices works", {
 
   testthat::expect_equal(expected_output2, actual_output2)
 
+})
 
-  # test 5 - returns an empty df when no changes needed
 
+testthat::test_that("recode.multiple.set.choices works,  Test  3 what if we're setting the variable to 'other' and we have a choice with _other_ also", {
+  # upload the data
+
+  test_path <- testthat::test_path("fixtures","utilityR_raw_data.xlsx")
+  test_data <- readxl::read_excel(test_path)[41:50,] %>%
+    dplyr::rename(uuid = `_uuid`)
+  # set up loop index to test if it works
+  test_data$loop_index = 1:10
+
+  # load the tool data
+
+  filename <- testthat::test_path("fixtures","tool.survey_full.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+
+  # rename the tool.choices db
+  tool.choices <- utilityR::utilityR_choices
+
+
+
+  # set up the data
+  test_data <- test_data %>%
+    dplyr::select(uuid, loop_index, b17_access_stores, `b17_access_stores/no_impact`, `b17_access_stores/road_damage`,
+                  `b17_access_stores/other`,`b17_access_stores/power_outages`, `b17_access_stores/air_alert`,b17_1_access_stores_other) %>%
+    dplyr::mutate(`b17_access_stores/road_damage` = ifelse(loop_index < 8, 1,`b17_access_stores/road_damage`),
+                  `b17_access_stores/other` = ifelse(loop_index==4, 1 ,`b17_access_stores/other`),
+                  b17_1_access_stores_other = ifelse(loop_index==4, 'test' ,b17_1_access_stores_other),
+                  `b17_access_stores/no_other_damage` = 0
+    )
+
+  add_row <- data.frame(list_name ='affect',
+                        name = 'no_other_damage',
+                        "label::English"='test',
+                        "label::Український"='test',
+                        "label::Русский"='test',
+                        filter='test')
+
+  names(add_row) <- names(tool.choices)
+
+  tool.choices <- rbind(tool.choices,
+                        add_row)
+
+  expected_output2 <- data.frame(uuid = rep(test_data[1:2,]$uuid,5),
+                                 loop_index = rep(test_data[1:2,]$loop_index,5),
+                                 old.value = c(test_data[1:2,]$b17_access_stores, test_data[1:2,]$`b17_access_stores/no_other_damage`,
+                                               rep(1,6)),
+                                 variable = c(rep('b17_access_stores',2), rep('b17_access_stores/no_other_damage',2), rep('b17_access_stores/road_damage',2),
+                                              rep('b17_access_stores/power_outages',2),rep('b17_access_stores/air_alert',2)),
+                                 new.value = c(rep('no_other_damage',2), rep(1,2),rep(0,6)),
+                                 issue = rep('test_issue',10)
+  ) %>% dplyr::tibble()
+
+  actual_output2 <- recode.multiple.set.choices(test_data[1:2,], 'b17_access_stores',c('no_other_damage'),issue='test_issue', tool.survey = tool.survey,
+                                                tool.choices =tool.choices)
+
+  testthat::expect_equal(actual_output2,expected = expected_output2)
+
+})
+
+
+
+testthat::test_that("recode.multiple.set.choices works,  test 4 - returns an empty df when no changes needed", {
+  # upload the data
+
+  # load the tool data
+
+  filename <- testthat::test_path("fixtures","tool.survey_full.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+
+  # rename the tool.choices db
+  tool.choices <- utilityR::utilityR_choices
+
+  test_path <- testthat::test_path("fixtures","utilityR_raw_data.xlsx")
   test_data <- readxl::read_excel(test_path)[41:50,] %>%
     dplyr::rename(uuid = `_uuid`)
   test_data$loop_index = 1:10
@@ -322,7 +506,7 @@ testthat::test_that("recode.multiple.set.choices works", {
 })
 
 
-testthat::test_that("recode.multiple.add.choices works", {
+testthat::test_that("recode.multiple.add.choices works - test 1, general functionality", {
 
   test_path <- testthat::test_path("fixtures","utilityR_raw_data.xlsx")
   test_data <- readxl::read_excel(test_path)[41:50,] %>%
@@ -348,15 +532,43 @@ testthat::test_that("recode.multiple.add.choices works", {
   actual_output <- recode.multiple.add.choices(test_data, "b17_access_stores", c("air_alert","power_outages"),issue='test_issue' )
 
   testthat::expect_equal(expected_output, actual_output)
+})
 
 
-  # test 2 - test if it breaks like its supposed to
-  testthat::expect_error(recode.multiple.add.choices(test_data, "b17_access_stores", c("air_alert","fake_variable"),issue='test_issue' ))
+testthat::test_that("recode.multiple.add.choices works - test 2,- test if it breaks if provided with a non existant column value", {
 
-  # test 3 - test if it breaks like its supposed to
-  testthat::expect_error(recode.multiple.add.choices(test_data, "fake_column", c("air_alert"),issue='test_issue' ))
+  test_path <- testthat::test_path("fixtures","utilityR_raw_data.xlsx")
+  test_data <- readxl::read_excel(test_path)[41:50,] %>%
+    dplyr::rename(uuid = `_uuid`)
+  # set up loop index to test if it works
+  test_data$loop_index = 1:10
 
-  # test 4 - test that it produces an empty df when there's nothing to change
+  testthat::expect_error(recode.multiple.add.choices(test_data, "b17_access_stores", c("air_alert","fake_variable"),issue='test_issue' ),
+                         "\nColumn b17_access_stores/fake_variable not present in data!")
+})
+
+
+testthat::test_that("recode.multiple.add.choices works - test 3, - test if it breaks if provided with a non existant column name", {
+
+  test_path <- testthat::test_path("fixtures","utilityR_raw_data.xlsx")
+  test_data <- readxl::read_excel(test_path)[41:50,] %>%
+    dplyr::rename(uuid = `_uuid`)
+  # set up loop index to test if it works
+  test_data$loop_index = 1:10
+
+  testthat::expect_error(recode.multiple.add.choices(test_data, "fake_column", c("air_alert"),issue='test_issue' ),
+                         '\nColumn fake_column/air_alert not present in data!')
+})
+
+
+testthat::test_that("recode.multiple.add.choices works - test 4, - test that it produces an empty df when there's nothing to change", {
+
+  test_path <- testthat::test_path("fixtures","utilityR_raw_data.xlsx")
+  test_data <- readxl::read_excel(test_path)[41:50,] %>%
+    dplyr::rename(uuid = `_uuid`)
+  # set up loop index to test if it works
+  test_data$loop_index = 1:10
+
 
   test_data2 <- test_data[test_data$b17_access_stores == 'no_impact',]
 
@@ -367,11 +579,67 @@ testthat::test_that("recode.multiple.add.choices works", {
 })
 
 
+testthat::test_that("recode.multiple.add.choices works - test 5, - one of the columns is _other_ ", {
 
-testthat::test_that("recode.multiple.remove.choices works", {
+  test_path <- testthat::test_path("fixtures","utilityR_raw_data.xlsx")
+  test_data <- readxl::read_excel(test_path)[41:50,] %>%
+    dplyr::rename(uuid = `_uuid`)
+  # set up loop index to test if it works
+  test_data$loop_index = 1:10
+
+  # load the tool data
+
+  filename <- testthat::test_path("fixtures","tool.survey_full.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
 
 
-  # test 1 check if the general functionality works
+  # rename the tool.choices db
+  tool.choices <- utilityR::utilityR_choices
+
+
+
+  # set up the data
+  test_data <- test_data %>%
+    dplyr::select(uuid, loop_index, b17_access_stores, `b17_access_stores/no_impact`, `b17_access_stores/road_damage`,
+                  `b17_access_stores/other`,`b17_access_stores/power_outages`, `b17_access_stores/air_alert`,b17_1_access_stores_other) %>%
+    dplyr::mutate(`b17_access_stores/road_damage` = ifelse(loop_index < 8, 1,`b17_access_stores/road_damage`),
+                  `b17_access_stores/other` = ifelse(loop_index==4, 1 ,`b17_access_stores/other`),
+                  b17_1_access_stores_other = ifelse(loop_index==4, 'test' ,b17_1_access_stores_other),
+                  `b17_access_stores/no_other_damage` = 0
+    )
+
+  add_row <- data.frame(list_name ='affect',
+                        name = 'no_other_damage',
+                        "label::English"='test',
+                        "label::Український"='test',
+                        "label::Русский"='test',
+                        filter='test')
+
+  names(add_row) <- names(tool.choices)
+
+  tool.choices <- rbind(tool.choices,
+                        add_row)
+
+  expected_output2 <- data.frame(uuid = rep(test_data[1:2,]$uuid,2),
+                                 loop_index = rep(test_data[1:2,]$loop_index,2),
+                                 old.value = c(test_data[1:2,]$b17_access_stores, test_data[1:2,]$`b17_access_stores/other`),
+                                 variable = c(rep('b17_access_stores',2), rep('b17_access_stores/other',2)),
+                                 new.value = c('power_outages air_alert other','air_alert power_outages other','1','1'),
+                                 issue = rep('test_issue',4)
+  ) %>% dplyr::tibble()
+
+  actual_output2 <- recode.multiple.add.choices(test_data[1:2,], 'b17_access_stores',c('other'),issue='test_issue')
+
+  testthat::expect_equal(actual_output2,expected = expected_output2)
+
+
+})
+
+
+
+testthat::test_that("recode.multiple.remove.choices works,  test 1 check if the general functionality works", {
+
 
   test_path <- testthat::test_path("fixtures","utilityR_raw_data.xlsx")
   test_data <- readxl::read_excel(test_path)[41:50,] %>%
@@ -399,8 +667,16 @@ testthat::test_that("recode.multiple.remove.choices works", {
   actual_output <- recode.multiple.remove.choices(test_data, "b17_access_stores", c("air_alert","power_outages"),issue='test_issue' )
 
   testthat::expect_equal(expected_output,actual_output)
+})
 
-  # Test 2 - test if the functionality of 'other' works
+testthat::test_that("recode.multiple.remove.choices works,  Test 2 - test if the functionality of removing 'other' works", {
+
+
+  test_path <- testthat::test_path("fixtures","utilityR_raw_data.xlsx")
+  test_data <- readxl::read_excel(test_path)[41:50,] %>%
+    dplyr::rename(uuid = `_uuid`)
+  # set up loop index to test if it works
+  test_data$loop_index = 1:10
 
 
   test_data$`b17_access_stores/other`[5] = '1'
@@ -430,15 +706,59 @@ testthat::test_that("recode.multiple.remove.choices works", {
   actual_output2 <- recode.multiple.remove.choices(test_data, "b17_access_stores", c("air_alert","other"),issue='test_issue' )
 
   testthat::expect_equal(expected_output2,actual_output2)
+})
 
 
-  # test 3 - test if it breaks like its supposed to
-  testthat::expect_error(recode.multiple.remove.choices(test_data, "fake_column", c("air_alert","other"),issue='test_issue' ))
+testthat::test_that("recode.multiple.remove.choices works,  test 3 - test if it breaks if we provide a fake column name", {
 
-  # test 4 - test if it breaks like its supposed to
-  testthat::expect_error(recode.multiple.remove.choices(test_data, "b17_access_stores", c("fake_choice","other"),issue='test_issue' ))
 
-  # test 5 - test if it produces a df that only has the 'other'
+  test_path <- testthat::test_path("fixtures","utilityR_raw_data.xlsx")
+  test_data <- readxl::read_excel(test_path)[41:50,] %>%
+    dplyr::rename(uuid = `_uuid`)
+  # set up loop index to test if it works
+  test_data$loop_index = 1:10
+
+
+  test_data$`b17_access_stores/other`[5] = '1'
+  test_data$b17_1_access_stores_other[5] = 'test'
+  test_data$b17_access_stores[5] = paste(test_data$b17_access_stores[5],'other')
+
+  testthat::expect_error(recode.multiple.remove.choices(test_data, "fake_column", c("air_alert","other"),issue='test_issue' ),
+                         "Column fake_column/air_alert, fake_column/other were not found in data!")
+})
+
+testthat::test_that("recode.multiple.remove.choices works,  test 4 - test if it breaks if we provide a fake column value", {
+
+
+  test_path <- testthat::test_path("fixtures","utilityR_raw_data.xlsx")
+  test_data <- readxl::read_excel(test_path)[41:50,] %>%
+    dplyr::rename(uuid = `_uuid`)
+  # set up loop index to test if it works
+  test_data$loop_index = 1:10
+
+
+  test_data$`b17_access_stores/other`[5] = '1'
+  test_data$b17_1_access_stores_other[5] = 'test'
+  test_data$b17_access_stores[5] = paste(test_data$b17_access_stores[5],'other')
+
+  testthat::expect_error(recode.multiple.remove.choices(test_data, "b17_access_stores", c("fake_choice","other"),issue='test_issue' ),
+                         "Column b17_access_stores/fake_choice were not found in data!")
+})
+
+testthat::test_that("recode.multiple.remove.choices works,  test 5 - test if it produces a df that only has the 'other'", {
+
+
+  test_path <- testthat::test_path("fixtures","utilityR_raw_data.xlsx")
+  test_data <- readxl::read_excel(test_path)[41:50,] %>%
+    dplyr::rename(uuid = `_uuid`)
+  # set up loop index to test if it works
+  test_data$loop_index = 1:10
+
+
+  test_data$`b17_access_stores/other`[5] = '1'
+  test_data$b17_1_access_stores_other[5] = 'test'
+  test_data$b17_access_stores[5] = paste(test_data$b17_access_stores[5],'other')
+
 
   test_data2 <- test_data[!test_data$b17_access_stores == 'no_impact',]
 
@@ -454,9 +774,25 @@ testthat::test_that("recode.multiple.remove.choices works", {
   ) %>% dplyr::tibble()
 
   testthat::expect_equal(expected_output,actual_output)
+})
 
 
-  # test 6 - test if it produces an empty df when needed
+testthat::test_that("recode.multiple.remove.choices works,  test 6 - test if it produces an empty df when needed", {
+
+
+  test_path <- testthat::test_path("fixtures","utilityR_raw_data.xlsx")
+  test_data <- readxl::read_excel(test_path)[41:50,] %>%
+    dplyr::rename(uuid = `_uuid`)
+  # set up loop index to test if it works
+  test_data$loop_index = 1:10
+
+
+  test_data$`b17_access_stores/other`[5] = '1'
+  test_data$b17_1_access_stores_other[5] = 'test'
+  test_data$b17_access_stores[5] = paste(test_data$b17_access_stores[5],'other')
+
+
+  test_data2 <- test_data[!test_data$b17_access_stores == 'no_impact',]
 
   test_data2 <- test_data2[!test_data2$b17_access_stores == 'no_impact other',]
   actual_output <- recode.multiple.remove.choices(test_data2, "b17_access_stores", c("no_impact"),issue='test_issue' )
@@ -467,9 +803,71 @@ testthat::test_that("recode.multiple.remove.choices works", {
 })
 
 
+testthat::test_that("recode.multiple.add.choices works - test 7, - one of the columns named _other_  but removed the ordinary 'other'", {
+
+  test_path <- testthat::test_path("fixtures","utilityR_raw_data.xlsx")
+  test_data <- readxl::read_excel(test_path)[41:50,] %>%
+    dplyr::rename(uuid = `_uuid`)
+  # set up loop index to test if it works
+  test_data$loop_index = 1:10
+
+  # load the tool data
+
+  filename <- testthat::test_path("fixtures","tool.survey_full.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
 
 
-testthat::test_that("recode.others_select_one works", {
+  # rename the tool.choices db
+  tool.choices <- utilityR::utilityR_choices
+
+
+
+  # set up the data
+  test_data <- test_data %>%
+    dplyr::select(uuid, loop_index, b17_access_stores, `b17_access_stores/no_impact`, `b17_access_stores/road_damage`,
+                  `b17_access_stores/other`,`b17_access_stores/power_outages`, `b17_access_stores/air_alert`,b17_1_access_stores_other) %>%
+    dplyr::mutate(`b17_access_stores/road_damage` = ifelse(loop_index < 8, 1,`b17_access_stores/road_damage`),
+                  `b17_access_stores/other` = ifelse(loop_index==4, 1 ,`b17_access_stores/other`),
+                  b17_1_access_stores_other = ifelse(loop_index==4, 'test' ,b17_1_access_stores_other),
+                  `b17_access_stores/no_other_damage` = 0
+    )
+
+  add_row <- data.frame(list_name ='affect',
+                        name = 'no_other_damage',
+                        "label::English"='test',
+                        "label::Український"='test',
+                        "label::Русский"='test',
+                        filter='test')
+
+  names(add_row) <- names(tool.choices)
+
+  tool.choices <- rbind(tool.choices,
+                        add_row)
+
+  test_data$b17_access_stores[5] <- 'other no_other_damage'
+  test_data$`b17_access_stores/no_other_damage`[5] <- '1'
+  test_data$`b17_access_stores/other`[5] <- '1'
+
+  expected_output2 <- data.frame(uuid = rep(test_data[5,]$uuid,2),
+                                 loop_index = rep(test_data[5,]$loop_index,2),
+                                 old.value = c(test_data[5,]$b17_access_stores, test_data[5,]$`b17_access_stores/other`),
+                                 variable = c(rep('b17_access_stores',1), rep('b17_access_stores/other',1)),
+                                 new.value = c('no_other_damage','0'),
+                                 issue = rep('test_issue',2)
+  ) %>% dplyr::tibble()
+
+  actual_output2 <- recode.multiple.remove.choices(test_data[5,], 'b17_access_stores',c('other'),issue='test_issue')
+
+  testthat::expect_equal(actual_output2,expected = expected_output2)
+
+
+})
+
+
+
+
+testthat::test_that("recode.others_select_one works, test 1 - general functionality", {
   # load the tool data
 
   filename <- testthat::test_path("fixtures","tool_others.xlsx")
@@ -543,7 +941,26 @@ testthat::test_that("recode.others_select_one works", {
 
   testthat::expect_equal(actual_output, expected_output)
 
-  # Test that if the entry has no recode needs it doesn't break
+})
+
+testthat::test_that("recode.others_select_one works, test 2 - Test that if the entry has no recode needs it doesn't break", {
+  # load the tool data
+
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices')
+
+  # get the filled-out others file
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename) %>%
+    dplyr::filter(ref.type == 'select_one')
+
 
   actual_output <- recode.others_select_one(other_requests %>% dplyr::filter(is.na(existing.v)), tool.survey_others=tool.survey, tool.choices_others = tool.choices)
 
@@ -583,18 +1000,37 @@ testthat::test_that("recode.others_select_one works", {
 
   testthat::expect_equal(actual_output, expected_output)
 
+})
 
-  # test if it throws an error when needed
+testthat::test_that("recode.others_select_one works, test 3  test if it throws an error when provided with a fake column value", {
+  # load the tool data
+
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices')
+
+  # get the filled-out others file
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename) %>%
+    dplyr::filter(ref.type == 'select_one')
+
 
   other_requests$existing.v[5] <- 'test_fake'
 
-  testthat::expect_error(recode.others_select_one(other_requests, tool.survey_others=tool.survey, tool.choices_others = tool.choices))
+  testthat::expect_error(recode.others_select_one(other_requests, tool.survey_others=tool.survey, tool.choices_others = tool.choices),
+                         'Choices not found in lists:\n\ttest_fake\t - in list employment')
 
 })
 
 
 
-testthat::test_that("recode.others_select_multiple works", {
+testthat::test_that("recode.others_select_multiple works, test 1 - general functionality", {
   # load the tool data
   filename <- testthat::test_path("fixtures","tool_others.xlsx")
   label_colname <- "label::English"
@@ -654,13 +1090,69 @@ testthat::test_that("recode.others_select_multiple works", {
     dplyr::tibble()
 
   testthat::expect_equal(actual_output, expected_output)
+})
+
+
+testthat::test_that("recode.others_select_multiple works, test 1 -  test if it throws an error when provided with a fake column value", {
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices')
+
+  # get the dataframe
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename)%>%
+    dplyr::rename(uniqui = `_uuid`)
+
+
+  # get the filled-out others file
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename) %>%
+    dplyr::filter(ref.type == 'select_multiple',
+                  is.na(loop_index)) %>%
+    dplyr::rename(uniqui = uuid) %>%
+    dplyr::mutate(check = 2)
+
 
   # test if it throws an error when needed
   other_requests2 <- other_requests
   other_requests2$existing.v[5] <- 'test_fake'
 
-  testthat::expect_error(recode.others_select_multiple(test_data,other_requests2, tool.survey_others=tool.survey, tool.choices_others = tool.choices, is.loop =F))
+  testthat::expect_error(recode.others_select_multiple(test_data,other_requests2, tool.survey_others=tool.survey, tool.choices_others = tool.choices, is.loop =F),
+                         "Choice 'test_fake' not found in list discrim_idp")
 
+})
+
+
+testthat::test_that("recode.others_select_multiple works, test 3 -  test if the multiple choice also exists", {
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices')
+
+  # get the dataframe
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename)%>%
+    dplyr::rename(uniqui = `_uuid`)
+
+
+  # get the filled-out others file
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename) %>%
+    dplyr::filter(ref.type == 'select_multiple',
+                  is.na(loop_index)) %>%
+    dplyr::rename(uniqui = uuid) %>%
+    dplyr::mutate(check = 2)
 
   # if the multiple choice also exists
   other_requests$true.v[5]= 'Security considerations'
@@ -702,9 +1194,38 @@ testthat::test_that("recode.others_select_multiple works", {
   actual_output <- recode.others_select_multiple(test_data,other_requests, tool.survey_others=tool.survey, tool.choices_others = tool.choices, is.loop =F)
 
   testthat::expect_equal(actual_output, expected_output)
+})
 
 
-  # test if the function drops invalid IDs
+testthat::test_that("recode.others_select_multiple works, test 4 -  test if the function drops invalid IDs", {
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices')
+
+  # get the dataframe
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename)%>%
+    dplyr::rename(uniqui = `_uuid`)
+
+
+  # get the filled-out others file
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename) %>%
+    dplyr::filter(ref.type == 'select_multiple',
+                  is.na(loop_index)) %>%
+    dplyr::rename(uniqui = uuid) %>%
+    dplyr::mutate(check = 2)
+
+  # if the multiple choice also exists
+  other_requests$true.v[5]= 'Security considerations'
+
+
 
   other_requests$uniqui[4:5]= 'fake_test'
 
@@ -739,8 +1260,19 @@ testthat::test_that("recode.others_select_multiple works", {
     dplyr::tibble()
 
   testthat::expect_equal(actual_output, expected_output)
+})
 
-  # test if it doesn't break if a loop is uploaded
+
+testthat::test_that("recode.others_select_multiple works, test 5 -  test if it doesn't break if a loop is uploaded: expect error if uuid in the loop isn't provided", {
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices')
+
 
 
 
@@ -761,9 +1293,39 @@ testthat::test_that("recode.others_select_multiple works", {
     dplyr::mutate(check = 2)
 
 
-  # expect error if uuid in the loop isn't provided
+  testthat::expect_error(recode.others_select_multiple(test_data,other_requests, tool.survey_others=tool.survey, tool.choices_others = tool.choices, is.loop =T),
+                         'Your loop data doesnt have the uuid variable, please check the data and rename uuid appropriately')
+})
 
-  testthat::expect_error(recode.others_select_multiple(test_data,other_requests, tool.survey_others=tool.survey, tool.choices_others = tool.choices, is.loop =T))
+testthat::test_that("recode.others_select_multiple works, test 6 -  test if it doesn't break if a loop is uploaded: test if it runs well if everything is correct", {
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices')
+
+
+
+
+  # get the dataframe
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- suppressWarnings(readxl::read_excel(filename, sheet = 'loop'))
+  test_data <- test_data %>%
+    dplyr::rename(uniqui = `_index`)
+
+
+  # get the filled-out others file
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename) %>%
+    dplyr::filter(ref.type == 'select_multiple',
+                  !is.na(loop_index)) %>%
+    dplyr::rename(uniqui = loop_index) %>%
+    dplyr::mutate(check = 2)
+
 
   # test if it runs well if everything is correct
 
@@ -809,8 +1371,42 @@ testthat::test_that("recode.others_select_multiple works", {
     dplyr::tibble()
 
   testthat::expect_equal(actual_output, expected_output)
+})
 
-  # test if None functionality works
+
+testthat::test_that("recode.others_select_multiple works, test 7 - test if None functionality works", {
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices')
+
+
+
+
+  # get the dataframe
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- suppressWarnings(readxl::read_excel(filename, sheet = 'loop'))
+  test_data <- test_data %>%
+    dplyr::rename(uniqui = `_index`)
+
+
+  # get the filled-out others file
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename) %>%
+    dplyr::filter(ref.type == 'select_multiple',
+                  !is.na(loop_index)) %>%
+    dplyr::rename(uniqui = loop_index) %>%
+    dplyr::mutate(check = 2)
+
+
+  test_data <- test_data %>%
+    dplyr::rename(uuid = `_submission__uuid`)
+
 
   filename <- testthat::test_path("fixtures","tool_others.xlsx")
   label_colname <- "label::English"
@@ -846,7 +1442,7 @@ testthat::test_that("recode.others_select_multiple works", {
 
 
   other_requests[other_requests$uniqui=='f79999d6-192f-4b9b-aee9-5f613bd4e770'&
-                 other_requests$ref.name=='q2_4_3_main_cause','existing.v'] <- 'Don’t know'
+                   other_requests$ref.name=='q2_4_3_main_cause','existing.v'] <- 'Don’t know'
 
 
   actual_output <- recode.others_select_multiple(test_data,other_requests, tool.survey_others=tool.survey, tool.choices_others = tool.choices, is.loop =F)
@@ -887,12 +1483,11 @@ testthat::test_that("recode.others_select_multiple works", {
   testthat::expect_equal(actual_output, expected_output)
 
 
-
 })
 
 
 
-testthat::test_that("recode.others works", {
+testthat::test_that("recode.others works test 1 - general functionality", {
 
 
   # load the tool data
@@ -971,8 +1566,35 @@ testthat::test_that("recode.others works", {
     dplyr::tibble()
 
   testthat::expect_equal(actual_output, expected_output)
+})
 
-  # test if it works with a custom id column
+
+
+testthat::test_that("recode.others works test 2 - test if it works with a custom id column", {
+
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices')
+
+  # get the dataframe
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename)%>%
+    dplyr::rename(uuid = `_uuid`)
+
+
+  # get the filled-out others file
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename) %>%
+    dplyr::filter(is.na(loop_index)) %>%
+    dplyr::mutate(check = 2)
+
   other_requests2 <- other_requests
   other_requests2$id <- letters[1:12]
   test_data2 <- test_data %>% dplyr::left_join(other_requests2 %>% dplyr::select(uuid,id))
@@ -980,11 +1602,11 @@ testthat::test_that("recode.others works", {
   actual_output <- recode.others(test_data2,other_requests2, tool.choices = tool.choices, tool.survey=tool.survey, is.loop =F,id_col = 'id')
 
   expected_output2 <-  data.frame(uuid = c('2343f19e-819c-4f1f-b827-cff4d9c7a953','db187669-7f5d-4d8b-9cba-aa212fd44da9',
-                                          rep(c('bd005032-6f63-455f-8202-313583a128b1','f903166e-abc9-4258-848b-77ada6987d31'),2),
-                                          rep(c('a46a1c10-bf18-4594-a0be-99447fa22116','51862558-1b68-466a-8e71-be2817dce5aa'),2),
-                                          '10cef1b0-82ab-4cc2-bd59-bf9ade4fd1b6','7a526721-e59d-4bef-aa69-d80f9a9558b5',
-                                          rep(c('644ec1bf-4fec-4e93-b088-676dd2ae52ec','2a6bacd0-6a4d-420f-9463-cbf8a66cdb48'),11),
-                                          rep('f79999d6-192f-4b9b-aee9-5f613bd4e770',8)
+                                           rep(c('bd005032-6f63-455f-8202-313583a128b1','f903166e-abc9-4258-848b-77ada6987d31'),2),
+                                           rep(c('a46a1c10-bf18-4594-a0be-99447fa22116','51862558-1b68-466a-8e71-be2817dce5aa'),2),
+                                           '10cef1b0-82ab-4cc2-bd59-bf9ade4fd1b6','7a526721-e59d-4bef-aa69-d80f9a9558b5',
+                                           rep(c('644ec1bf-4fec-4e93-b088-676dd2ae52ec','2a6bacd0-6a4d-420f-9463-cbf8a66cdb48'),11),
+                                           rep('f79999d6-192f-4b9b-aee9-5f613bd4e770',8)
   ),
   uniqui = c('a','b',
              rep(c('c','d'),2),
@@ -1030,31 +1652,186 @@ testthat::test_that("recode.others works", {
 
   testthat::expect_equal(actual_output, expected_output2)
 
+})
 
-  # test if it breaks if our new id variable is not present in the data
+testthat::test_that("recode.others works test 3 - test if it breaks if our new id variable is not present in the data", {
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices')
+
+  # get the dataframe
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename)%>%
+    dplyr::rename(uuid = `_uuid`)
+
+
+  # get the filled-out others file
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename) %>%
+    dplyr::filter(is.na(loop_index)) %>%
+    dplyr::mutate(check = 2)
+
+  other_requests2 <- other_requests
+  other_requests2$id <- letters[1:12]
+  test_data2 <- test_data %>% dplyr::left_join(other_requests2 %>% dplyr::select(uuid,id))
+
 
   testthat::expect_error(
-    recode.others(test_data2,other_requests2, tool.choices = tool.choices, tool.survey=tool.survey, is.loop =F,id_col = 'id_fake')
+    recode.others(test_data2,other_requests2, tool.choices = tool.choices, tool.survey=tool.survey, is.loop =F,id_col = 'id_fake'),
+    "Column id_fake was not found in or.edited or your dataframe!"
   )
+})
+
+testthat::test_that("recode.others works test 4 - test if we can an error if a fake name is provided", {
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices')
+
+  # get the dataframe
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename)%>%
+    dplyr::rename(uuid = `_uuid`)
 
 
-  # test if renaming breaks if a fake name is provided
+  # get the filled-out others file
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename) %>%
+    dplyr::filter(is.na(loop_index)) %>%
+    dplyr::mutate(check = 2)
+
+
   other_requests <- other_requests %>%
     dplyr::rename(fake_column = existing.v)
 
-  testthat::expect_error(recode.others(test_data,other_requests, tool.choices = tool.choices, tool.survey=tool.survey, is.loop = F))
+  testthat::expect_error(recode.others(test_data,other_requests, tool.choices = tool.choices, tool.survey=tool.survey, is.loop = F),
+                         "Column 'existing.v' not found in or.edited!\n\tPlease check your requests file.")
+})
 
 
-  # test if renaming works
+testthat::test_that("recode.others works test 4 - test if renaming works for renaming tei_other column to tei.v works", {
 
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices')
+
+  # get the dataframe
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename)%>%
+    dplyr::rename(uuid = `_uuid`)
+
+
+  # get the filled-out others file
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename) %>%
+    dplyr::filter(is.na(loop_index)) %>%
+    dplyr::mutate(check = 2)
+
+
+  # rename columns to their legacy naming
   other_requests <- other_requests %>%
-    dplyr::rename(existing.other = fake_column,
+    dplyr::rename(existing.other = existing.v,
                   invalid.other = invalid.v,
                   true.other = true.v)
 
   actual_output <- recode.others(test_data,other_requests, tool.choices = tool.choices, tool.survey=tool.survey, is.loop =F)
 
+  expected_output <-  data.frame(uuid = c('2343f19e-819c-4f1f-b827-cff4d9c7a953','db187669-7f5d-4d8b-9cba-aa212fd44da9',
+                                          rep(c('bd005032-6f63-455f-8202-313583a128b1','f903166e-abc9-4258-848b-77ada6987d31'),2),
+                                          rep(c('a46a1c10-bf18-4594-a0be-99447fa22116','51862558-1b68-466a-8e71-be2817dce5aa'),2),
+                                          '10cef1b0-82ab-4cc2-bd59-bf9ade4fd1b6','7a526721-e59d-4bef-aa69-d80f9a9558b5',
+                                          rep(c('644ec1bf-4fec-4e93-b088-676dd2ae52ec','2a6bacd0-6a4d-420f-9463-cbf8a66cdb48'),11),
+                                          rep('f79999d6-192f-4b9b-aee9-5f613bd4e770',8)
+  ),
+  uniqui = c('2343f19e-819c-4f1f-b827-cff4d9c7a953','db187669-7f5d-4d8b-9cba-aa212fd44da9',
+             rep(c('bd005032-6f63-455f-8202-313583a128b1','f903166e-abc9-4258-848b-77ada6987d31'),2),
+             rep(c('a46a1c10-bf18-4594-a0be-99447fa22116','51862558-1b68-466a-8e71-be2817dce5aa'),2),
+             '10cef1b0-82ab-4cc2-bd59-bf9ade4fd1b6','7a526721-e59d-4bef-aa69-d80f9a9558b5',
+             rep(c('644ec1bf-4fec-4e93-b088-676dd2ae52ec','2a6bacd0-6a4d-420f-9463-cbf8a66cdb48'),11),
+             rep('f79999d6-192f-4b9b-aee9-5f613bd4e770',8)
+  ),
+  loop_index =NA_character_,
+  variable = c(rep('q0_4_2_1_center_idp_other',2),rep('q7_2_2_1_initiate_compensation_other',2),
+               rep('q7_2_2_initiate_compensation',2), rep('q0_4_2_1_center_idp_other',2),
+               rep('q0_4_2_center_idp',2), rep('q2_4_3_1_main_cause_other',2),
+               rep('q10_1_3_relationship_negativ_factors',2),
+               rep('q10_1_3_relationship_negativ_factors/a_lack_of_sense_of_trust_between_the_idps_and_the_nonidps',2),
+               rep('q10_1_3_relationship_negativ_factors/different_cultural_identities',2),
+               rep('q10_1_3_relationship_negativ_factors/different_language',2),
+               rep('q10_1_3_relationship_negativ_factors/stereotypes_against_each_other',2),
+               rep('q10_1_3_relationship_negativ_factors/a_lack_of_willingness_from_both_groups_to_interac',2),
+               rep('q10_1_3_relationship_negativ_factors/a_perceived_lack_of_proactivity_from_the_idps_in_trying_to_find_work',2),
+               rep('q10_1_3_relationship_negativ_factors/other',2),rep('q10_1_3_1_relationship_negativ_factors_other',2),
+               rep('q10_1_3_relationship_negativ_factors/do_not_know',2),rep('q10_1_3_relationship_negativ_factors/prefer_not_to_answer',2),
+               'q10_2_1_discrimination_idp','q10_2_1_discrimination_idp/yes_we_feel_discriminated_against_when_trying_to_access_basic_services',
+               'q10_2_1_discrimination_idp/other','q10_2_1_1_discrimination_idp_other',
+               'q2_4_3_main_cause','q2_4_3_main_cause/security_considerations',
+               'q2_4_3_main_cause/other','q2_4_3_1_main_cause_other'
+  ),
+  old.value = c('Релігійна громада першої християнської церкви живого Бога м. Мукачево',
+                'Релігійна громада першої Християнської Євангельської церкви Живого Бога у м.Мукачева',
+                'Ніхто не знає чи хтось там живе','Респондент не верит в помощь от государства','other',
+                'other','29','29','other','other','Евакуировали из-за травмы','В целях обследования','other',
+                'other','0','0','0','0','0','0','0','0','0','0','0','0','1','1','Ничего не влияет',
+                'Нет негативных факторов','0','0','0','0','other','0','1',
+                'Так зі сторони проживаючих тут студентів','other','0','1','Окупована територія'),
+  new.value = c('Religious community of the First Christian Church of the Living God in Mukachevo',
+                'Religious community of the First Christian Evangelical Church of the Living God in Mukachevo',
+                rep(NA,6),'UKRs006888','UKRs006888','evacuated due to injury','For the purpose of the survey',
+                rep(NA,22),'yes_we_feel_discriminated_against_when_trying_to_access_basic_services','1','0',
+                NA,'security_considerations','1','0',NA),
+  issue = c(rep('Translating other response',2),rep('Invalid other response',4),rep('Recoding other response',4),
+            rep('Translating other response',2),rep('Invalid other response',22),rep('Recoding other response',8)
+  )
+  ) %>%
+    dplyr::tibble()
+
+
   testthat::expect_equal(actual_output, expected_output)
+})
+
+testthat::test_that("recode.others works test 5 - test if it breaks if I remove the check column", {
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices')
+
+  # get the dataframe
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename)%>%
+    dplyr::rename(uuid = `_uuid`)
+
+
+  # get the filled-out others file
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename) %>%
+    dplyr::filter(is.na(loop_index)) %>%
+    dplyr::mutate(check = 2)
 
 
   # test if it breaks if I remove the check column
@@ -1062,14 +1839,49 @@ testthat::test_that("recode.others works", {
   other_requests_test <- other_requests %>%
     dplyr::select(-check)
 
-  testthat::expect_error(recode.others(test_data,other_requests_test, tool.choices = tool.choices, tool.survey=tool.survey, is.loop = F))
+  testthat::expect_error(recode.others(test_data,other_requests_test, tool.choices = tool.choices, tool.survey=tool.survey, is.loop = F),
+                         "Column 'check' was not found in or.edited!\n\tPlease, use the `validate` option in load.requests.")
 
+})
+
+
+testthat::test_that("recode.others works test 6 - test if it'll remove fake ID rows in the uuid column and still produce the needed result", {
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices')
+
+  # get the dataframe
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename)%>%
+    dplyr::rename(uuid = `_uuid`)
+
+
+  # get the filled-out others file
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename) %>%
+    dplyr::filter(is.na(loop_index)) %>%
+    dplyr::mutate(check = 2)
+
+
+  # rename columns to their legacy naming
+  other_requests <- other_requests %>%
+    dplyr::rename(existing.other = existing.v,
+                  invalid.other = invalid.v,
+                  true.other = true.v)
 
   # check if it works with fake IDs
 
 
   other_requests$uuid[10:11] <- c('fake_id','fake_id_2')
 
+  # will produce a warning, but will still give us the correct result
   actual_output <- suppressWarnings(recode.others(test_data,other_requests, tool.choices = tool.choices, tool.survey=tool.survey, is.loop = F))
 
   expected_output <-  data.frame(uuid = c('2343f19e-819c-4f1f-b827-cff4d9c7a953','db187669-7f5d-4d8b-9cba-aa212fd44da9',
@@ -1119,18 +1931,61 @@ testthat::test_that("recode.others works", {
 
 
   testthat::expect_equal(actual_output, expected_output)
+})
 
 
-  # test if it breaks if it's all fake IDs
+testthat::test_that("recode.others works test 7 - test if it breaks if it's all fake IDs", {
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices')
+
+  # get the dataframe
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename)%>%
+    dplyr::rename(uuid = `_uuid`)
+
+
+  # get the filled-out others file
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename) %>%
+    dplyr::filter(is.na(loop_index)) %>%
+    dplyr::mutate(check = 2)
+
+
+  # rename columns to their legacy naming
+  other_requests <- other_requests %>%
+    dplyr::rename(existing.other = existing.v,
+                  invalid.other = invalid.v,
+                  true.other = true.v)
+
 
   other_requests$uuid <- 'fake_id_3'
 
 
-  testthat::expect_error(recode.others(test_data,other_requests, tool.choices = tool.choices, tool.survey=tool.survey, is.loop = F))
+  testthat::expect_error(recode.others(test_data,other_requests, tool.choices = tool.choices, tool.survey=tool.survey, is.loop = F),
+                         "NONE of the identifiers from or.edited were found in data!")
+
+})
 
 
+testthat::test_that("recode.others works test 8 - test if it works fine with loops: expect error if loop_index columns isn't provided", {
 
-  # test if it works fine with loops ------------------------------
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices')
+
 
 
   # # get the dataframe
@@ -1146,10 +2001,36 @@ testthat::test_that("recode.others works", {
     dplyr::filter(!is.na(loop_index)) %>%
     dplyr::mutate(check = 2)
 
+  testthat::expect_error(recode.others(test_data,other_requests, tool.choices = tool.choices, tool.survey=tool.survey, is.loop = T),
+                         "Parameter is.loop = TRUE, but column loop_index was not found in or.edited or data!")
+})
 
-  # expect error if loop_index columns isn't provided
 
-  testthat::expect_error(recode.others(test_data,other_requests, tool.choices = tool.choices, tool.survey=tool.survey, is.loop = T))
+testthat::test_that("recode.others works test 9 - test if it works fine with loops: general functionality", {
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices')
+
+
+
+  # # get the dataframe
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- suppressWarnings(readxl::read_excel(filename, sheet = 'loop'))
+  test_data <- test_data %>%
+    dplyr::rename(uuid = `_submission__uuid`)
+
+  # get the filled-out others file
+
+  filename <- testthat::test_path("fixtures","other_requests_short.xlsx")
+  other_requests <- readxl::read_excel(filename) %>%
+    dplyr::filter(!is.na(loop_index)) %>%
+    dplyr::mutate(check = 2)
 
   # add the loop_index column
 
@@ -1214,8 +2095,21 @@ testthat::test_that("recode.others works", {
 
   testthat::expect_equal(actual_output, expected_output)
 
+})
 
-  # test if it works if there are no select_multiple rows in the requests.
+
+testthat::test_that("recode.others works test 10 -test if it works if there are no select_multiple rows in the requests.", {
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices')
+
+
 
   # get the dataframe
   filename <- testthat::test_path("fixtures","data_others.xlsx")
@@ -1261,8 +2155,26 @@ testthat::test_that("recode.others works", {
 
   testthat::expect_equal(actual_output,expected_output)
 
+})
 
-  # test if it works if there are no select_one rows in the requests.
+testthat::test_that("recode.others works test 10 - test if it works if there are no select_one rows in the requests.", {
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices')
+
+
+
+  # get the dataframe
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- readxl::read_excel(filename)%>%
+    dplyr::rename(uuid = `_uuid`)
+
 
   # get the filled-out others file
 
@@ -1313,6 +2225,19 @@ testthat::test_that("recode.others works", {
     dplyr::tibble()
 
   testthat::expect_equal(actual_output,expected_output)
+})
+
+
+testthat::test_that("recode.others works test 11 - loop + only select_one questions", {
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices')
 
 
   # will it break if we have a loop + only one type of question?
@@ -1356,6 +2281,26 @@ testthat::test_that("recode.others works", {
     dplyr::tibble()
 
   testthat::expect_equal(actual_output,expected_output)
+})
+
+testthat::test_that("recode.others works test 12 - loop + only select_multiple questions", {
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the tool.choices db
+  filename <- testthat::test_path("fixtures","tool_others.xlsx")
+  tool.choices <- readxl::read_excel(filename, sheet = 'choices')
+
+
+  # # get the dataframe
+  filename <- testthat::test_path("fixtures","data_others.xlsx")
+  test_data <- suppressWarnings(readxl::read_excel(filename, sheet = 'loop'))
+  test_data <- test_data %>%
+    dplyr::rename(uuid = `_submission__uuid`,
+                  loop_index = `_index`)
 
 
   # loop + no select_one
@@ -1412,7 +2357,8 @@ testthat::test_that("recode.others works", {
 
 })
 
-testthat::test_that('recode.trans.requests works',{
+
+testthat::test_that('recode.trans.requests works - Test 1 general functionality',{
 
   test_data <- data.frame(uuid = c("a0d73ff7-7f8c-4b0e-b13b-a909fe9b0aa7",
                                    "b231339d-1b74-4e5a-bfad-037028fb71d8", "e2a71393-61a1-48bb-bc10-a061c2ec98cc",
@@ -1442,7 +2388,6 @@ testthat::test_that('recode.trans.requests works',{
                                      NA, "In the inhabited locality (settlement) you feel yourself calm",
                                      "The building is cracking", "in comparison with the 5th house"),
                           invalid.v = c("yes", NA, NA, NA, NA, NA, "yes", NA, NA, NA))
-  #Test 1 works fine on it's own
 
   actual_output <- recode.trans.requests(requests = test_data, response_col = 'responses')
   expected_output <- data.frame(
@@ -1473,7 +2418,38 @@ testthat::test_that('recode.trans.requests works',{
   )
   testthat::expect_equal(actual_output,expected_output)
 
-  # test 2 should work fine without any invalid entries
+})
+
+testthat::test_that('recode.trans.requests works - test 2 should work fine without any invalid entries',{
+
+  test_data <- data.frame(uuid = c("a0d73ff7-7f8c-4b0e-b13b-a909fe9b0aa7",
+                                   "b231339d-1b74-4e5a-bfad-037028fb71d8", "e2a71393-61a1-48bb-bc10-a061c2ec98cc",
+                                   "7faf7bf1-a52b-4011-8590-e972b2fa0d0d", "3d5e12e7-c269-4fd6-8162-ce17342b9ca8",
+                                   "3495679e-0d16-4658-ae9b-caf0e283f736", "a0d73ff7-7f8c-4b0e-b13b-a909fe9b0aa7",
+                                   "9c0ddcef-fef8-4f8f-9f72-59292187090c", "9c4b2e89-1ec7-4b3c-aeee-1395b960b5be",
+                                   "27e07fda-fffd-4abe-9dad-ebcc03a7f84f"),
+                          loop_index = c(NA, NA, NA, NA, NA, "loop1_1247", NA, NA, NA, NA),
+                          name = c("conditions_to_pursue_option_other",
+                                   "conditions_to_pursue_option_other", "conditions_to_pursue_option_other",
+                                   "conditions_to_pursue_option_other", "conditions_to_pursue_option_other",
+                                   "ed_barriers", "reasons_feeling_of_safety", "reasons_feeling_of_safety",
+                                   "reasons_feeling_of_safety", "reasons_feeling_of_safety"),
+                          responses = c("999",
+                                        "мешкає за кордоном ДГ", "на милицях мусить ходити до туалету на інше крило",
+                                        "нет порогов, удобно завозить инвалидную коляску ребенка",
+                                        "Є робрта і спокійно", "В ДХ нет ноутбука, компьютера для выполнения домашних заданий,",
+                                        "999", "в н.п. ви чувствуете спокойно",
+                                        "Здатне трещит", "Порівняно з домом 5"),
+                          response.en = c("999", "Lives abroad DG", "On crutches he has to go to the toilet on the other wing",
+                                          "There are no thresholds, it is convenient to bring a child's wheelchair",
+                                          "There is a robrta and calm", "There is no laptop in the house, a computer for homework,",
+                                          "999", "In the n.p. vi you feel calm", "It's crackling", "compared to house 5"),
+                          true.v = c(NA, "Lives abroad", "He moves with the help of crutches, but he has to go to the toilet on the other wing",
+                                     "There are no thresholds(doorstep, first step of a porch) it is convenient to bring in and out a child's wheelchair",
+                                     "There's work here and it's quiet", "HH has no laptop to do hometasks.",
+                                     NA, "In the inhabited locality (settlement) you feel yourself calm",
+                                     "The building is cracking", "in comparison with the 5th house"),
+                          invalid.v = c("yes", NA, NA, NA, NA, NA, "yes", NA, NA, NA))
 
   test_data2 <- test_data[is.na(test_data$invalid.v),]
 
@@ -1505,8 +2481,39 @@ testthat::test_that('recode.trans.requests works',{
     issue = c(rep('Translating other response',8))
   )
   testthat::expect_equal(actual_output,expected_output)
+})
 
-  # test 3 should work fine without any valid entries
+testthat::test_that('recode.trans.requests works - test 3 should work fine without any valid entries',{
+
+  test_data <- data.frame(uuid = c("a0d73ff7-7f8c-4b0e-b13b-a909fe9b0aa7",
+                                   "b231339d-1b74-4e5a-bfad-037028fb71d8", "e2a71393-61a1-48bb-bc10-a061c2ec98cc",
+                                   "7faf7bf1-a52b-4011-8590-e972b2fa0d0d", "3d5e12e7-c269-4fd6-8162-ce17342b9ca8",
+                                   "3495679e-0d16-4658-ae9b-caf0e283f736", "a0d73ff7-7f8c-4b0e-b13b-a909fe9b0aa7",
+                                   "9c0ddcef-fef8-4f8f-9f72-59292187090c", "9c4b2e89-1ec7-4b3c-aeee-1395b960b5be",
+                                   "27e07fda-fffd-4abe-9dad-ebcc03a7f84f"),
+                          loop_index = c(NA, NA, NA, NA, NA, "loop1_1247", NA, NA, NA, NA),
+                          name = c("conditions_to_pursue_option_other",
+                                   "conditions_to_pursue_option_other", "conditions_to_pursue_option_other",
+                                   "conditions_to_pursue_option_other", "conditions_to_pursue_option_other",
+                                   "ed_barriers", "reasons_feeling_of_safety", "reasons_feeling_of_safety",
+                                   "reasons_feeling_of_safety", "reasons_feeling_of_safety"),
+                          responses = c("999",
+                                        "мешкає за кордоном ДГ", "на милицях мусить ходити до туалету на інше крило",
+                                        "нет порогов, удобно завозить инвалидную коляску ребенка",
+                                        "Є робрта і спокійно", "В ДХ нет ноутбука, компьютера для выполнения домашних заданий,",
+                                        "999", "в н.п. ви чувствуете спокойно",
+                                        "Здатне трещит", "Порівняно з домом 5"),
+                          response.en = c("999", "Lives abroad DG", "On crutches he has to go to the toilet on the other wing",
+                                          "There are no thresholds, it is convenient to bring a child's wheelchair",
+                                          "There is a robrta and calm", "There is no laptop in the house, a computer for homework,",
+                                          "999", "In the n.p. vi you feel calm", "It's crackling", "compared to house 5"),
+                          true.v = c(NA, "Lives abroad", "He moves with the help of crutches, but he has to go to the toilet on the other wing",
+                                     "There are no thresholds(doorstep, first step of a porch) it is convenient to bring in and out a child's wheelchair",
+                                     "There's work here and it's quiet", "HH has no laptop to do hometasks.",
+                                     NA, "In the inhabited locality (settlement) you feel yourself calm",
+                                     "The building is cracking", "in comparison with the 5th house"),
+                          invalid.v = c("yes", NA, NA, NA, NA, NA, "yes", NA, NA, NA))
+
 
   test_data2 <- test_data[!is.na(test_data$invalid.v),]
 
@@ -1520,8 +2527,38 @@ testthat::test_that('recode.trans.requests works',{
     issue = c('Invalid response', 'Invalid response')
   )
   testthat::expect_equal(actual_output,expected_output)
+})
 
-  # test 4 - throws an error if we pass an incomplete frame
+testthat::test_that('recode.trans.requests works - test 4 throws an error if we pass an incomplete frame (invalid.v missing)',{
+
+  test_data <- data.frame(uuid = c("a0d73ff7-7f8c-4b0e-b13b-a909fe9b0aa7",
+                                   "b231339d-1b74-4e5a-bfad-037028fb71d8", "e2a71393-61a1-48bb-bc10-a061c2ec98cc",
+                                   "7faf7bf1-a52b-4011-8590-e972b2fa0d0d", "3d5e12e7-c269-4fd6-8162-ce17342b9ca8",
+                                   "3495679e-0d16-4658-ae9b-caf0e283f736", "a0d73ff7-7f8c-4b0e-b13b-a909fe9b0aa7",
+                                   "9c0ddcef-fef8-4f8f-9f72-59292187090c", "9c4b2e89-1ec7-4b3c-aeee-1395b960b5be",
+                                   "27e07fda-fffd-4abe-9dad-ebcc03a7f84f"),
+                          loop_index = c(NA, NA, NA, NA, NA, "loop1_1247", NA, NA, NA, NA),
+                          name = c("conditions_to_pursue_option_other",
+                                   "conditions_to_pursue_option_other", "conditions_to_pursue_option_other",
+                                   "conditions_to_pursue_option_other", "conditions_to_pursue_option_other",
+                                   "ed_barriers", "reasons_feeling_of_safety", "reasons_feeling_of_safety",
+                                   "reasons_feeling_of_safety", "reasons_feeling_of_safety"),
+                          responses = c("999",
+                                        "мешкає за кордоном ДГ", "на милицях мусить ходити до туалету на інше крило",
+                                        "нет порогов, удобно завозить инвалидную коляску ребенка",
+                                        "Є робрта і спокійно", "В ДХ нет ноутбука, компьютера для выполнения домашних заданий,",
+                                        "999", "в н.п. ви чувствуете спокойно",
+                                        "Здатне трещит", "Порівняно з домом 5"),
+                          response.en = c("999", "Lives abroad DG", "On crutches he has to go to the toilet on the other wing",
+                                          "There are no thresholds, it is convenient to bring a child's wheelchair",
+                                          "There is a robrta and calm", "There is no laptop in the house, a computer for homework,",
+                                          "999", "In the n.p. vi you feel calm", "It's crackling", "compared to house 5"),
+                          true.v = c(NA, "Lives abroad", "He moves with the help of crutches, but he has to go to the toilet on the other wing",
+                                     "There are no thresholds(doorstep, first step of a porch) it is convenient to bring in and out a child's wheelchair",
+                                     "There's work here and it's quiet", "HH has no laptop to do hometasks.",
+                                     NA, "In the inhabited locality (settlement) you feel yourself calm",
+                                     "The building is cracking", "in comparison with the 5th house"),
+                          invalid.v = c("yes", NA, NA, NA, NA, NA, "yes", NA, NA, NA))
 
   test_data2 <- test_data[, -which(names(test_data) %in% c('invalid.v'))]
   testthat::expect_error(
@@ -1529,6 +2566,39 @@ testthat::test_that('recode.trans.requests works',{
     'invalid.v column is not in the present in your translated requests file.
          Please double check and make sure to load it with the load.requests function'
   )
+})
+
+testthat::test_that('recode.trans.requests works - test 5 throws an error if we pass an incomplete frame (true.v missing)',{
+
+  test_data <- data.frame(uuid = c("a0d73ff7-7f8c-4b0e-b13b-a909fe9b0aa7",
+                                   "b231339d-1b74-4e5a-bfad-037028fb71d8", "e2a71393-61a1-48bb-bc10-a061c2ec98cc",
+                                   "7faf7bf1-a52b-4011-8590-e972b2fa0d0d", "3d5e12e7-c269-4fd6-8162-ce17342b9ca8",
+                                   "3495679e-0d16-4658-ae9b-caf0e283f736", "a0d73ff7-7f8c-4b0e-b13b-a909fe9b0aa7",
+                                   "9c0ddcef-fef8-4f8f-9f72-59292187090c", "9c4b2e89-1ec7-4b3c-aeee-1395b960b5be",
+                                   "27e07fda-fffd-4abe-9dad-ebcc03a7f84f"),
+                          loop_index = c(NA, NA, NA, NA, NA, "loop1_1247", NA, NA, NA, NA),
+                          name = c("conditions_to_pursue_option_other",
+                                   "conditions_to_pursue_option_other", "conditions_to_pursue_option_other",
+                                   "conditions_to_pursue_option_other", "conditions_to_pursue_option_other",
+                                   "ed_barriers", "reasons_feeling_of_safety", "reasons_feeling_of_safety",
+                                   "reasons_feeling_of_safety", "reasons_feeling_of_safety"),
+                          responses = c("999",
+                                        "мешкає за кордоном ДГ", "на милицях мусить ходити до туалету на інше крило",
+                                        "нет порогов, удобно завозить инвалидную коляску ребенка",
+                                        "Є робрта і спокійно", "В ДХ нет ноутбука, компьютера для выполнения домашних заданий,",
+                                        "999", "в н.п. ви чувствуете спокойно",
+                                        "Здатне трещит", "Порівняно з домом 5"),
+                          response.en = c("999", "Lives abroad DG", "On crutches he has to go to the toilet on the other wing",
+                                          "There are no thresholds, it is convenient to bring a child's wheelchair",
+                                          "There is a robrta and calm", "There is no laptop in the house, a computer for homework,",
+                                          "999", "In the n.p. vi you feel calm", "It's crackling", "compared to house 5"),
+                          true.v = c(NA, "Lives abroad", "He moves with the help of crutches, but he has to go to the toilet on the other wing",
+                                     "There are no thresholds(doorstep, first step of a porch) it is convenient to bring in and out a child's wheelchair",
+                                     "There's work here and it's quiet", "HH has no laptop to do hometasks.",
+                                     NA, "In the inhabited locality (settlement) you feel yourself calm",
+                                     "The building is cracking", "in comparison with the 5th house"),
+                          invalid.v = c("yes", NA, NA, NA, NA, NA, "yes", NA, NA, NA))
+
 
   # test 5 - throws another error if we pass an incomplete frame
 
@@ -1542,7 +2612,7 @@ testthat::test_that('recode.trans.requests works',{
 
 })
 
-testthat::test_that('recode.others.elsewhere works', {
+testthat::test_that('recode.others.elsewhere works test 1 - not existing YES in the invalid.v', {
 
   raw.main.filename <- testthat::test_path("fixtures", "test_recode_elsewhere_main.xlsx")
   tool.filename <- testthat::test_path("fixtures", "tool_elsewhere.xlsx")
@@ -1561,33 +2631,108 @@ testthat::test_that('recode.others.elsewhere works', {
   or.edited.sm <- or.edited %>% dplyr::filter(ref.type == "select_multiple")
   or.edited.so <- or.edited %>% dplyr::filter(ref.type == "select_one")
 
-  testthat::expect_error(recode.others.elsewhere(raw.main, tool.survey, or.edited.sm, is.loop = F))
-  testthat::expect_error(recode.others.elsewhere(raw.main, tool.survey, or.edited.so, is.loop = F))
+  testthat::expect_error(recode.others.elsewhere(raw.main, tool.survey, or.edited.sm, is.loop = F),
+                         'The invalid value column for entity with uuid ddcb5d94-f187-45ea-92c2-4f29a9909be4 is not YES, please check the data')
+  testthat::expect_error(recode.others.elsewhere(raw.main, tool.survey, or.edited.so, is.loop = F),
+                         'The invalid value column for entity with uuid d15895b7-9277-4262-85c6-03e68327dcd3 is not YES, please check the data')
+})
+
+testthat::test_that('recode.others.elsewhere works test 2 - test error when passed or.edited without uuid column', {
+
+  raw.main.filename <- testthat::test_path("fixtures", "test_recode_elsewhere_main.xlsx")
+  tool.filename <- testthat::test_path("fixtures", "tool_elsewhere.xlsx")
+  res.filename <- testthat::test_path("fixtures", "res_elsewhere.xlsx")
+  requests.filename <- testthat::test_path("fixtures")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(tool.filename, label_colname)
+  tool.shoices <- utilityR::load.tool.choices(tool.filename ,label_colname)
+  raw.main <- as.data.frame(readxl::read_excel(raw.main.filename))
+  or.edited <- utilityR::load.requests(requests.filename, "requests_elsewhere", "Sheet1", validate = T)
+  expected_res <- as.data.frame(readxl::read_excel(res.filename))
+
 
   # test error when passed or.edited without uuid column
   or.edited <- or.edited %>% dplyr::select(-uuid)
-  testthat::expect_error(recode.others.elsewhere(raw.main, tool.survey, or.edited, is.loop = F))
+  testthat::expect_error(recode.others.elsewhere(raw.main, tool.survey, or.edited, is.loop = F),
+                         "Your or.edited doesnt have the uuid variable, please check")
+})
+
+testthat::test_that('recode.others.elsewhere works test 3 - test error when passed or.edited without uuid column', {
+
+  raw.main.filename <- testthat::test_path("fixtures", "test_recode_elsewhere_main.xlsx")
+  tool.filename <- testthat::test_path("fixtures", "tool_elsewhere.xlsx")
+  res.filename <- testthat::test_path("fixtures", "res_elsewhere.xlsx")
+  requests.filename <- testthat::test_path("fixtures")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(tool.filename, label_colname)
+  tool.shoices <- utilityR::load.tool.choices(tool.filename ,label_colname)
+  expected_res <- as.data.frame(readxl::read_excel(res.filename))
+  raw.main <- as.data.frame(readxl::read_excel(raw.main.filename))
+
 
   # test error when passed raw.main without uuid column
   or.edited <- utilityR::load.requests(requests.filename, "requests_elsewhere", "Sheet1")
   raw.main <- raw.main %>% dplyr::select(-uuid)
-  testthat::expect_error(recode.others.elsewhere(raw.main, tool.survey, or.edited, is.loop = F))
+  testthat::expect_error(recode.others.elsewhere(raw.main, tool.survey, or.edited, is.loop = F),
+                         "Your data doesnt have the uuid variable, please check the data")
+})
 
-  raw.main <- readxl::read_excel(raw.main.filename)
 
-  # test if pass the data with is.loop = T without loop_index column
+testthat::test_that('recode.others.elsewhere works test 4 -  test if pass the data with is.loop = T without loop_index column', {
+
+  raw.main.filename <- testthat::test_path("fixtures", "test_recode_elsewhere_main.xlsx")
+  tool.filename <- testthat::test_path("fixtures", "tool_elsewhere.xlsx")
+  res.filename <- testthat::test_path("fixtures", "res_elsewhere.xlsx")
+  requests.filename <- testthat::test_path("fixtures")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(tool.filename, label_colname)
+  tool.shoices <- utilityR::load.tool.choices(tool.filename ,label_colname)
+  expected_res <- as.data.frame(readxl::read_excel(res.filename))
+
   raw.main <- as.data.frame(readxl::read_excel(raw.main.filename))
   or.edited <- utilityR::load.requests(requests.filename, "requests_elsewhere", "Sheet1")
 
-  testthat::expect_error(recode.others.elsewhere(raw.main, tool.survey, or.edited, is.loop = T))
+  testthat::expect_error(recode.others.elsewhere(raw.main, tool.survey, or.edited, is.loop = T),
+                         "Your loop data doesnt have the loop_index variable, please check the data")
+})
+
+testthat::test_that('recode.others.elsewhere works test 5 - general functionality', {
+
+  raw.main.filename <- testthat::test_path("fixtures", "test_recode_elsewhere_main.xlsx")
+  tool.filename <- testthat::test_path("fixtures", "tool_elsewhere.xlsx")
+  res.filename <- testthat::test_path("fixtures", "res_elsewhere.xlsx")
+  requests.filename <- testthat::test_path("fixtures")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(tool.filename, label_colname)
+  tool.shoices <- utilityR::load.tool.choices(tool.filename ,label_colname)
+  expected_res <- as.data.frame(readxl::read_excel(res.filename))
+
+  raw.main <- as.data.frame(readxl::read_excel(raw.main.filename))
+  or.edited <- utilityR::load.requests(requests.filename, "requests_elsewhere", "Sheet1")
 
   # test correctness of the output
 
   actual_result <- recode.others.elsewhere(raw.main, tool.survey, or.edited, is.loop = F)
   expected_res$loop_index <- as.character(expected_res$loop_index)
   testthat::expect_equal(actual_result, expected_res)
+})
 
-  # test correctness of the output with is.loop = T
+
+testthat::test_that('recode.others.elsewhere works test 6 - general functionality with loop', {
+
+  raw.main.filename <- testthat::test_path("fixtures", "test_recode_elsewhere_main.xlsx")
+  tool.filename <- testthat::test_path("fixtures", "tool_elsewhere.xlsx")
+  res.filename <- testthat::test_path("fixtures", "res_elsewhere.xlsx")
+  requests.filename <- testthat::test_path("fixtures")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(tool.filename, label_colname)
+  tool.shoices <- utilityR::load.tool.choices(tool.filename ,label_colname)
+  expected_res <- as.data.frame(readxl::read_excel(res.filename))
+
+  raw.main <- as.data.frame(readxl::read_excel(raw.main.filename))
+  or.edited <- utilityR::load.requests(requests.filename, "requests_elsewhere", "Sheet1")
+
+
   raw.main$loop_index <- as.character(raw.main$uuid)
   or.edited$loop_index <- as.character(or.edited$uuid)
   actual_result <- recode.others.elsewhere(raw.main, tool.survey, or.edited, is.loop = F)
@@ -1597,7 +2742,7 @@ testthat::test_that('recode.others.elsewhere works', {
 
 
 
-testthat::test_that('recode.other.relevancies',{
+testthat::test_that('recode.other.relevancies - test 1 basic functionality',{
 
   # load the tool data
   filename <- testthat::test_path("fixtures","tool_recode.xlsx")
@@ -1618,7 +2763,6 @@ testthat::test_that('recode.other.relevancies',{
 
   relevancy_dictionary <- find.relevances(tool.survey = tool.survey,var_list = var_list)
 
-  #test 1 basic functionality
 
   actual_output <- recode.other.relevances(data = test_data,
                                            cleaning.log.other = cl_log,
@@ -1660,8 +2804,29 @@ testthat::test_that('recode.other.relevancies',{
     dplyr::arrange(uuid,variable,old.value)
 
   testthat::expect_equal(actual_output,expected_output)
+})
 
-  # test 2 - runs well if we have no invalid entries
+testthat::test_that('recode.other.relevancies - test 2 - runs well if we have no invalid entries',{
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_recode.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the dataframe
+  filename <- testthat::test_path("fixtures","data_main_recode.xlsx")
+  test_data <- readxl::read_excel(filename)
+
+  # get the cl_log
+
+  filename <- testthat::test_path("fixtures","cl_log_recode_example.xlsx")
+  cl_log <- readxl::read_excel(filename)
+
+
+  var_list <- c('d2_winterization_support')
+
+  relevancy_dictionary <- find.relevances(tool.survey = tool.survey,var_list = var_list)
+
 
   cl_log_recode <- cl_log[grepl('d2_winterization_support/',cl_log$variable) & cl_log$new.value%==%1,]
 
@@ -1691,9 +2856,30 @@ testthat::test_that('recode.other.relevancies',{
     dplyr::arrange(uuid,variable,old.value)
 
   testthat::expect_equal(actual_output,expected_output)
+})
 
 
-  # test 3 - runs well if we have ONLY invalid entries
+testthat::test_that('recode.other.relevancies - test 3 - runs well if we have ONLY invalid entries',{
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_recode.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the dataframe
+  filename <- testthat::test_path("fixtures","data_main_recode.xlsx")
+  test_data <- readxl::read_excel(filename)
+
+  # get the cl_log
+
+  filename <- testthat::test_path("fixtures","cl_log_recode_example.xlsx")
+  cl_log <- readxl::read_excel(filename)
+
+
+  var_list <- c('d2_winterization_support')
+
+  relevancy_dictionary <- find.relevances(tool.survey = tool.survey,var_list = var_list)
+
 
   cl_log_invalid <- cl_log[grepl('d2_winterization_support/',cl_log$variable) & !cl_log$new.value%in%1,]
 
@@ -1728,8 +2914,31 @@ testthat::test_that('recode.other.relevancies',{
     dplyr::arrange(uuid,variable,old.value)
 
   testthat::expect_equal(actual_output,expected_output)
+})
 
-  # test 4 - should break if we try to run it on non-loop data
+
+testthat::test_that('recode.other.relevancies -  test 4 - should break if we try to run it on non-loop data',{
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_recode.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the dataframe
+  filename <- testthat::test_path("fixtures","data_main_recode.xlsx")
+  test_data <- readxl::read_excel(filename)
+
+  # get the cl_log
+
+  filename <- testthat::test_path("fixtures","cl_log_recode_example.xlsx")
+  cl_log <- readxl::read_excel(filename)
+
+
+  var_list <- c('d2_winterization_support')
+
+  relevancy_dictionary <- find.relevances(tool.survey = tool.survey,var_list = var_list)
+
+
   testthat::expect_error(
     recode.other.relevances(data = test_data,
                             cleaning.log.other = cl_log,
@@ -1737,8 +2946,29 @@ testthat::test_that('recode.other.relevancies',{
                             is.loop = T),
     "Parameter is.loop = TRUE, but column loop_index was not found in data!"
   )
+})
 
-  # test 5 - missing vars
+
+testthat::test_that('recode.other.relevancies -  test 5 - breaks with missing variables',{
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_recode.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the dataframe
+  filename <- testthat::test_path("fixtures","data_main_recode.xlsx")
+  test_data <- readxl::read_excel(filename)
+
+  # get the cl_log
+
+  filename <- testthat::test_path("fixtures","cl_log_recode_example.xlsx")
+  cl_log <- readxl::read_excel(filename)
+
+
+  var_list <- c('d2_winterization_support')
+
+  relevancy_dictionary <- find.relevances(tool.survey = tool.survey,var_list = var_list)
 
   relevancy_dictionary <- rbind(relevancy_dictionary,data.frame(name='test',relevant='test'))
 
@@ -1750,6 +2980,24 @@ testthat::test_that('recode.other.relevancies',{
     "Some of the variables in your relevancy_dictionary are not present in the data:test"
   )
 
+})
+
+
+testthat::test_that('recode.other.relevancies -  test 6 - works with loops',{
+
+  # load the tool data
+  filename <- testthat::test_path("fixtures","tool_recode.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+
+  # get the dataframe
+  filename <- testthat::test_path("fixtures","data_main_recode.xlsx")
+  test_data <- readxl::read_excel(filename)
+
+  # get the cl_log
+
+  filename <- testthat::test_path("fixtures","cl_log_recode_example.xlsx")
+  cl_log <- readxl::read_excel(filename)
 
   # test 6. Loops.
 
@@ -1769,7 +3017,7 @@ testthat::test_that('recode.other.relevancies',{
                                          '40b0277f-dd88-4e95-9602-f66ba2a6d65c','bc07518c-dc73-4b2b-8117-4a6255e5ee90',
                                          'fbd82700-21ec-4244-9a3e-041acfaaacdb','74771da6-0321-4da0-b40b-d159bf1f5da6', #invalid
                                          '1c97b817-5be6-420c-ad09-0e0835d87904','40b0277f-dd88-4e95-9602-f66ba2a6d65c' #recode
-                                         ),
+  ),
   uniqui = c('loop6d0dbe00-9e20-4f48-9c90-50af8f443f63','loop1c97b817-5be6-420c-ad09-0e0835d87904',
              'loop40b0277f-dd88-4e95-9602-f66ba2a6d65c','loopbc07518c-dc73-4b2b-8117-4a6255e5ee90',
              'loopfbd82700-21ec-4244-9a3e-041acfaaacdb','loop74771da6-0321-4da0-b40b-d159bf1f5da6', #invalid
@@ -1781,7 +3029,7 @@ testthat::test_that('recode.other.relevancies',{
                  'loop1c97b817-5be6-420c-ad09-0e0835d87904','loop40b0277f-dd88-4e95-9602-f66ba2a6d65c' #recode
   ),
   variable = c(rep('e3_1_14_sufficient_wash_support_oth',6),
-  rep('e3_1_1_sufficient_wash_support_repairs_water_supply_infrastructure_drainage_system',2)),
+               rep('e3_1_1_sufficient_wash_support_repairs_water_supply_infrastructure_drainage_system',2)),
   issue = c(rep('Change in the relevancy. Invalid entry',6),rep('Change in the relevancy. Recoding the entry',2)),
   old.value = c('yes','yes',"partially",'yes','yes',"partially",NA,NA),
   new.value = c(rep(NA_character_,6),"yes","partially")
