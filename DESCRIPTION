@@ -1,51 +1,53 @@
-Package: utilityR
 Type: Package
+Package: utilityR
 Title: Standard Reach Ukraine cleaning procedures (Title Case)
 Version: 0.1.0
 Author: Reach Ukraine
 Maintainer: The package maintainer <nestor.cheryba@reach-initiative.org>
-Description: The package that encompasses the general functionality of cleaning
-    survey data within the Reach Ukraine mission. The package goes through the
-    standard cleaning processes such as - deduplication, audit checks, geospatial
-    checks, recoding of others and many other forms of data processing to ensure
-    that the user can get the cleanest data possible.
+Description: The package that encompasses the general functionality of
+    cleaning survey data within the Reach Ukraine mission. The package
+    goes through the standard cleaning processes such as - deduplication,
+    audit checks, geospatial checks, recoding of others and many other
+    forms of data processing to ensure that the user can get the cleanest
+    data possible.
 License: MIT + file LICENSE
-Encoding: UTF-8
-LazyData: true
-Suggests: 
+Depends: 
+    R (>= 2.10)
+Imports: 
+    cluster,
+    fastDummies,
     dplyr,
+    ggplot2,
+    igraph,
+    magrittr,
+    rlang,
+    stringdist,
+    stringi,
+    tibble
+Suggests: 
+    cluster,
     data.table,
+    igraph,
+    knitr,
+    OpenRepGrid,
     openxlsx,
-    randomcoloR,
     plyr,
-    readr,
     purrr,
+    randomcoloR,
+    readr,
     readxl,
+    rmarkdown,
+    stringi,
     stringr,
     svDialogs,
-    stringi,
-    cluster,
-    igraph,
     testthat (>= 3.0.0),
     tidyr,
-    OpenRepGrid,
-    translateR,
-    knitr,
-    rmarkdown
+    translateR
+VignetteBuilder: 
+    knitr
 Remotes:
     github::REACH-WoU-Regional/translateR
 Config/testthat/edition: 3
+Encoding: UTF-8
+LazyData: true
 RoxygenNote: 7.3.0
-Imports: 
-    magrittr,
-    rlang,
-    tibble,
-    stringi,
-    cluster,
-    igraph,
-    fastDummies,
-    ggplot2,
-    stringdist
-VignetteBuilder: knitr
-Depends: 
-    R (>= 2.10)

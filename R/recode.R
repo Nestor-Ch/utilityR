@@ -379,7 +379,7 @@ recode.multiple.set.choices <-
       tool.choices %>% dplyr::filter(list_name == ls_name &
                                        name %in% choices) %>%
       dplyr::pull(name) %>% paste(collapse = " ")
-    anychoice_pattern <- paste0("(", choices, ")", collapse = "|")
+    anychoice_pattern <- paste0("(\\b", choices, "\\b)", collapse = "|")
 
     # filter out NA and cases that already have only these choices selected
     data <- data %>% dplyr::filter(!!rlang::sym(variable) != newvalue)
@@ -548,7 +548,7 @@ recode.multiple.remove.choices <-
     choice_columns <- paste0(variable, "/", choices)
     if (any(!choice_columns %in% colnames(data)))
       stop(paste("Column",
-                 choice_columns[!choice_columns %in% colnames(data)],
+                 paste0(choice_columns[!choice_columns %in% colnames(data)], collapse = ', '),
                  "were not found in data!"))
 
     # filter to include only rows that are not NA, and that have at least one of the choices selected
@@ -1089,8 +1089,8 @@ recode.others <-
       data <- data %>%
         dplyr::mutate(uniqui = uuid)
     } else if(is.loop & is.null(id_col)){
-      if (!"loop_index" %in% colnames(or.edited)) {
-        stop("Parameter is.loop = TRUE, but column loop_index was not found in or.edited!")
+      if ((!"loop_index" %in% colnames(or.edited)|(!"loop_index" %in% colnames(data)))) {
+        stop("Parameter is.loop = TRUE, but column loop_index was not found in or.edited or data!")
       }
       else{
         or.edited <- or.edited %>%

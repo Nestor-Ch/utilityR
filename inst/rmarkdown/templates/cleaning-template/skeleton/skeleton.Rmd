@@ -199,7 +199,7 @@ cleaning.log.checks.direct <- tibble()
 ```
 
 Outlier checks will require you to set some parameters prior to running the algorithm. Check the documentation on `detect.outliers` to find more details.
-```{Section 6 - Check for outliers}
+```{r Section 6 - Check for outliers}
 # specify the number of standard deviations you want to use
 n.sd <- 3
 

@@ -33,7 +33,7 @@ apply.changes <- function(data, clog, is.loop, print_debug = T){
   }else if(is.loop)
     clog <- dplyr::filter(clog, !is.na(loop_index))
   if(nrow(clog) == 0){
-    stop("No changes to be applied (cleaning log empty).")
+    stop("No changes to be applied (cleaning log empty)")
   }
   else{
     missinguuids <- c()
