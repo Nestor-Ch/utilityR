@@ -1,6 +1,6 @@
 # utilityR general use and the cleaning process.
 
-The package is devoted to a number of functions used within the standard Reach Ukraine cleaning processes. The package is composed of a number of function 'families' each
+The package is devoted to a number of functions used within the standard Reach Ukraine cleaning processes. Run `devtools::install_github(https://github.com/REACH-WoU/utilityR)` to install the package to your machine. The package is composed of a number of function 'families' each
 dealing with a specific aspect of the data manipulation. Please read vignettes and individual function documentation to discover more about each of the families in greater
 detail. you can browse the vignettes of this package by calling `vignette(package='utilityR')`.
 The text below presents a comprehensive overview of the cleaning process and how each of the functions are used within their respective frameworks.
