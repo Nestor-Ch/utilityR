@@ -210,7 +210,7 @@ get.ref.question <- function(q_relevancy){
 #'
 #' @param tool.choices This is the tool.choices data.frame
 #' @param tool.survey This is the tool.survey data.frame
-#' @param label_colname This is the label_colname input
+#' @param label_colname This is the label_colname input (usually `label::English``)
 #'
 #' @return a data.frame including all select questions with the type, name, label, q.type, list_name, and choices
 #' @export
@@ -251,7 +251,7 @@ get.select.db <- function(tool.choices = NULL,
 #'
 #' @param tool.choices This is the tool.choices data.frame
 #' @param tool.survey This is the tool.survey data.frame
-#' @param label_colname This is the label_colname input
+#' @param label_colname This is the label_colname input (usually `label::English``)
 #'
 #' @return Dataframe containing name, parent name, full.label, parent type, choices, choices label
 #' @export
@@ -291,7 +291,7 @@ get.other.db <- function(tool.survey= NULL,
 #'
 #' @param tool.choices This is the tool.choices data.frame
 #' @param tool.survey This is the tool.survey data.frame
-#' @param label_colname This is the label_colname input
+#' @param label_colname This is the label_colname input (usually `label::English``)
 #'
 #' @return Dataframe containing name,full.label
 #' @export
@@ -318,3 +318,62 @@ get.trans.db <- function(tool.survey= NULL,
     dplyr::select("name", "label")
   return(trans.db)
 }
+
+
+
+#' Finds all text questions
+#'
+#' @param tool.choices This is the tool.choices data.frame
+#' @param tool.survey This is the tool.survey data.frame
+#' @param label_colname This is the label_colname input (usually `label::English``)
+#'
+#' @return A dataframe of all text questions in your survey
+#' @export
+#'
+#' @note This function exists for cases where the person who coded the Kobo questionnaire didn't follow the conventional rules
+#' For writing them and some of the questions were ommited from other `other.db` or `trans.db`. This function will create an
+#' object that is compatible with both of those dataframes and relevant rows from it can be appened to either `other.db`
+#' or `trans.db`.
+#'
+#' @examples
+#' \dontrun{
+#' text.db <- get.text.db(tool.choices = tool.choices,
+#'                          tool.survey = tool.survey,
+#'                          label_colname = label_colname)
+#' }
+get.text.db <- function(tool.survey= NULL,
+                         tool.choices= NULL,
+                         label_colname = NULL){
+  if(is.null(tool.survey)) stop("tool.survey is not provided.")
+  if(is.null(tool.choices)) stop("tool.choices is not provided.")
+  if(is.null(label_colname)) stop("label_colname is not provided.")
+  select.questions <- get.select.db(tool.choices = tool.choices,
+                                    tool.survey = tool.survey,
+                                    label_colname = label_colname)
+
+  # for each "other" question, get ref.question and list of choices
+  text.db <- tool.survey[tool.survey$type=="text",] %>%
+    dplyr::rename(label=label_colname) %>%
+    dplyr::select("name", "label", "relevant") %>%
+    dplyr::mutate(ref.name=as.character(lapply(relevant, get.ref.question))) %>%
+    dplyr::left_join(dplyr::select(select.questions, "name", "q.type", "q.label", "list_name", "choices", "choices.label"),
+                     by=c("ref.name"="name")) %>%
+    dplyr::rename(ref.label=q.label, ref.type=q.type) %>%
+    dplyr::mutate(full.label=ifelse(!isna(ref.label),paste0(ref.label, " - ", label),label)) %>%
+    dplyr::select(name, ref.name, full.label, ref.type, choices, choices.label)
+  return(text.db)
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

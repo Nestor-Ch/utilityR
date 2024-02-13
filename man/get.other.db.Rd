@@ -11,7 +11,7 @@ get.other.db(tool.survey = NULL, tool.choices = NULL, label_colname = NULL)
 
 \item{tool.choices}{This is the tool.choices data.frame}
 
-\item{label_colname}{This is the label_colname input}
+\item{label_colname}{This is the label_colname input (usually `label::English``)}
 }
 \value{
 Dataframe containing name, parent name, full.label, parent type, choices, choices label

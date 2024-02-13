@@ -1248,7 +1248,7 @@ recode.trans.requests <- function(requests, response_col) {
                     old.value = rlang::sym(response_col)) %>%
       dplyr::mutate(new.value = NA,
                     issue = 'Invalid response') %>%
-      dplyr::select(uuid, loop_index, variable, old.value, new.value, issue)
+      dplyr::select(dplyr::any_of(c('uuid', 'loop_index', 'variable', 'old.value', 'new.value', 'issue')))
   } else{
     result_invalid <- data.frame()
   }
