@@ -20,6 +20,7 @@ load.label.colname <- function(filename_tool, language = "English"){
 #'
 #' @param filename_tool This is the path to the file that contains the tool
 #' @param label_colname This is the variable of the label colname
+#' @param keep_cols Whether all columns in your kobo choices sheet should be kept
 #'
 #' @return A dataframe: tool.choices, it's the same as the 'choices' tab from the tool, filtered to include only distinct rows.
 #' @export
@@ -31,9 +32,12 @@ load.label.colname <- function(filename_tool, language = "English"){
 #' tool_choices <- load.tool.choices(filename_tool, label_colname)
 #' }
 
-load.tool.choices <- function(filename_tool, label_colname){
-  tool.choices <- readxl::read_xlsx(filename_tool, sheet = "choices", col_types = "text") %>%
-    dplyr::select(dplyr::all_of(c("list_name", "name")), !!rlang::sym(label_colname))
+load.tool.choices <- function(filename_tool, label_colname, keep_cols=F){
+  tool.choices <- readxl::read_xlsx(filename_tool, sheet = "choices", col_types = "text")
+  if(keep_cols ==F){
+    tool.choices <- tool.choices %>%
+      dplyr::select(dplyr::all_of(c("list_name", "name")), !!rlang::sym(label_colname))
+  }
   tool.choices <- tool.choices[!is.na(tool.choices$list_name),] %>%
     dplyr::distinct() %>%
     as.data.frame()
@@ -103,6 +107,7 @@ load.tool.survey <- function(filename_tool, label_colname,  keep_cols = F){
 #' @param filename.pattern String with a regex pattern which will be passed to `list.files` to match files,
 #' however: '^' (string start) is added at the start of the pattern, and ".*\\.xlsx" is added at the end,
 #' so effectively files that will be loaded must be XLSX and have names that start with the provided pattern.
+#' The pattern should not contain .xlsx file specification. This will break the pattern recognition
 #'
 #' @param sheet Optional parameter passed to `read_xlsx`, defaults to NULL (first sheet of an Excel workbook)
 #' @param validate Should the file be validated (make sure that only one of TEI columns is filled.)
@@ -115,6 +120,9 @@ load.tool.survey <- function(filename_tool, label_colname,  keep_cols = F){
 #' load.requests(dir = 'your_path', filename.pattern = 'your_pattern')
 #' }
 load.requests <- function(dir, filename.pattern, sheet=NULL, validate=FALSE){
+  if(grepl('.xlsx$',filename.pattern)){
+    stop("Your filename.pattern object ends with .xlsx. This is will break the function. Please remove and re-run")
+  }
   file.type <-  stringr::str_squish(stringr::str_replace_all(filename.pattern, "[^a-zA-Z]+"," "))
   filenames <- list.files(dir, recursive=FALSE, full.names=TRUE, ignore.case = TRUE,
                           pattern=paste0("^",filename.pattern,".*\\.xlsx"))
@@ -226,10 +234,10 @@ load.audit.files <- function(dir.audits, uuids=NULL, track.changes=F, add.uuid2=
       dplyr::mutate(inter_q_duration = (start-dplyr::lag(end))/1000) %>%
       dplyr::ungroup() %>%
       dplyr::mutate(duration=(end-start)/1000,
-             group=sapply(stringr::str_split(node, '\\/'), function(x){
-               id.group <- ifelse("G_survey" %in% x, 4, 3)
-               return(x[id.group])}),
-             question=sapply(stringr::str_split(node, '\\/'), function(x){return(x[length(x)])})) %>%
+                    group=sapply(stringr::str_split(node, '\\/'), function(x){
+                      id.group <- ifelse("G_survey" %in% x, 4, 3)
+                      return(x[id.group])}),
+                    question=sapply(stringr::str_split(node, '\\/'), function(x){return(x[length(x)])})) %>%
       dplyr::mutate(event=stringr::str_replace_all(event, " ", ".")) %>%
       dplyr::tibble()
 

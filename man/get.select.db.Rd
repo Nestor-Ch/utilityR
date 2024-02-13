@@ -11,7 +11,7 @@ get.select.db(tool.choices = NULL, tool.survey = NULL, label_colname = NULL)
 
 \item{tool.survey}{This is the tool.survey data.frame}
 
-\item{label_colname}{This is the label_colname input}
+\item{label_colname}{This is the label_colname input (usually `label::English``)}
 }
 \value{
 a data.frame including all select questions with the type, name, label, q.type, list_name, and choices

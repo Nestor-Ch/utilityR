@@ -299,3 +299,65 @@ testthat::test_that("get.trans.db works - test 4 desired functionality", {
     suppressWarnings()
   testthat::expect_equal(actual_output,expected_output)
 })
+
+
+
+testthat::test_that("get.text.db works - test 1 desired functionality", {
+  filename <- testthat::test_path("fixtures","tool.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+  tool.choices <- utilityR::load.tool.choices(filename,label_colname)
+
+  expected_output <- data.frame(name = c("individuals_comments",'b17_1_access_stores_other'),
+                                ref.name = c(NA,'b17_access_stores'),
+                                full.label = c("Any comments",
+                                               'B17_How have the war and its related developments affected your ability to access your usual store or marketplace this month? - B17_1_Other (specify)'),
+                                ref.type = c(NA, 'select_multiple'),
+                                choices = c(NA, "no_impact;\nmovement_restrictions;\nfighting_shelling"),
+                                choices.label = c(NA, "No impact on physical access to stores or marketplaces;\nMovement restrictions related to martial law;\nActive fighting or shelling in the area")
+                                )
+  actual_output <- get.text.db(tool.choices = tool.choices,label_colname = label_colname,tool.survey = tool.survey) %>%
+    suppressWarnings()
+  testthat::expect_equal(actual_output,expected_output)
+})
+
+
+testthat::test_that("get.text.db works - test 2 breaks when tool.survey is not provided", {
+  filename <- testthat::test_path("fixtures","tool.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+  tool.choices <- utilityR::load.tool.choices(filename,label_colname)
+  testthat::expect_error(get.text.db(label_colname = label_colname,tool.choices = tool.choices),
+                         "tool.survey is not provided.")
+})
+
+testthat::test_that("get.text.db works - test 3 breaks when tool.choices is not provided", {
+  filename <- testthat::test_path("fixtures","tool.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+  tool.choices <- utilityR::load.tool.choices(filename,label_colname)
+
+  testthat::expect_error(get.text.db(label_colname = label_colname,tool.survey = tool.survey),
+                         "tool.choices is not provided.")
+})
+
+testthat::test_that("get.text.db works - test 4 breaks when label is not provided", {
+  filename <- testthat::test_path("fixtures","tool.xlsx")
+  label_colname <- "label::English"
+  tool.survey <- utilityR::load.tool.survey(filename,label_colname)
+  tool.choices <- utilityR::load.tool.choices(filename,label_colname)
+
+  testthat::expect_error(get.text.db(tool.choices = tool.choices,tool.survey = tool.survey),
+                         "label_colname is not provided.")
+})
+
+
+
+
+
+
+
+
+
+
+

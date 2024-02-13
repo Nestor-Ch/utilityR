@@ -11,7 +11,8 @@ load.requests(dir, filename.pattern, sheet = NULL, validate = FALSE)
 
 \item{filename.pattern}{String with a regex pattern which will be passed to `list.files` to match files,
 however: '^' (string start) is added at the start of the pattern, and ".*\\.xlsx" is added at the end,
-so effectively files that will be loaded must be XLSX and have names that start with the provided pattern.}
+so effectively files that will be loaded must be XLSX and have names that start with the provided pattern.
+The pattern should not contain .xlsx file specification. This will break the pattern recognition}
 
 \item{sheet}{Optional parameter passed to `read_xlsx`, defaults to NULL (first sheet of an Excel workbook)}
 

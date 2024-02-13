@@ -36,7 +36,7 @@ if(name_clean_others_file != ''){
     dplyr::rowwise() %>%
     dplyr::mutate(existing.v.choice_label = sapply(stringr::str_split(choice, " "), function(choice_list) {
       if (is.na(existing.v)) {
-        return("NA")
+        return(NA_character_)
       }
       existing.v.list <- unlist(strsplit(existing.v, ";"))
 
@@ -54,7 +54,7 @@ if(name_clean_others_file != ''){
       return(paste(existing.v.list, collapse = ";"))
     })) %>%
     dplyr::ungroup() %>%
-    mutate(existing.v = ifelse(existing.v.choice_label == '', NA, existing.v.choice_label),
+    mutate(existing.v = ifelse(existing.v.choice_label == '', NA_character_, existing.v.choice_label),
            invalid.v = ifelse(existing.v.choice_label == '', 'YES', invalid.v))
 
   warn <- nrow(or.edited[or.edited$existing.v.choice_label =='',])
@@ -269,10 +269,11 @@ paste0('uuid: ',none_check$uuid,
 
   }else{cleaning.log.other.loop3 <- data.frame()}
 
-  --------------------# Recode followup relevancies ----------------------
+  #--------------------# Recode followup relevancies ----------------------
 
   # these are the variables that have the relevancies related to their _other responses
-  select_multiple_list_relevancies <- c('I_1_income_sources')
+
+  select_multiple_list_relevancies <- c()
 
   if(length(select_multiple_list_relevancies)>0){
     # get the dictionary of the relevancies

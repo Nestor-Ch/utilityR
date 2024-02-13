@@ -47,6 +47,56 @@ testthat::test_that("load.tool.choices works - test 2 - full data", {
 })
 
 
+testthat::test_that("load.tool.choices works - test 3 - full data, additional columns", {
+
+  ## Correct output
+  testdata <- testthat::test_path("fixtures","tool.xlsx")
+  label_colname <- "label::English"
+  actual_output <- load.tool.choices(testdata,label_colname, keep_cols = T)
+  expected_output <- data.frame(list_name = c("yn","yn","partner","partner","partner","partner","partner",
+                                              "partner","partner","partner","partner","partner","partner",
+                                              "partner","partner","partner","partner","partner","partner",
+                                              "partner","partner","partner","partner","partner","partner",
+                                              "partner","partner","partner","affect","affect","affect"),
+                                name = c("yes","no","Caritas","Save_the_Children","CORE","ACTED","KIIS",
+                                         "JERU","FAO","ACF","PIN","IRC","WFP","REACH", "UFF_ERC","TGH",
+                                         "Mercy_Corps","URCS","HEKS_EPER","Equilibrium","ZT","UNOPS","LASKA",
+                                         "Dorcas","New_Partner","Additional_Partner","WVI","Global_Communities",
+                                         "no_impact","movement_restrictions","fighting_shelling"),
+                                `label::English` = c("Yes","No","Caritas","Save_the_Children","CORE","ACTED",
+                                                     "KIIS","JERU","FAO","ACF","PIN","IRC","WFP","REACH",
+                                                     "UFF_ERC","TGH","Mercy_Corps","URCS","HEKS_EPER","Equilibrium",
+                                                     "ZT","UNOPS","LASKA","Dorcas","New_Partner",
+                                                     "Additional_Partner","WVI","Global_Communities",
+                                                     "No impact on physical access to stores or marketplaces",
+                                                     "Movement restrictions related to martial law",
+                                                     "Active fighting or shelling in the area"),
+                                `label::Український` = c('Так','Ні','Caritas','Save_the_Children','CORE','ACTED','KIIS',
+                                                         'JERU','FAO','ACF','PIN','IRC','WFP','REACH','UFF_ERC','TGH','Mercy_Corps','URCS','HEKS_EPER',
+                                                         'Equilibrium','ZT','UNOPS','LASKA','Dorcas','New_Partner','Additional_Partner',
+                                                         'WVI','Global_Communities',
+                                                         'Жодного впливу на фізичний доступ до магазинів або ринків',
+                                                         'Обмеження пересування, пов’язані з воєнним станом',
+                                                         'Активні бойові дії або обстріли у місцевості'),
+                                `label::Русский` = c('Да','Нет','Caritas','Save_the_Children','CORE','ACTED','KIIS',
+                                                     'JERU','FAO','ACF','PIN','IRC','WFP','REACH','UFF_ERC','TGH','Mercy_Corps','URCS','HEKS_EPER',
+                                                     'Equilibrium','ZT','UNOPS','LASKA','Dorcas','New_Partner','Additional_Partner',
+                                                     'WVI','Global_Communities',
+                                                     'Никакого влияния на физический доступ к магазинам или рынкам',
+                                                     'Ограничения передвижения, связанные с военным положением',
+                                                     'Активные боевые действия или обстрелы в местности'),
+                                filter = NA_character_
+                                ) %>%
+    dplyr::rename("label::English" = `label..English`,
+                  "label::Русский" = `label..Русский`,
+                  "label::Український" = `label..Український`)
+
+  testthat::expect_equal(actual_output,expected_output)
+
+})
+
+
+
 testthat::test_that("load.tool.survey works, general functionality", {
   testdata <- testthat::test_path("fixtures","tool.xlsx")
   label_colname <- "label::English"
@@ -240,6 +290,19 @@ testthat::test_that("load.requests works test 7 - no ref.type column but should 
 
   testthat::expect_equal(expected_output_2, actual_output_2)
 
+
+})
+
+
+testthat::test_that("load.requests works test 8 - Breaks when we provide the wrong filename pattern", {
+  test_dir = testthat::test_path('fixtures')
+
+  testthat::expect_error(
+  load.requests(dir = test_dir,filename.pattern ='test_requestsnoref_column.xlsx',
+                                   sheet = 'Sheet2', validate=T),
+  "Your filename.pattern object ends with .xlsx. This is will break the function. Please remove and re-run"
+
+  )
 
 })
 
