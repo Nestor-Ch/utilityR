@@ -37,7 +37,7 @@ The text below follows the structure of the cleaning template presented in the m
 
 Prior to running anything fill up the `directory_dictionary` list with the relevant names. Load the API key file and run the `init.R` and `load_Data.R` files. Usually, no inputs from your side are needed for these two bits of script.
 
-The raw data are saved in the `kobo.raw.main` and `kobo.raw.loopx` files that are later duplicated into `raw.main` and `raw.loopx` files. This is convenient for cases where you want to re-run your cleaning procedure from scratch
+The raw data are saved in the `kobo.raw.main` and `kobo.raw.loopx` files (x is the number of your loop e.g. kobo.raw.loop1) that are later duplicated into `raw.main` and `raw.loopx` files. This is convenient for cases where you want to re-run your cleaning procedure from scratch and don't want to waste time on reading your dataframes again. Just run the rows that create `raw.main` and `raw.loopx` objects and you'll be set.
 
 If you need to modify your kobo tool in any way, please do so within the `src/sections/tool_modification.R` file. This is reserved for the cases where the tool was changed in the middle of data collection.
 
@@ -45,7 +45,7 @@ If you need to modify your kobo tool in any way, please do so within the `src/se
 
 All entries marked for deletion are kept in the `deletion.log.new` object - this is our deletion log.
 
-The initial step that the script goes through is the removal of duplicates. The algorithm for finding them in the `raw.main` is standard - finding the duplicate `uuid` entries and dropping them. We cannot do this for the `raw.loopx` objects as their unique identifier `loop_index` works as a row index. We will never be able to find any duplicates by investingating this column. However, each individual loop entry is assigned to some entry from the `raw.main` object through the `uuid` and the `parent_index` columns. Each set of household members should have 1 unique `uuid` and `parent_index`. The script finds those entries that have more than one `parent_index` per a unique `uuid` and marks them as duplicates. 
+The initial step that the script goes through is the removal of duplicates. The algorithm for finding them in the `raw.main` is standard - finding the duplicate `uuid` entries and dropping them. We cannot do this for the `raw.loopx` objects as their unique identifier `loop_index` works as a row index. We will never be able to find any duplicates by investigating this column. However, each individual loop entry is assigned to some entry from the `raw.main` object through the `uuid` and the `parent_index` columns. Each set of household members should have 1 unique `uuid` and `parent_index`. The script finds those entries that have more than one `parent_index` per a unique `uuid` and marks them as duplicates. 
 
 At the end of this process, those entries are added into the `deletion.log.dupl` object.
 
@@ -55,7 +55,9 @@ At the end of this process, those entries are added into the `deletion.log.dupl`
 
 This is done because most other checks that we run check for the general invalidity of the survey and delete entries if they match the `uuid`. If we were to merge the two objects together, the script would delete all the entries that match the duplicate `uuid` index while ignoring the fact that:
 1. While there may be two of these entries in the data, that doesn't mean that it's not a valid entry, we just don't need two of them
-2. The deletion of entries by `uuid` within the loop will cause the deletion of all loop entries that match this `uuid`, even if they're not duplicated.
+2. The deletion of entries by `uuid` within the loop will cause the deletion of all loop entries that match this `uuid`, even if they're not duplicated.  
+
+**No consent entries**
 
 The next bit of the script checks the **No consent** entries in the data and requires the user's input. The user has to define the condition that classifies an entry as a no-consent entry and filter the dataframe by it, thus creating the `no_consents` data.frame object.
 
@@ -66,7 +68,7 @@ If you want to add any other checks for general validity of the data, you can ad
 ### Audit checks and soft duplicates
 
 **Audit checks** 
-Prior to running the script you'll have to specify the minimum and maximum time that the respondent can spend answering the questions. All of the interviews that are above/below these thresholds will be marked as suspicious. Additionally, some enumerators can spend too much time on a single question (consent, location, etc.) to make the interview seem longer than it actually was. You can smooth these interview times by passing the `pre_process_audit_files = T` argument and setting `max_length_answer_1_question` parameter. This will make the script run the `pre.process.audits` function, that will replace these long times with the sample average time for answering the given question, without the outliers. Those uuid-question pairs that had their time values replaced will be tagged in the `tag` column so that the user knows that something was wrong in the interview-question pair.
+Prior to running the script you'll have to specify the minimum and maximum time that the respondent can spend answering the questions. All of the interviews that are above/below these thresholds will be marked as suspicious. Additionally, some enumerators can spend too much time on a single question (consent, location, etc.) to make the interview seem longer than it actually was. You can smooth these interview times by passing the `pre_process_audit_files = T` argument and setting `max_length_answer_1_question` parameter. This will make the script run the `pre.process.audits` function, that will replace these long times with the sample average time for answering the given question, without the outliers. Those uuid-question pairs that had their time values replaced will be tagged in the `tag` column so that the user knows that something was wrong in the interview-question pair. This is a best practice, so we encourage the users to do so.
 
 The analysis of audits will create a `audits_summary` excel file in the `directory_dictionary$dir.audits.check` directory. This file is your survey data + audit check columns such as:  
 `n.iteration` - The number of iterations per interviews (the number of times the user had to stop and then continue the interview)  
@@ -79,10 +81,10 @@ The analysis of audits will create a `audits_summary` excel file in the `directo
 `j` - Number of jump events per iteration  
 `e` - Number of edits per iteration Calculated as the number of non NA entries in the `old.value` column  
 `w` - Waiting time - the `start` column of iteration's `form.resume`event - the `start`  for the column of the pervious iterations `form.exit` event  
-`tag` - If you've pre-processed files, this column will tag the uuid-question pairs that were outside of the set threshold for the column of the pervious iterations `form.exit` event
-
+`tag` - If you've pre-processed files, this column will tag the uuid-question pairs that were outside of the set duration threshold  
 As well as `NA`, `DK`, and `_other` (open text answer) columns.  
-**All of the suspicious surveys will be written into the `survey_durations` file**
+
+**All of the suspicious surveys will be written into the `survey_durations` file.**
 After the script is done analysing these things, you can browse the `audits_summary` excel file. If you decide to keep an entry despite it being in this file, delete the relevant excel row. Everyting within this file will be deleted when you run the `section_2_run_audit_decisions.R`.
 
 **Soft Duplicates**
@@ -95,7 +97,7 @@ This analysis produces 4 outputs:
 3. `soft_duplicates_outliers` excel - outlier enumerators that have the most soft duplicates.
 4. `enumerators_surveys` pdf - a visualisation of the enumerators with outlier values in terms of similarity of surveys.
 
-Once again, if you're fine with some of these duplicates, remove them from the `soft_duplicates` excel file in the `directory_dictionary$dir.audits.check` directory. Everyting that is left in the excel will be deleted when you run the `section_2_run_audit_decisions.R`.
+Once again, if you're fine with some of these duplicates, remove them from the `soft_duplicates` excel file in the `directory_dictionary$dir.audits.check` directory. Everything that is left in the excel will be deleted when you run the `section_2_run_audit_decisions.R`.
 
 Once you've looked through the excel files, double-checked everything and left only those entries that you'd like to delete in audit and soft duplicate files, run the `section_2_run_audit_decisions.R` line in the cleaning script.
 
@@ -112,7 +114,10 @@ After this check is done, the deletion log is written into a `geospatial_check` 
 
 This section is the most hands-on part of this script. It is also the most complex one, so please take your time running it and be vary of any bugs, errors and warning that you may get. Please go into the scripts themselves when running them instead of just sourcing them.
 
-`section_4_create_other_requests_files.R` is the bit of the script that gathers all of the `text` columns from your kobo questionnaire and translates them. It creates two files each having a different procedure applied to it. One file is dedicated to the `_other` requests the other one works with the open-ended questions.
+`section_4_create_other_requests_files.R` is the bit of the script that gathers all of the `text` columns from your kobo questionnaire and translates them. It creates two files each having a different procedure applied to it. One file is dedicated to the `_other` requests the other one works with the open-ended questions.  
+
+**NOTE**  
+Each of the abovementioned files is generated by their respective functions in the `get` family - `get.other.db` and `get.trans.db`. If one of the functions didn't find the respective entries (meaning that you didn't follow the bese practices when designing the Kobo tool). You can run `get.text.db` function that will get you all of the text questions in tour kobo form. From that point you can transfer the ommited columns to either `other.db` or `trans.db` objects prior to running `find.responses` functions that follow them.
 
 #### The other entry workflow. 
 The first type of a file that this script produces are the `other_requests_final` file. To produce the list of `text` questions that have `_other` response options the script uses the `get.other.db` function. This functions relies on the fact that in our data these questions have the `_other` suffix and have only one relevancy - their `ref.name` column in the following form - `selected(${ref.name}, 'other')`.  
@@ -128,7 +133,7 @@ After the file is created, the user's task is to open the excel file and look th
 **The regular cases**  
 Most of the time the user will be engaging with `true`, `existing` and `invalid` columns. 
 - If the translation is good and the answer is appropriate to what was asked in the question stored in `full.label` column, put the correct translation into the `true` column.
-- If the answer that the user has given is already present in the `choices.label` column (meaning that the user didn't understand that such option was already available), fill the `existing` column by pasting the exact appropriate option from the `choices.label` column. If you're working with a `select_multiple` question, and the answer is appropriate for a few of the options in the `choices.label` you can add a few of them if you separate them with a semicolon - `;`.
+- If the answer that the user has given is already present in the `choices.label` column (meaning that the user didn't understand that such option was already available), fill the `existing` column by pasting the exact appropriate option from the `choices.label` column. If you're working with a `select_multiple` question, and the answer is appropriate for a few of the options in the `choices.label` you can add a few of them if you separate them with a semicolon - `;`. Be careful when filling this column and double-check the `choices` column in your excel file. Sometimes the option that you want to put into the `existing` column has already be chosen by the user. This won't break the script but you will get a warning.
 - If the answer is invalid - as in, it's not related to the question that is being asked, type `YES` into the `invalid` column.
 
 **The elsewhere cases**  
@@ -162,10 +167,10 @@ When you're done with this, you can save the excel file and move on to applying 
 #### Applying recode changes  
 When the user starts running the `section_4_apply_changes_to_requests` file the script will go through a round of checks to see whether the `other_requests_final` file was filled properly. It will check:
 - Whether the choices that the user has added in the `existing` column weren't already chosen by the user within the `choices` column (if they were, those entries will be removed from the requests file).
-- Whether the entries were filled properly (only 1 column out of `existing`, `true`,`invalid` is filled)
+- Whether the entries were filled properly (only 1 column out of `existing`, `true`,`invalid` is filled). If the `_other` response is such that you need to recode the response into both `existing` and `true`, you can fill two columns at once, but you will get a warning to make sure you know what you're doing.
 - Whether there are any empty rows
 - Whether the choices that the user has added in the `existing` column are actually present in the `tool.choices` object.
-- Whether the user has any entries within `existing.v` column that match the `None` criterion. These values include: `None`,`Don't know`,`Prefer not to answer`,etc. These entries need special treatent as the user entering them means that all other replies to the given question are invalid except for the `None` reply. The check looks if any of your entries are similar to these and asks the user to make sure that the 'name' values of these choices (from `tool.choices` object) are present in the `none_selection` object. By default, the object includes c('do_not_know', 'prefer_not_to_answer', 'none','none_of_the_above','dont_know', 'do_not_want_to_answer') and is passed to `recode_others` function that passes it internally to `recode.others_select_multiple` function. If you need to add some other cases, or remove them, feel free to modify this object.
+- Whether the user has any entries within `existing.v` column that match the `None` criterion. These values include: `None`,`Don't know`,`Prefer not to answer`,etc. These entries need special treatment as the user entering them means that all other replies to the given question are invalid except for the `None` reply. The check looks if any of your entries are similar to these and asks the user to make sure that the 'name' values of these choices (from `tool.choices` object) are present in the `none_selection` object. By default, the object includes c(`do_not_know`, `prefer_not_to_answer`, `none`,`none_of_the_above`,`dont_know`, `do_not_want_to_answer`) and is passed to `recode_others` function that passes it internally to `recode.others_select_multiple` function. If you need to add some other cases, or remove them, feel free to modify this object.
 
 If those checks have passed, the script will split the requests file depending on whether the questions belong to the main or loop dataframe. Each of these pairs of objects (the dataframe and its relevant recode requests) will be passed through the function `recode.others` that will create a cleaning log with the following set of changes for each case:
 - If the reply is `true`, it'll replace the Ukrainian/Russian version of the `_other` response with the translated version.
@@ -187,9 +192,9 @@ Once this is done, the next bit of code deals with the *elsewhere* cases. This b
 After this is done, we move on to the `recode.relevancy` framework.
 
 #### recode.relevancy framework
-The `recode.relevancy` framework is created for cases where the `ref.name` you are recoding is a `select_multiple` that direct the respondent to other questions depending on their answers. For example `ref.name` is a `select_multiple` asking the respondent to tell us what types of humanitarian aid they have recieved. After they reply, they are directed to a set of questions asking about the quality of said aid. If we are recoding the `ref.name` it inevitably influences these relevant questions, so we have to recode them as well. This is where the `recode.relevancy` framework comes in.
+The `recode.relevancy` framework is created for cases where the `ref.name` you are recoding is a `select_multiple` that direct the respondent to other questions depending on their answers. For example `ref.name` is a `select_multiple` asking the respondent to tell us what types of humanitarian aid they have received. After they reply, they are directed to a set of questions asking about the quality of said aid. If we are recoding the `ref.name` it inevitably influences these relevant questions, so we have to recode them as well. This is where the `recode.relevancy` framework comes in.
 
-The first step in this framework is filling up the vector of `select_multiple_list_relevancies`. It stores the names of `select_multiple` variables that open up other relevant questions. The script then calls the `find.relevances` function that searches for the binary columns of the select multiple that open up each subquestion within the relevancy. This function creates `relevancy_dictionary` - a table of relationships between the variables in the following form.
+The first step in this framework is filling up the vector of `select_multiple_list_relevancies`. It stores the names of `select_multiple` variables that open up other relevant questions. The script then calls the `find.relevances` function that searches for the binary columns of the select multiple that open up each sub-question within the relevancy. This function creates `relevancy_dictionary` - a table of relationships between the variables in the following form.
 
 | name | relevancy|
 |------|----------|
@@ -198,7 +203,7 @@ The first step in this framework is filling up the vector of `select_multiple_li
 
 This object, together with the dataframe and its relevant cleaning log is fed to the `recode.other.relevances` function. This function creates a cleaning log documenting the following changes:
 - If the binary variable of `_other` was recoded to 0 it replaces the `_detail` variable with NA
-- If the `_other` response was classified as `existing`, the `_detail` variable for `_other` choice will be replaced with NA and its answer will be transfered to the `existingoption_detail` variable.  
+- If the `_other` response was classified as `existing`, the `_detail` variable for `_other` choice will be replaced with NA and its answer will be transfered to the `existingOption_detail` variable.  
 
 **Please note that as of now, this feature is experimental, should you encounter any bugs please report them to the package's maintainer.**  
 
@@ -222,7 +227,7 @@ The final bit of the script is running the `select.multiple.check` which tries t
 
 
 ### 999 checks
-The next bit of the script checks the dataframes for 99 and 999 values in numerical columns as well as any other values that you're suspicious of. You can specify these values in the `code_for_check` vector. These values are suspicious because they are a relic from the SPSS based sociological research. As the .sav values save values as numerics, it became necessary to assign NA or DK values a single code so that they are easily recogniseable and you can recode them quickly. Usually, these are maked as 99,98 or 999. This is not applicable for us as we're not working in SPSS. This bit of script produces a `cl_log_999` object and a `output/checking/999_diferences.xlsx` excel file that document these entries. You can look through them and keep the rows that need to be recoded in your opinion.
+The next bit of the script checks the dataframes for 99 and 999 values in numerical columns as well as any other values that you're suspicious of. You can specify these values in the `code_for_check` vector. These values are suspicious because they are a relic from the SPSS based sociological research. As the .sav values save values as numerics, it became necessary to assign NA or DK values a single code so that they are easily recognisable and you can recode them quickly. Usually, these are maked as 99,98 or 999. This is not applicable for us as we're not working in SPSS. This bit of script produces a `cl_log_999` object and a `output/checking/999_diferences.xlsx` excel file that document these entries. You can look through them and keep the rows that need to be recoded in your opinion.
 
 Once you've deleted everything that needs to be deleted, you can apply these changes to the data and add them to the cleaning log by setthing `apply_999_changes` parameter to `Yes` and running `section_5_finish_999_checks.R`.
 
@@ -245,7 +250,7 @@ The script then runs the selected outlier detection algorithm and writes the sus
 The excel file will have a new column `checked`. It exists to allow the user to let the HQ know that the outlier value was checked even if it's not fixed. If the outlier value is accurate and you with to keep it in the dataset, set the value of the `checked` column to `value checked`, if you want to change the old value to the new one, specify it within the `new.value` column and set the `checked` column value to `value corrected`. Now you can load up the clean excel file as the `cleaning.log.outliers_full` object and run `section_6_finish_outlier_check.R`.
 
 ### Finalize the data
-The last section goes through removal of PII columns, gathering the cleaning and deletion logs, building the submission excel for HQ validation and writing the submission package. Outside of specifying the `pii.to.remove_main` that holds the names of the PII columns barely any interaction is needed from the users side. The file for HQ submission is written as `Enumerator_performance_temp` excel in the `output/enum_performance` directory.
+The last section goes through removal of PII columns, gathering the cleaning and deletion logs, building the submission excel for HQ validation and writing the submission package. Outside of specifying the `pii.to.remove_main` that holds the names of the PII columns barely any interaction is needed from the users side. The file for HQ submission is written as `Cleaning_logbook` excel in the `output/Cleaning_logbook` directory.
 
 ### Contributors 
 

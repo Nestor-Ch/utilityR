@@ -15,33 +15,33 @@ Depends:
     R (>= 2.10)
 Imports: 
     cluster,
-    fastDummies,
-    dplyr,
-    ggplot2,
-    igraph,
-    magrittr,
-    rlang,
-    stringdist,
-    stringi,
-    tibble
-Suggests: 
     cluster,
     data.table,
+    dplyr,
+    fastDummies,
+    ggplot2,
     igraph,
-    knitr,
-    OpenRepGrid,
+    igraph,
+    magrittr,
     openxlsx,
     plyr,
     purrr,
-    randomcoloR,
     readr,
     readxl,
-    rmarkdown,
+    rlang,
+    stringdist,
+    stringi,
     stringi,
     stringr,
     svDialogs,
+    tibble,
+    tidyr
+Suggests: 
+    knitr,
+    OpenRepGrid,
+    randomcoloR,
+    rmarkdown,
     testthat (>= 3.0.0),
-    tidyr,
     translateR
 VignetteBuilder: 
     knitr
