@@ -5,6 +5,18 @@ if(name_clean_others_file != ''){
                                         name_clean_others_file,
                                         sheet = sheet_name_others, validate = T)
 
+  # check if all ref.type are filled
+  if(any(is.na(or.edited$ref.type))){
+
+    problematic_vars <- unique(or.edited[is.na(or.edited$ref.type),]$ref.name)
+
+    or.edited[is.na(or.edited$ref.type),]$ref.type = 'select_one'
+
+    warning(paste0(paste0(problematic_vars,collapse=','),
+                   " didn't have any ref.type attached to them. Replaced with select_one. Please double check them "))
+  }
+
+
   # check for the missing variables
 
   names_req <- or.edited %>%
@@ -54,8 +66,8 @@ if(name_clean_others_file != ''){
       return(paste(existing.v.list, collapse = ";"))
     })) %>%
     dplyr::ungroup() %>%
-    mutate(existing.v = ifelse(existing.v.choice_label == '', NA_character_, existing.v.choice_label),
-           invalid.v = ifelse(existing.v.choice_label == '', 'YES', invalid.v))
+    mutate(existing.v = ifelse(existing.v.choice_label %in% '', NA_character_, existing.v.choice_label),
+           invalid.v = ifelse(existing.v.choice_label %in% '', 'YES', invalid.v))
 
   warn <- nrow(or.edited[or.edited$existing.v.choice_label =='',])
 
@@ -124,6 +136,9 @@ paste0('uuid: ',none_check$uuid,
 ' value: ', none_check$existing.v,collapse=";\n"),
 '\nIf you recoded more `None` cases then we found, please make sure that their choice names are also present in the `none_selection` object'))
   }
+
+
+  or.edited$existing.v <- ifelse(or.edited$existing.v =='\r\n',NA,or.edited$existing.v)
 
 
   # run the bits below
