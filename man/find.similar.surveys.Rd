@@ -10,7 +10,8 @@ find.similar.surveys(
   tool.survey,
   uuid = "_uuid",
   idnk_value = "idnk",
-  enum.column = NA
+  enum.column = NA,
+  is.loop = FALSE
 )
 }
 \arguments{
@@ -23,6 +24,8 @@ find.similar.surveys(
 \item{idnk_value}{Value (from tool.choices) that represents the answer "I don't know"}
 
 \item{enum.column}{Name of column that represent unique identifier for the enumerators}
+
+\item{is.loop}{If TRUE, then calculate questions preserved}
 }
 \description{
 For each survey, it finds the closest matching survey with the same enumerator
@@ -37,6 +40,7 @@ and with the minimum number of different column
 outdata <- find.similar.surveys(
  data.main=raw.main,
  tool.survey=tool.survey,
- enum.column='a2_1_enum_id')
+ enum.column='a2_1_enum_id',
+ is.loop=F)
 }
 }
