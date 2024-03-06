@@ -73,43 +73,43 @@ soft_dupl_list[[1]] <- soft.duplicates
 # same thing but for loops
 if(length(sheet_names_new)>0){
   for(i in 1:length(sheet_names_new)){
-    
+
   txt <- paste0(sheet_names_new[i], "_tmp <-" ,
                 sheet_names_new[i]," %>% left_join(raw.main %>% select(uuid, !!sym(directory_dictionary$enum_colname)))")
-  
+
   eval(parse(text = txt))
-  
+
   txt <- paste0('res.soft_duplicates_l <- utilityR::find.similar.surveys(
-                ',sheet_names_new[i],'_tmp, tool.survey, uuid = "loop_index", enum.column=directory_dictionary$enum_colname)')
-  
+                ',sheet_names_new[i],'_tmp, tool.survey, uuid = "loop_index", enum.column=directory_dictionary$enum_colname,is.loop=T)')
+
   eval(parse(text = txt))
-  
+
   analysis.result_l <- utilityR::analyse.similarity(res.soft_duplicates_l, enum.column=directory_dictionary$enum_colname, visualise=T,
                                                   boxplot.path=paste0("output/checking/audit/enumerators_surveys_",sheet_names_new[i]))
-  
+
   analysis_l <- analysis.result_l$analysis
   outliers_l <- analysis.result_l$outliers
-  
+
   analysis_l$data_id <- sheet_names_new[i]
   outliers_l$data_id <- sheet_names_new[i]
-  
+
   analysis <- rbind(analysis,analysis_l)
   outliers <- rbind(outliers,outliers_l)
-  
+
   min_num_diff_questions_loop <- ceiling(min_num_diff_questions*(ncol(res.soft_duplicates_l)/ncol(res.soft_duplicates)))
-  
+
   soft.duplicates_l <- res.soft_duplicates_l %>%
     filter(number_different_columns <= min_num_diff_questions_loop) %>%
     relocate(uuid, loop_index, num_cols_not_NA,num_cols_idnk,`_id_most_similar_survey`,
              number_different_columns) %>%
     arrange(number_different_columns)
-  
+
   soft_dupl_list[[i+1]] <- soft.duplicates_l
-  
+
   txt <- paste0(sheet_names_new[i],'_tmp')
   rm(txt)
   }
-  
+
 }
 
 names(soft_dupl_list) <- ls
