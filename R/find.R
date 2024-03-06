@@ -175,7 +175,7 @@ calculate.gower <- function(data, data.main, uuid, uuids, idnk_value) {
 #'  enum.column='a2_1_enum_id')
 #' }
 find.similar.surveys <- function(data.main, tool.survey, uuid="_uuid",
-                                 idnk_value="idnk", enum.column=NA){
+                                 idnk_value="idnk", enum.column=NA, is.loop=FALSE){
   if (is.na(enum.column)) {
     stop("The column name for the enumerator ids was not provided")
   }
@@ -209,13 +209,16 @@ find.similar.surveys <- function(data.main, tool.survey, uuid="_uuid",
   # - columns of type = "start", "end", etc.
   # - columns starting with "_"
   # - option columns for the select multiple -> keeping only the concatenation column
-  types_to_remove <- c("start", "end", "today", "deviceid", "date", "geopoint", "audit", "note", "calculate")
+  types_to_remove <- c("start", "end", "today", "deviceid", "date", "geopoint", "audit", "note")
+  if (is.loop == FALSE) {
+    types_to_remove <- c(types_to_remove, "calculate")
+  }
   cols_to_keep <- data.frame(column=colnames(data)) %>%
     dplyr::left_join(dplyr::select(tool.survey, name, type), by=c("column"="name")) %>%
     dplyr::filter((!(type %in% types_to_remove) &
                      !stringr::str_starts(column, "_") & !stringr::str_detect(column, "/") &
                      !stringr::str_detect(column, "URL") & !stringr::str_detect(column, "url") &
-                     !stringr::str_ends(column, "_other")))
+                     !stringr::str_ends(column, "_other") & column != uuid))
   if (nrow(cols_to_keep) <= 1) {
     stop("There is not enought columns for search similarity")
   }
@@ -236,7 +239,8 @@ find.similar.surveys <- function(data.main, tool.survey, uuid="_uuid",
   for (enumerator in enum_list) {
     enum_ids <- which(data[[enum.column]] == enumerator)
     enum_data <- data %>% dplyr::filter(!!rlang::sym(enum.column) == enumerator)
-    enum_data.main <- data.main[, cols_to_keep$column]
+    # enum_data.main <- data.main[, cols_to_keep$column]
+    enum_data.main <- data.main
     enum_data.main <- enum_data.main[enum_ids, ]
     enum_uuids <- uuids[enum_ids]
     if (nrow(enum_data) > 1) {
@@ -299,8 +303,3 @@ find.relevances <- function(tool.survey, var_list){
     dplyr::tibble()
   return(relevancy_dictionary)
 }
-
-
-
-
-
