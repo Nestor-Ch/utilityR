@@ -19,12 +19,36 @@ deletion.log.too.slow <- utilityR::create.deletion.log(raw.main %>% filter(uuid 
                                                        directory_dictionary$enum_colname, "Survey duration deemed too slow")
 
 # Enter uuids of the interviews that are soft duplicates to remove:
-soft_duplicates <- readxl::read_excel(make.filename.xlsx(directory_dictionary$dir.audits.check, "soft_duplicates"))
-
-ids <- c(soft_duplicates$uuid)
-
-deletion.log.softduplicates <- utilityR::create.deletion.log(raw.main %>% filter(uuid %in% ids),
-                                                             directory_dictionary$enum_colname, "Soft duplicate")
+deletion.log.softduplicates <- data.frame()
+for(i in 1:length(ls)){
+  if(i==1){
+    main_dupl <- readxl::read_xlsx(make.filename.xlsx(directory_dictionary$dir.audits.check, "soft_duplicates"),
+                                   col_types = "text", sheet = ls[i])
+    ids <- c(main_dupl$uuid)
+    
+    deletion.log.softduplicates <- utilityR::create.deletion.log(raw.main %>% filter(uuid %in% ids),
+                                                                 directory_dictionary$enum_colname, "Soft duplicate")
+  }else{
+    
+    loop_dupl <- readxl::read_xlsx(make.filename.xlsx(directory_dictionary$dir.audits.check, "soft_duplicates"),
+                                   col_types = "text", sheet = ls[i])
+    
+    ids <- c(loop_dupl$loop_index)
+    
+    txt <- paste0('loop_frame <-', sheet_names_new[i-1],' %>% filter(loop_index %in% ids)')
+    eval(parse(text = txt))
+    
+    deletion.log.softduplicates_loop <- utilityR::create.deletion.log(loop_frame,
+                                                                 directory_dictionary$enum_colname, "Soft duplicate",
+                                                                 is.loop = T, data.main = raw.main)
+    
+    rm('loop_frame')
+    
+    soft_duplicates <- bind_rows(soft_duplicates,deletion.log.softduplicates_loop)
+    
+  }
+  }
+    
 
 # Enter uuids of the interviews that are incomplete submissions to remove:
 ids_incompl <- c(
