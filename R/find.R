@@ -160,6 +160,7 @@ calculate.gower <- function(data, data.main, uuid, uuids, idnk_value) {
 #' @param uuid Name of the column in which uuids are stored.
 #' @param idnk_value Value (from tool.choices) that represents the answer "I don't know"
 #' @param enum.column Name of column that represent unique identifier for the enumerators
+#' @param is.loop If TRUE, then calculate questions preserved
 #'
 #' @export
 #'
@@ -172,7 +173,8 @@ calculate.gower <- function(data, data.main, uuid, uuids, idnk_value) {
 #' outdata <- find.similar.surveys(
 #'  data.main=raw.main,
 #'  tool.survey=tool.survey,
-#'  enum.column='a2_1_enum_id')
+#'  enum.column='a2_1_enum_id',
+#'  is.loop=F)
 #' }
 find.similar.surveys <- function(data.main, tool.survey, uuid="_uuid",
                                  idnk_value="idnk", enum.column=NA, is.loop=FALSE){
