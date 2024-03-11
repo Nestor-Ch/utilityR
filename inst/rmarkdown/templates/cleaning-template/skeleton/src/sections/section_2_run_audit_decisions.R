@@ -18,8 +18,10 @@ ids <- duration_check %>%
 deletion.log.too.slow <- utilityR::create.deletion.log(raw.main %>% filter(uuid %in% ids),
                                                        directory_dictionary$enum_colname, "Survey duration deemed too slow")
 
+
 # Enter uuids of the interviews that are soft duplicates to remove:
 deletion.log.softduplicates <- data.frame()
+deletion.log.softduplicates_loop <- data.frame()
 for(i in 1:length(ls)){
   if(i==1){
     main_dupl <- readxl::read_xlsx(make.filename.xlsx(directory_dictionary$dir.audits.check, "soft_duplicates"),
@@ -30,25 +32,40 @@ for(i in 1:length(ls)){
                                                                  directory_dictionary$enum_colname, "Soft duplicate")
   }else{
     
+    
     loop_dupl <- readxl::read_xlsx(make.filename.xlsx(directory_dictionary$dir.audits.check, "soft_duplicates"),
                                    col_types = "text", sheet = ls[i])
     
-    ids <- c(loop_dupl$loop_index)
-    
-    txt <- paste0('loop_frame <-', sheet_names_new[i-1],' %>% filter(loop_index %in% ids)')
-    eval(parse(text = txt))
-    
-    deletion.log.softduplicates_loop <- utilityR::create.deletion.log(loop_frame,
-                                                                 directory_dictionary$enum_colname, "Soft duplicate",
-                                                                 is.loop = T, data.main = raw.main)
-    
-    rm('loop_frame')
-    
-    soft_duplicates <- bind_rows(soft_duplicates,deletion.log.softduplicates_loop)
+    if( nrow(loop_dupl)>0){
+      unique_uuids <- length(unique(loop_dupl$uuid))
+      
+      txt <- paste0('The uploaded soft duplicate check file from datasheet',ls[i],
+                    ' has ',unique_uuids,' unique uuids that are going to be removed. \nAre you sure this is correct? Enter Y to continue:')
+      
+      res <- menu(c("Y", "n"), title=txt)
+      # res <- readline(txt)
+      
+      if(res == 1){
+        
+        ids <- c(loop_dupl$loop_index)
+        
+        txt <- paste0('loop_frame <-', sheet_names_new[i-1],' %>% filter(loop_index %in% ids)')
+        eval(parse(text = txt))
+        
+        deletion.log.softduplicates_loop <- utilityR::create.deletion.log(loop_frame,
+                                                                          directory_dictionary$enum_colname, "Soft duplicate",
+                                                                          is.loop = T, data.main = raw.main)
+        
+        rm('loop_frame')
+        rm('res')
+        
+        deletion.log.softduplicates <- bind_rows(deletion.log.softduplicates, deletion.log.softduplicates_loop)
+      }
+    }
     
   }
-  }
-    
+}
+
 
 # Enter uuids of the interviews that are incomplete submissions to remove:
 ids_incompl <- c(
@@ -67,6 +84,7 @@ if(length(sheet_names_new)>0){
   for(loop in sheet_names_new){
     txt <- paste0(loop,'<-',loop,'[!(',loop,'$uuid %in% deletion.log.audits$uuid),]')
     eval(parse(text=txt))
+    
   }
 }#################################################
 
