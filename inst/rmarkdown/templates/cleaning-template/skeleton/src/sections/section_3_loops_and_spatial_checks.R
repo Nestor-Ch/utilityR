@@ -95,58 +95,62 @@ if(geo_column  %in% names(raw.main)){
 
 
 
+# Run the check if the point lies in the polygon
 
-# ## In case any needed 
-# # run this section always (if POL) ------------------------  -------------------
-# 
-# if(country == "Poland"){
-#   if(!"admin2" %in% colnames(raw.main)){ stop("admin2 column is missing from data")
-#   }else{
-#     # find if there are any "geopoint" variables in this data:
-#     gps_vars <- tool.survey %>% filter(type == "geopoint") %>% pull(name)
-#     if(length(gps_vars) == 0){ stop("there are no geopoint variables in tool.survey.")
-#     } else if(length(gps_vars) > 1){
-#       warning("Found more than one geopoint variable in tool.survey: ", paste(gps_vars, collapse = ", "),"\nOnly the first one will be used to match admin2!")
-#       gps_vars <- gps_vars[1]
-#     } else{
-#       gps_cols <- raw.main %>% select(contains(gps_vars)) %>% names   # there should be 4 of these
-#       if(length(gps_cols) < 2) {stop("columns with geopoint data were not found in data")}
-#     }
-#   }
-#   sf_use_s2(TRUE)
-#   admin2_boundary <- st_read(dsn = "resources/pol_admbnda_adm2.json") %>% 
-#     mutate(ADM2_PCODE = ifelse(is.na(ADM2_PCODE), NA, paste0("20", str_replace(ADM2_PCODE, "PL", "POL"))))  # this is to standardize geo data to our pcode format
-#   
-#   # TODO additional check for low precision??
-#   
-#   collected_pts <- raw.main %>% filter(!is.na(!!sym(gps_cols[1]))) %>% 
-#     select(uuid, !!sym(enum_colname), admin2, contains(gps_vars)) %>% 
-#     left_join(admin2.list) %>%
-#     rename(selected_admin2_label = label, selected_admin2 = admin2) %>% 
-#     mutate(selected_admin2_label = str_to_title(selected_admin2_label, "pl")) 
-#   
-#   collected_sf <- collected_pts %>% st_as_sf(coords = paste0(gps_vars, c("_longitude", "_latitude")), crs = "+proj=longlat +datum=WGS84")
-#   
-#   sf_use_s2(FALSE)
-#   
-#   spatial_join <- st_join(collected_sf, admin2_boundary, join = st_within) %>% 
-#     select(-geometry) %>% select(-contains(gps_vars)) %>% 
-#     mutate(GPS_MATCH = ifelse(is.na(ADM2_PCODE), "outside POL", ifelse(ADM2_PCODE == selected_admin2, "match", "WRONG")))
-#   
-#   if(any(spatial_join$GPS_MATCH != "match")){
-#     
-#     check_spatial <- tibble(spatial_join) %>% 
-#       rename(within_admin2 = ADM2_PCODE, within_admin2_label = ADM2_PL) %>% 
-#       left_join(collected_pts %>% select(uuid, contains(gps_vars))) %>% 
-#       select(uuid, !!sym(enum_colname), GPS_MATCH, contains(gps_vars), contains("admin2")) %>% 
-#       filter(GPS_MATCH != "match")
-#     # %>% view
-#     
-#     write.xlsx(check_spatial, make.filename.xlsx("output/checking/audit/", "gps_checks"), overwrite = T)
-#     rm(collected_sf, spatial_join, admin2_boundary)
-#     
-#   }else cat("All GPS points are matching their selected poviat :)")
-# }
+if(file.exists(polygon_file) & merge_column!=''){
+  if(!merge_column %in% colnames(raw.main)){ 
+    stop('The merge_column with polygon names is not present in your data')
+  }else{
+    # find if there are any "geopoint" variables in this data:
+    if(!geo_column %in% names(raw.main)){ 
+      stop('geo_column is not present in your dataset')
+    }
+  }
+  sf_use_s2(TRUE)
+  admin_boundary <- st_read(dsn = polygon_file)
+  if(! polygon_file_merge_column %in% names(admin_boundary)){
+    stop('The polygon_file_merge_column with polygon names is not present in your json file')
+  } 
+  admin_boundary_select <-  admin_boundary %>% 
+    select(!!sym(polygon_file_merge_column)) %>% 
+    st_make_valid()
+  
+  # TODO additional check for low precision??
+  
+  collected_pts <- raw.main %>% 
+    filter(!is.na(!!sym(geo_column))) %>%
+    select(uuid, !!sym(directory_dictionary$enum_colname), !!sym(merge_column), !!sym(geo_column)) %>%
+    rowwise() %>% 
+    mutate(
+      longitude = str_split(!!sym(geo_column), " ")[[1]][1],
+      latitude =str_split(!!sym(geo_column), " ")[[1]][2]
+    ) %>% 
+    ungroup()
+
+  # set the crs and ensure they're the same
+  collected_sf <- collected_pts %>% st_as_sf(coords = c('latitude','longitude'), crs = "+proj=longlat +datum=WGS84")
+  admin_boundary_select <- st_transform(admin_boundary_select, crs = "+proj=longlat +datum=WGS84")
+  sf_use_s2(FALSE)
+  
+  spatial_join <- st_join(collected_sf, admin_boundary_select, join = st_within) %>%
+    st_drop_geometry() %>% 
+    mutate(GPS_MATCH = case_when(
+      is.na(!!sym(polygon_file_merge_column)) ~ "Outside polygon",
+      !!sym(polygon_file_merge_column) == !!sym(merge_column) ~ "Correct polygon", 
+      .default = "Wrong polygon"
+    ))
+
+  if(any(spatial_join$GPS_MATCH !="Correct polygon")){
+    
+    check_spatial <- tibble(spatial_join) %>%
+      filter(GPS_MATCH != "Correct polygon")
+    # %>% view
+    
+    write.xlsx(check_spatial, make.filename.xlsx("output/checking/audit/", "gps_checks"), overwrite = T)
+    rm(collected_sf, spatial_join, check_spatial,admin_boundary,admin_boundary_select)
+    
+  }else cat("All GPS points are matching their selected poviat :)")
+}
 # 
 # #-------------------------------------------------------------------------------
 # 
@@ -199,14 +203,14 @@ if(geo_column  %in% names(raw.main)){
 # cleaning.log <- bind_rows(cleaning.log, cleaning.log.spatial)
 
 #################################################
-raw.main  <- raw.main[! (raw.main$uuid  %in% deletion.log.new$uuid),]
-raw.loop1 <- raw.loop1[!(raw.loop1$uuid %in% deletion.log.new$uuid),]
-# raw.loop2 <- raw.loop2[!(raw.loop2$uuid %in% deletion.log.new$uuid),]
-#################################################
-
-# deletion log should be now finalized
-
-# Save deletion.log file
-#deletion.log.whole <- rbind(deletion.log.previous, deletion.log.new)
-#write.xlsx(deletion.log.whole, make.filename.xlsx("output/deletion_log/", "deletion_log", no_date = T), overwrite=T)
-write.xlsx(deletion.log.new, make.filename.xlsx("output/deletion_log/", "deletion_log", no_date = T), overwrite=T)
+# raw.main  <- raw.main[! (raw.main$uuid  %in% deletion.log.new$uuid),]
+# raw.loop1 <- raw.loop1[!(raw.loop1$uuid %in% deletion.log.new$uuid),]
+# # raw.loop2 <- raw.loop2[!(raw.loop2$uuid %in% deletion.log.new$uuid),]
+# #################################################
+# 
+# # deletion log should be now finalized
+# 
+# # Save deletion.log file
+# #deletion.log.whole <- rbind(deletion.log.previous, deletion.log.new)
+# #write.xlsx(deletion.log.whole, make.filename.xlsx("output/deletion_log/", "deletion_log", no_date = T), overwrite=T)
+# write.xlsx(deletion.log.new, make.filename.xlsx("output/deletion_log/", "deletion_log", no_date = T), overwrite=T)

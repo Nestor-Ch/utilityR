@@ -118,7 +118,10 @@ The section below is deprecated and rarely used. We're keeping it in case it com
 
 ```{r Section  3  - Loop inconsitencies + spatial checks}
 #specify the column that holds the cordinates
-geo_column <- ''
+geo_column <- '' # the name of the column that holds your coordinates (in the data)
+polygon_file <- 'resources/UKR_ADM4_2020.geojson' # the file with polygons that were supposed to be sampled
+polygon_file_merge_column <-'' # what is the name of the column that signifies the name of the polygon in your json file?
+merge_column <- '' # what is the name of the column that signifies the name of the polygon in your dataframe?
 
 source('src/sections/section_3_loops_and_spatial_checks.R')
 

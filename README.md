@@ -107,7 +107,17 @@ The only bit of manual entry that needs to be done when running this file is fil
 
 The spatial checks section checks for interviews with 0 geo coordinate precision. If these are present in the data, this may mean that the interviewer has installed a fake gps app onto their phone and has used it to fake the interview.
 
-After this check is done, the deletion log is written into a `geospatial_check` excel file. Look trough it and remove those uuids that you'd like to keep in the data. After you're done, run the `section_3_spatial_decisions.R` and we're done with the deletion bit of the cleaning.
+If you've conducted polygon sampling and didn't include the check for wheter the collected datapoint lies within the polyon where it's supposed to be colleced you'll need to specify the following:
+- `geo_column` - the name of the column that holds your coordinates (in the data)
+- `polygon_file` - the path to the your `.json` polygon file. This should be a file that holds the polygons of your sampling unit (settlements, hromadas or custom polygons, depending on what you need)
+- `polygon_file_merge_column` - The name of the column that serves as a unique identifier of your polygon in your `polygon_file` (pcode or the polygon_id)
+- `merge_column` - The name of the column that serves as a unique identifier of your polygon in your `raw.main` object (pcode or the polygon_id)  
+
+The script will check if the selected columns are present in the data objects and try to fit the sampled points into the polygons. If any of the interviews were conducted outside of their respective polygons, the algorithm will write the `gps_checks.xlsx` file. The poing can be classified as the following:
+- `Outside polygon` - the point wasn't matched to any of the polygons in your  `polygon_file`
+- `Wrong polygon` - the point was matched to a polygon in the `polygon_file` but it's not the polygon where the enumerator said the interview was being conducted.  
+
+After this check is done, the deletion log is written into a `geospatial_check` and `gps_checks` excel files. Look trough them and remove those uuids that you'd like to keep in the data. After you're done, run the `section_3_spatial_decisions.R` and we're done with the deletion bit of the cleaning.
 
 
 ###  Other requests and translations
