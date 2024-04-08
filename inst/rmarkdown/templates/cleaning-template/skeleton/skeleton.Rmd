@@ -118,10 +118,10 @@ The section below is deprecated and rarely used. We're keeping it in case it com
 
 ```{r Section  3  - Loop inconsitencies + spatial checks}
 #specify the column that holds the cordinates
-geo_column <- '' # the name of the column that holds your coordinates (in the data)
+geo_column <- '' # the name of the column that holds your coordinates (in the data).Leave blank if not using
 polygon_file <- 'resources/UKR_ADM4_2020.geojson' # the file with polygons that were supposed to be sampled
-polygon_file_merge_column <-'' # what is the name of the column that signifies the name of the polygon in your json file?
-merge_column <- '' # what is the name of the column that signifies the name of the polygon in your dataframe?
+polygon_file_merge_column <-'' # what is the name of the column that signifies the name of the polygon in your json file? Leave blank if not using
+merge_column <- '' # what is the name of the column that signifies the name of the polygon in your dataframe? Leave blank if not using
 
 source('src/sections/section_3_loops_and_spatial_checks.R')
 
@@ -130,7 +130,9 @@ source('src/sections/section_3_loops_and_spatial_checks.R')
 Once you've checked all entries in the "output/checking/audit/geospatial_check"  and only left what needs to be deleted implement the decisions below
 ```{r Section  3  - Loop inconsitencies + spatial checks decisions}
 source('src/sections/section_3_spatial_decisions.R')
-
+```
+Now you're ready to create the full deletion log
+```{r Section  3  - write the deletion log}
 # duplicates are merged only prior to writing the file.
 deletion.log.new <- bind_rows(deletion.log.dupl,deletion.log.new)
 write.xlsx(deletion.log.new, make.filename.xlsx("output/deletion_log/", "deletion_log", no_date = T), overwrite=T)
@@ -139,9 +141,18 @@ write.xlsx(deletion.log.new, make.filename.xlsx("output/deletion_log/", "deletio
 
 
 Section below is a bit more involved. The first section can be run without your direct input, just be aware that this section will activate the translation function.
-
+Enter the columns `text` that don't need to be translated in the `trans_cols_to_skip`
 ```{r Section  4 - Others and translations - setup}
+
+# translate all text questions, but skip these columns:
+trans_cols_to_skip <- c(
+  # add columns to skip
+  "enum_comms"
+)
+
 source('src/sections/section_4_create_other_requests_files.R')
+
+# If you see that columns were missed from the translation. Please go into the `section_4_create_other_requests_files.R` script and tweak `missing_vars` object if something was missed from the `text` columns or `other.db` if something is missing from the `_other` columns.
 ```
 
 After receiving the outputs of this function, please check the `dir.requests` directory and work through the other requests files filling them out. 
