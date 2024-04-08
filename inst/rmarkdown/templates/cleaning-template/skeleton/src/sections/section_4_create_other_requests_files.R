@@ -30,7 +30,8 @@ if(length(sheet_names_new)>0){
   }
 }
 
-
+if(nrow(other.responses)>0){
+  
 # translate your data
 other.responses.j <- utilityR::translate.responses(responses = other.responses,
                                                    values_from = 'responses',
@@ -41,16 +42,13 @@ other.responses.j <- utilityR::translate.responses(responses = other.responses,
 utilityR::save.other.requests(utilityR::create.translate.requests(other.responses.j),
                               directory = directory_dictionary$dir.requests,
                               make.short.name("other_requests_final"), use_template = F)
+}
 
 # ------------------------------------------------------------------------------
 
 trans.responses <- data.frame()
 
-# translate all text questions, but skip these columns:
-trans_cols_to_skip <- c(
-  # add columns to skip
-  "enum_comms"
-)
+
 trans.db <- utilityR::get.trans.db(tool.choices = tool.choices,
                                    tool.survey = tool.survey,
                                    label_colname = label_colname) %>% 
@@ -90,7 +88,7 @@ if(length(sheet_names_new)>0){
     
   }
 }
-
+if(nrow(trans.responses)>0){
 # translate all of the responses
 trans.responses.j <- utilityR::translate.responses(responses = trans.responses,
                                                    values_from = 'responses',
@@ -101,3 +99,5 @@ trans.responses.j <- utilityR::translate.responses(responses = trans.responses,
 utilityR::save.trans.requests(utilityR::create.translate.requests(trans.responses.j),
                               directory = directory_dictionary$dir.requests,
                               make.short.name("text_requests_final"), use_template = F)
+
+}
