@@ -149,3 +149,115 @@ pre.process.audits <- function(df,threshold){
 }
 
 
+
+#' Geospatial processing of audit data
+#'
+#' @param df the dataframe of audits
+#' @param start_q the question you consider to be the start of the interview
+#' @param end_q the question you consider to be the end of the interview
+#'
+#' @return a dataframe containing the id, time and location data for the first, second and last set of coodrinates per interview
+#' @export
+#' @note This function is non vectorized. Mostly used in pipes after a `group_by(uuid)` command
+#' @examples
+#' \dontrun{
+#' loaded.audits %>%
+#'   dplyr::group_by(uuid) %>%
+#'   dplyr::group_modify(~process.audit.geospatial(.x)) %>%
+#'   dplyr::ungroup()
+#' }
+process.audit.geospatial <- function(df, start_q, end_q){
+  if(any(!c('latitude','longitude') %in% names(df))){
+    stop('Error, no geospatial data in your log file. Please double check')
+  }
+  if(any(!c(start_q,end_q) %in% df$question)){
+    if('uuid2' %in% names(df)){
+      warning(paste0("The questions you've entered are not present in the data for uuid: ",unique(df$uuid2)))
+    }else{
+      warning("The questions you've entered are not present in the data for this uuid")
+    }
+    res_df <- data.frame(
+      start = NA_integer_,
+      end = NA_integer_,
+      latitude = NA_integer_,
+      longitude = NA_integer_,
+      question = 'all',
+      variable_explanation = 'issue',
+      issue = paste0(paste(setdiff(c(start_q,end_q),df$question),collapse=','), ' is not present for this uuid')
+    )
+    return(res_df)
+
+
+  }
+
+  if(any(df$event %in% c('location.tracking.disabled','location providers disabled','location permissions not granted'))){
+    warning('The enumerator has disabled the geolocation tracking')
+    res_df <- data.frame(
+      start =NA_integer_,
+      end =NA_integer_,
+      latitude = NA_integer_,
+      longitude = NA_integer_,
+      question = 'all',
+      variable_explanation = 'issue',
+      issue = 'Enum disabled location tracking'
+    )
+    return(res_df)
+  }else{
+    # get the times for min and max questions
+    time_start <- df %>% dplyr::filter(question %in% start_q) %>% dplyr::filter(start %in% min(start)) %>% dplyr::pull(start)
+    time_end <- df %>% dplyr::filter(question %in% end_q) %>% dplyr::filter(start %in% max(start)) %>% dplyr::pull(start)
+
+    # get the coord variable and drop na
+    df_filt <- df %>%
+      dplyr::filter(!is.na(latitude) & start<=time_end & start>=time_start) %>%
+      dplyr::mutate(
+        coord = paste(latitude,longitude,accuracy))
+
+    if(all(is.na(df_filt$latitude))){
+      warning('All values between the chosen questions are NA. Returning an empty df')
+      res_df <- data.frame(
+        start = NA_integer_,
+        end = NA_integer_,
+        latitude = NA_integer_,
+        longitude = NA_integer_,
+        question = 'all',
+        variable_explanation = 'issue',
+        issue = 'No coordinates for the chosen question range'
+      )
+      return(res_df)
+    }
+    # get the unique IDs for each coord point
+    df_filt <- transform(df_filt, id=match(coord, unique(coord)))
+    # max ID
+    max_id <- max(df_filt$id)
+    # get the first, second and last coordinate
+    df_filt <- df_filt %>%
+      dplyr::group_by(id) %>%
+      dplyr::filter(dplyr::if_else(id == max_id, start == max(start), start == min(start))) %>%
+      dplyr::slice_head(n=1) %>%
+      dplyr::ungroup()
+
+
+    res_df <- data.frame(
+      start = df_filt$start,
+      end = df_filt$end,
+      latitude = df_filt$latitude,
+      longitude = df_filt$longitude,
+      question = df_filt$question,
+      variable_explanation = paste0('coordinate ', df_filt$id),
+      issue = 'To be cheked'
+    )
+    return(res_df)
+
+  }
+
+}
+
+
+
+
+
+
+
+
+

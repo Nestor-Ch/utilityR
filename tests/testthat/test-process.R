@@ -87,7 +87,7 @@ testthat::test_that(
         dplyr::group_modify(~process.uuid(.x)) %>%
         dplyr::ungroup(),"status=waiting while form.exit!"
     )
-})
+  })
 
 
 testthat::test_that('process.uuid works, Test 4. use uuid2 in the load process to get better error messages on process.uuid',{
@@ -206,6 +206,174 @@ testthat::test_that('pre.process.audits works',{
 })
 
 
+testthat::test_that('process.audit.geospatial works, test 1 - general functionality',{
 
+  test_audit_path <- testthat::test_path('fixtures/audits_geospatial')
+  test_loaded  <- load.audit.files(dir.audits = test_audit_path, track.changes = T)
+
+
+  actual_result <- suppressWarnings(test_loaded %>%
+                                      dplyr::group_by(uuid) %>%
+                                      dplyr::group_modify(~process.audit.geospatial(.x, start_q ='informed_consent', end_q = 'j3_prevented_access_education')) %>%
+                                      dplyr::ungroup() %>%
+                                      dplyr::select(-c(longitude,latitude,start,end)))
+
+  expected_result <- data.frame(
+    uuid = c(unique(test_loaded$uuid)[1], rep(unique(test_loaded$uuid)[2],6),unique(test_loaded$uuid)[3],
+             rep(unique(test_loaded$uuid)[4],6),rep(unique(test_loaded$uuid)[5],1),rep(unique(test_loaded$uuid)[6],3),
+             rep(unique(test_loaded$uuid)[7],1),rep(unique(test_loaded$uuid)[8],1),rep(unique(test_loaded$uuid)[9],1),
+             rep(unique(test_loaded$uuid)[10],1),rep(unique(test_loaded$uuid)[11],4),rep(unique(test_loaded$uuid)[12],1),
+             rep(unique(test_loaded$uuid)[13],6)
+    ),
+    question = c("all", "informed_consent", "informed_consent", "site_name_uid_list",
+                 "a8_1_1_administration_training", "b6_allocation_plan", "j3_prevented_access_education",
+                 "all", "informed_consent", "a1_2_people_can_hosted_number", "a8_3_services_of_gbv",
+                 "c4_bomb_shelter", "e2_2_top_3_wash_needs", "j3_prevented_access_education",
+                 "all", "informed_consent", "a9_hum_assist", "j3_prevented_access_education",
+                 "all", "all", "all", "all", "informed_consent", "children_0_17",
+                 "c1_1_3_smooth_functioning_cold_water_supply", "j3_prevented_access_education",
+                 "all", "informed_consent", "a8_2_data_availability", "children_0_17",
+                 "b5_individuals_evicted", "c6_receiving_shelter_support", "j3_prevented_access_education"),
+    variable_explanation = c('issue', paste0('coordinate ',c(1:6)),'issue', paste0('coordinate ',c(1:6)),'issue',
+                             paste0('coordinate ',c(1:3)),rep('issue',4),paste0('coordinate ',c(1:4)),'issue',
+                             paste0('coordinate ',c(1:6))
+    ),
+    issue = c(
+      'j3_prevented_access_education is not present for this uuid', rep('To be cheked',6),
+      'j3_prevented_access_education is not present for this uuid',rep('To be cheked',6),
+      'Enum disabled location tracking',rep('To be cheked',3),rep('j3_prevented_access_education is not present for this uuid',4),
+      rep('To be cheked',4),'j3_prevented_access_education is not present for this uuid',rep('To be cheked',6)
+    )
+  ) %>%
+    dplyr::tibble()
+
+  testthat::expect_equal(actual_result,expected_result)
+
+
+})
+
+
+testthat::test_that('process.audit.geospatial works, test 2 - missing variable warning but the result is still there',{
+
+  test_audit_path <- testthat::test_path('fixtures/audits_geospatial')
+  test_loaded  <- load.audit.files(dir.audits = test_audit_path, track.changes = T)
+
+
+
+  expected_result <- data.frame(
+    uuid = unique(test_loaded$uuid)[1],
+    question = "all",
+    variable_explanation = 'issue',
+    issue = 'j3_prevented_access_education is not present for this uuid'
+  ) %>%
+    dplyr::tibble()
+
+
+  testthat::expect_warning(
+    testthat::expect_equal(test_loaded[test_loaded$uuid==unique(test_loaded$uuid)[1],] %>%
+                             dplyr::group_by(uuid) %>%
+                             dplyr::group_modify(~process.audit.geospatial(.x, start_q ='informed_consent', end_q = 'j3_prevented_access_education')) %>%
+                             dplyr::ungroup() %>%
+                             dplyr::select(-c(longitude,latitude,start,end)),expected_result),
+    paste0("The questions you've entered are not present in the data for uuid: ",unique(test_loaded$uuid)[1]))
+
+})
+
+testthat::test_that('process.audit.geospatial works, test 3 - error when there is no geo data',{
+
+  test_audit_path <- testthat::test_path('fixtures/audits_geospatial')
+  test_loaded  <- load.audit.files(dir.audits = test_audit_path, track.changes = T)
+
+
+  testthat::expect_error(
+    test_loaded%>%
+      dplyr::select(-longitude) %>%
+      dplyr::group_by(uuid) %>%
+      dplyr::group_modify(~process.audit.geospatial(.x, start_q ='informed_consent', end_q = 'j3_prevented_access_education')) %>%
+      dplyr::ungroup() %>%
+      dplyr::select(-c(longitude,latitude,start,end)),
+    'Error, no geospatial data in your log file. Please double check')
+
+})
+
+
+testthat::test_that('process.audit.geospatial works, test 4 - no geotracking warning but the result is still there',{
+
+  test_audit_path <- testthat::test_path('fixtures/audits_geospatial')
+  test_loaded  <- load.audit.files(dir.audits = test_audit_path, track.changes = T)
+
+
+
+  expected_result <- data.frame(
+    uuid = unique(test_loaded$uuid)[5],
+    question = "all",
+    variable_explanation = 'issue',
+    issue = 'Enum disabled location tracking'
+  ) %>%
+    dplyr::tibble()
+
+
+  testthat::expect_warning(
+    testthat::expect_equal(test_loaded[test_loaded$uuid==unique(test_loaded$uuid)[5],] %>%
+                             dplyr::group_by(uuid) %>%
+                             dplyr::group_modify(~process.audit.geospatial(.x, start_q ='informed_consent', end_q = 'j3_prevented_access_education')) %>%
+                             dplyr::ungroup() %>%
+                             dplyr::select(-c(longitude,latitude,start,end)),expected_result),
+    'The enumerator has disabled the geolocation tracking')
+
+})
+
+
+testthat::test_that('process.audit.geospatial works, test 5 - empty coordinates',{
+
+  test_audit_path <- testthat::test_path('fixtures/audits_geospatial')
+  test_loaded  <- load.audit.files(dir.audits = test_audit_path, track.changes = T)
+
+  expected_result <- data.frame(
+    uuid = unique(test_loaded$uuid)[2],
+    question = "all",
+    variable_explanation = 'issue',
+    issue = 'No coordinates for the chosen question range'
+  ) %>%
+    dplyr::tibble()
+
+
+  testthat::expect_warning(
+    testthat::expect_equal(test_loaded[test_loaded$uuid==unique(test_loaded$uuid)[2],] %>%
+                             dplyr::mutate(longitude = NA,latitude = NA) %>%
+                             dplyr::group_by(uuid) %>%
+                             dplyr::group_modify(~process.audit.geospatial(.x, start_q ='informed_consent', end_q = 'j3_prevented_access_education')) %>%
+                             dplyr::ungroup() %>%
+                             dplyr::select(-c(longitude,latitude,start,end)),expected_result),
+    'All values between the chosen questions are NA. Returning an empty df')
+
+})
+
+
+testthat::test_that('process.audit.geospatial works, test 6 - missing variable warning but the result is still there + no uuid2',{
+
+  test_audit_path <- testthat::test_path('fixtures/audits_geospatial')
+  test_loaded  <- load.audit.files(dir.audits = test_audit_path, track.changes = T)
+
+
+
+  expected_result <- data.frame(
+    uuid = unique(test_loaded$uuid)[1],
+    question = "all",
+    variable_explanation = 'issue',
+    issue = 'j3_prevented_access_education is not present for this uuid'
+  ) %>%
+    dplyr::tibble()
+
+
+  testthat::expect_warning(
+    testthat::expect_equal(test_loaded[test_loaded$uuid==unique(test_loaded$uuid)[1],] %>%
+                             dplyr::select(-uuid2) %>%
+                             dplyr::group_by(uuid) %>%
+                             dplyr::group_modify(~process.audit.geospatial(.x, start_q ='informed_consent', end_q = 'j3_prevented_access_education')) %>%
+                             dplyr::ungroup() %>%
+                             dplyr::select(-c(longitude,latitude,start,end)),expected_result),
+    "The questions you've entered are not present in the data for this uuid")
+})
 
 

@@ -1,0 +1,217 @@
+event,node,start,end,latitude,longitude,accuracy,old-value,new-value
+form start,,1711362218789,,,,,,
+location tracking enabled,,1711362218802,,,,,,
+location permissions granted,,1711362218861,,,,,,
+location providers enabled,,1711362218863,,,,,,
+question,/aQJcPAoNKp2np3q2hKdULT/project_name/intro,1711362218899,1711362225339,49.8176398,24.0117904,12.767999649047852,,
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/organization,1711362225371,1711362227537,49.8176398,24.0117904,12.767999649047852,,REACH
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/enum_id,1711362227546,1711362230249,49.8176398,24.0117904,12.767999649047852,,
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/interview_type,1711362232137,1711362233542,49.8176398,24.0117904,12.767999649047852,,phone_interview
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/oblast,1711362233550,1711362240366,49.8176398,24.0117904,12.767999649047852,,UA73
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/raion,1711362240377,1711362242949,49.8176398,24.0117904,12.767999649047852,,UA7306
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/hromada,1711362243046,1711362247561,49.8176398,24.0117904,12.767999649047852,,UA7306061
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/settlement,1711362247765,1711362249339,49.8176398,24.0117904,12.767999649047852,,UA7306061001
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/site_adress/street_type,1711362249346,1711362253502,49.8176398,24.0117904,12.767999649047852,,street
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/site_adress/street_name,1711362253510,1711362261162,49.8176398,24.0117904,12.767999649047852,,Чорноморська 
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/site_adress/house_number,1711362261169,1711362263259,49.8176398,24.0117904,12.767999649047852,,13
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/site_name_group/site_name_uid_list,1711362263633,1711362283614,49.8176398,24.0117904,12.767999649047852,,UKRs003601
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/site_name_group/site_name_text,1711362283624,1711362323038,49.8176398,24.0117904,12.767999649047852,,Буковинський державний медичний 
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/site_name_group/site_name_uid_list,1711362323046,1711362330523,49.8176398,24.0117904,12.767999649047852,,
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/site_name_group/site_name_text,1711362330530,1711362344935,49.8176398,24.0117904,12.767999649047852,Буковинський державний медичний ,Буковинський державний медичний університет. Гурьожиток № 3
+question,/aQJcPAoNKp2np3q2hKdULT/informed_consent_group/informed_consent,1711362344941,1711362346421,49.8176398,24.0117904,12.767999649047852,,yes
+group questions,/aQJcPAoNKp2np3q2hKdULT/informed_consent_group/site_focal_point,1711362346428,1711362365750,49.8176398,24.0117904,12.767999649047852,,
+question,/aQJcPAoNKp2np3q2hKdULT/informed_consent_group/site_focal_point/name,1711362346429,1711362365750,49.8176398,24.0117904,12.767999649047852,,Юрій Олександрович
+question,/aQJcPAoNKp2np3q2hKdULT/informed_consent_group/site_focal_point/gender,1711362346429,1711362365750,49.8176398,24.0117904,12.767999649047852,,female
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/a1_site_active,1711362377520,1711362378427,49.8176398,24.0117904,12.767999649047852,,
+group questions,/aQJcPAoNKp2np3q2hKdULT/informed_consent_group/site_focal_point,1711362378434,1711362379194,49.8176398,24.0117904,12.767999649047852,,
+question,/aQJcPAoNKp2np3q2hKdULT/informed_consent_group/site_focal_point/gender,1711362378434,1711362379194,49.8176398,24.0117904,12.767999649047852,female,male
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/a1_site_active,1711362379208,1711362381130,49.8176398,24.0117904,12.767999649047852,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/site_active_yes_or_host/a1_2_people_can_hosted_number,1711362381140,1711362414312,49.8176398,24.0117904,12.767999649047852,,17
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/site_active_yes_or_host/a1_3_extra_bed_yn,1711362414320,1711362416604,49.8176398,24.0117904,12.767999649047852,,no
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/site_active_yes_or_host/skip_host_less_10_idp/a2_site_ownership,1711362416612,1711362418532,49.8176398,24.0117904,12.767999649047852,,public_state
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/site_active_yes_or_host/skip_host_less_10_idp/a2_1_site_listed,1711362418539,1711362419374,49.8176398,24.0117904,12.767999649047852,,yes_included
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/site_active_yes_or_host/skip_host_less_10_idp/a2_2_building_type,1711362419383,1711362420868,49.8176398,24.0117904,12.767999649047852,,residential_building
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/site_active_yes_or_host/skip_host_less_10_idp/a2_2_1_type_residential_building,1711362420874,1711362421810,49.8176398,24.0117904,12.767999649047852,,dormitory
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/site_active_yes_or_host/skip_host_less_10_idp/a2_3_site_closure,1711362421817,1711362424075,49.8176398,24.0117904,12.767999649047852,,no
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/site_active_yes_or_host/skip_host_less_10_idp/a3_responsible,1711362424083,1711362425924,49.8176398,24.0117904,12.767999649047852,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/site_active_yes_or_host/skip_host_less_10_idp/a3_1_organization_manages,1711362425931,1711362432951,49.8176398,24.0117904,12.767999649047852,,"educational_institution, local_authorities"
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/site_active_yes_or_host/skip_host_less_10_idp/a3_3_focal_point,1711362432958,1711362434733,49.8176398,24.0117904,12.767999649047852,,yes_someone
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/site_active_yes_or_host/skip_host_less_10_idp/a4_enroll_system,1711362434741,1711362436179,49.8176398,24.0117904,12.767999649047852,,yes_both_new_arrivals_and_those_who_leave
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/site_active_yes_or_host/skip_host_less_10_idp/a4_1_settlement_documents,1711362436186,1711362439089,49.8176398,24.0117904,12.767999649047852,,"idp_certificate, national_passport, taxpayer_identification_number, referral_warrant_for_settlement_from_local_or_state_authorities_volunteer_or_non_governmental_organization"
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/site_active_yes_or_host/skip_host_less_10_idp/a4_2_writing_rules,1711362439097,1711362441383,49.8176398,24.0117904,12.767999649047852,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/site_active_yes_or_host/skip_host_less_10_idp/a4_3_accommodation_contract,1711362441390,1711362443042,49.8176398,24.0117904,12.767999649047852,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/site_active_yes_or_host/skip_host_less_10_idp/a4_4_consulting_on_site_management,1711362443050,1711362451164,49.8176398,24.0117904,12.767999649047852,,"yes_through_individual_consultations, yes_through_groups_on_social_media, yes_through_general_meetings"
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/site_active_yes_or_host/skip_host_less_10_idp/a5_1_support_administration_cs,1711362451171,1711362452680,49.8176398,24.0117904,12.767999649047852,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/site_active_yes_or_host/skip_host_less_10_idp/a5_2_form_of_participation,1711362452687,1711362456380,49.8176398,24.0117904,12.767999649047852,,care_and_maintenance
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/site_active_yes_or_host/skip_host_less_10_idp/a6_idp_charged,1711362456387,1711362459556,49.8176398,24.0117904,12.767999649047852,,no
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/site_active_yes_or_host/skip_host_less_10_idp/a7_site_management_receive_compensation,1711362459564,1711362460942,49.8176398,24.0117904,12.767999649047852,,
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/site_active_yes_or_host/skip_host_less_10_idp/a6_idp_charged,1711362460950,1711362464803,49.8176398,24.0117904,12.767999649047852,,
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/site_active_yes_or_host/skip_host_less_10_idp/a7_site_management_receive_compensation,1711362464812,1711362467131,49.8176398,24.0117904,12.767999649047852,,from_state_budget_resolution_261
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/site_active_yes_or_host/skip_host_less_10_idp/a8_feedback_mechanism,1711362467138,1711362470686,49.8176398,24.0117904,12.767999649047852,,site_management
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/site_active_yes_or_host/skip_host_less_10_idp/a8_1_access_site_feedback,1711362470693,1711362474096,49.8176398,24.0117904,12.767999649047852,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/site_active_yes_or_host/skip_host_less_10_idp/a8_1_1_administration_training,1711362474105,1711362493428,49.8176398,24.0117904,12.767999649047852,,no
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/site_active_yes_or_host/skip_host_less_10_idp/a8_2_data_availability,1711362493435,1711362510719,49.8176398,24.0117904,12.767999649047852,,"accommodation_options_outside_of_the_site, idps_registration_on_state_level, governmental_programs_and_local_programs_providing_cash, pension_and_different_state_social_security_programs, access_to_education, medical_support_available, access_to_legal_aid"
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/site_active_yes_or_host/skip_host_less_10_idp/a8_3_services_of_gbv,1711362510727,1711362514434,49.8176398,24.0117904,12.767999649047852,,no
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/site_active_yes_or_host/skip_host_less_10_idp/a8_3_1_gbv_report_incidents,1711362514441,1711362517427,49.8176398,24.0117904,12.767999649047852,,
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/site_active_yes_or_host/skip_host_less_10_idp/a8_3_services_of_gbv,1711362517434,1711362518738,49.8176398,24.0117904,12.767999649047852,,
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/site_active_yes_or_host/skip_host_less_10_idp/a8_3_1_gbv_report_incidents,1711362518746,1711362521084,49.8176398,24.0117904,12.767999649047852,,
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/site_active_yes_or_host/skip_host_less_10_idp/a8_3_services_of_gbv,1711362521093,1711362522049,49.8176398,24.0117904,12.767999649047852,no,not_sure
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/site_active_yes_or_host/skip_host_less_10_idp/a8_3_1_gbv_report_incidents,1711362522056,1711362524723,49.8176398,24.0117904,12.767999649047852,,"un_email, ombuds_person"
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/site_active_yes_or_host/skip_host_less_10_idp/a8_4_violations_gbv,1711362524730,1711362622057,49.8176398,24.0117904,12.767999649047852,,no
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/site_active_yes_or_host/skip_host_less_10_idp/a9_hum_assist,1711362622064,1711362626049,49.8176313,24.0118025,12.880000114440918,,no
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/demography/b1_1_site_individuals,1711362626056,1711362628844,49.8176313,24.0118025,12.880000114440918,,17
+group questions,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/demography/male_female_over_18,1711362628852,1711362694049,49.8176313,24.0118025,12.880000114440918,,
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/demography/male_female_over_18/b1_1_1_individuals_male_over_18,1711362628853,1711362694049,49.8176313,24.0118025,12.880000114440918,,6
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/demography/male_female_over_18/b1_1_2_individuals_female_over_18,1711362628853,1711362694049,49.8176313,24.0118025,12.880000114440918,,7
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/demography/male_female_over_18/male_female_over_60_number/b1_2_1_individuals_male_over_60,1711362628853,1711362694049,49.8176313,24.0118025,12.880000114440918,,0
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/demography/male_female_over_18/male_female_over_60_number/b1_2_2_individuals_female_over_60,1711362628853,1711362694049,49.8176313,24.0118025,12.880000114440918,,1
+group questions,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/demography/children_0_17,1711362694067,1711362697587,49.8176313,24.0118025,12.880000114440918,,
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/demography/children_0_17/b1_3_children_0_17_number,1711362694067,1711362697587,49.8176313,24.0118025,12.880000114440918,,3
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/demography/b1_4_unaccompanied_children,1711362703194,1711362705113,49.8176313,24.0118025,12.880000114440918,,no
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/demography/vulnerable_groups/b1_5_vulnerable,1711362705121,1711362712535,49.8176313,24.0118025,12.880000114440918,,older_women
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/demography/vulnerable_groups/b1_5_4_older_women_number,1711362712545,1711362715295,49.8176313,24.0118025,12.880000114440918,,1
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/demography/b2_new_arrivals_register,1711362715303,1711362718040,49.8176313,24.0118025,12.880000114440918,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/demography/b2_1_arrived_site,1711362718046,1711362718935,49.8176313,24.0118025,12.880000114440918,,no
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/demography/b2_3_reasons_settling_in_cs,1711362718941,1711362724706,49.8176313,24.0118025,12.880000114440918,,"lack_of_own_housing, cannot_afford_renting"
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/demography/b3_stay_long,1711362724714,1711362729835,49.8176313,24.0118025,12.880000114440918,,more_than_1_5_year
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/demography/b4_idp_left_site_at_will,1711362729843,1711362732521,49.8176313,24.0118025,12.880000114440918,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/demography/b4_1_idp_left_site_at_will_yn,1711362732527,1711362734095,49.8176313,24.0118025,12.880000114440918,,
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/demography/b4_idp_left_site_at_will,1711362734103,1711362734994,49.8176313,24.0118025,12.880000114440918,yes,no
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/demography/b5_individuals_evicted,1711362735000,1711362737524,49.8176313,24.0118025,12.880000114440918,,no
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/demography/space_arrangement/b6_allocation_plan,1711362737530,1711362739417,49.8176313,24.0118025,12.880000114440918,,yes_full
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/demography/space_arrangement/b6_1_used_collective_site,1711362739425,1711362742198,49.8176313,24.0118025,12.880000114440918,,no_also_used_primary_function
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/demography/space_arrangement/b6_2_individual_zones,1711362742206,1711362754542,49.8176313,24.0118025,12.880000114440918,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/demography/space_arrangement/b7_spaces_cooking_eating_food_storage,1711362754549,1711362757862,49.8176313,24.0118025,12.880000114440918,,common_spaces_cooking
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/demography/space_arrangement/b7_1_purpose_spaces_serves,1711362757870,1711362762039,49.8176313,24.0118025,12.880000114440918,,"child_spaces_outdoor, recreational_spaces_adults"
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/demography/space_arrangement/b7_2_2_sufficient_child_spaces_outdoor,1711362762047,1711362763680,49.8176313,24.0118025,12.880000114440918,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/demography/space_arrangement/b7_2_4_sufficient_recreational_spaces_adults,1711362763687,1711362764392,49.8176313,24.0118025,12.880000114440918,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/demography/space_arrangement/b8_common_areas_separate,1711362764399,1711362780954,49.8176313,24.0118025,12.880000114440918,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/demography/space_arrangement/b9_sleeping_in_common_use,1711362780961,1711362786626,49.8176313,24.0118025,12.880000114440918,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/demography/space_arrangement/b10_accommodated,1711362786635,1711362787679,49.8176313,24.0118025,12.880000114440918,,
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/demography/space_arrangement/b9_sleeping_in_common_use,1711362787686,1711362791997,49.8176313,24.0118025,12.880000114440918,yes,no
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/demography/space_arrangement/b10_accommodated,1711362792004,1711362797022,49.8176313,24.0118025,12.880000114440918,,single_household_rooms
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/demography/space_arrangement/b12_overcrowded_collective_site,1711362797028,1711362799308,49.8176313,24.0118025,12.880000114440918,,no
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/demography/space_arrangement/b13_sleeping_space_division,1711362799315,1711362807554,49.8176313,24.0118025,12.880000114440918,,up_to_8_people
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/demography/space_arrangement/b14_square_meters_per_person,1711362807560,1711362811578,49.8176313,24.0118025,12.880000114440918,,up_to_6
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/demography/space_arrangement/b15_doors_locks_on_sleeping_places,1711362811585,1711362815336,49.8176313,24.0118025,12.880000114440918,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/demography/space_arrangement/b16_evacuation_plan,1711362815344,1711362817267,49.8176313,24.0118025,12.880000114440918,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/demography/space_arrangement/b17_fire_extinguishers,1711362817274,1711362819262,49.8176313,24.0118025,12.880000114440918,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/demography/space_arrangement/b18_conditions_site,1711362819270,1711362821226,49.8176313,24.0118025,12.880000114440918,,good
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/shelter/c1_engineering_systems,1711362821234,1711362826825,49.8176313,24.0118025,12.880000114440918,,all_above
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/shelter/c1_1_1_smooth_functioning_electricity_supply,1711362826831,1711362829999,49.8176313,24.0118025,12.880000114440918,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/shelter/c1_1_2_smooth_functioning_heating_system,1711362830008,1711362831323,49.8176313,24.0118025,12.880000114440918,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/shelter/c1_1_3_smooth_functioning_cold_water_supply,1711362831332,1711362832444,49.8176313,24.0118025,12.880000114440918,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/shelter/c1_1_4_smooth_functioning_hot_water_supply,1711362832451,1711362833568,49.8176313,24.0118025,12.880000114440918,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/shelter/c1_1_5_smooth_functioning_drainage_system,1711362833576,1711362834574,49.8176313,24.0118025,12.880000114440918,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/shelter/c1_1_6_smooth_functioning_ventlation_system,1711362834581,1711362835832,49.8176313,24.0118025,12.880000114440918,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/shelter/c2_maintain_temperature,1711362835840,1711362839171,49.8176313,24.0118025,12.880000114440918,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/shelter/c3_disability_infrastructure,1711362839182,1711362842114,49.8176313,24.0118025,12.880000114440918,,no
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/shelter/c4_bomb_shelter,1711362842122,1711362844456,49.8176313,24.0118025,12.880000114440918,,yes_nearby
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/shelter/c4_1_capacity_bomb_shelter_yn,1711362844466,1711362847078,49.8176313,24.0118025,12.880000114440918,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/shelter/c4_2_bomb_shelter_for_disabilities,1711362847086,1711362853227,49.8176313,24.0118025,12.880000114440918,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/shelter/c5_shelter_concerns_or_needs,1711362853235,1711362902714,49.8176313,24.0118025,12.880000114440918,,none
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/shelter/c6_receiving_shelter_support,1711362902722,1711362907713,49.8176313,24.0118025,12.880000114440918,,none
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/winterization/d1_main_type_heating,1711362907719,1711362910417,49.8176313,24.0118025,12.880000114440918,,individual_boiler_room
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/winterization/d2_fuel_needed_heating,1711362910425,1711362916670,49.8176313,24.0118025,12.880000114440918,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/winterization/d3_back_up_source_of_power,1711362916677,1711362920076,49.8176313,24.0118025,12.880000114440918,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/winterization/d3_1_back_up_source_of_power_extent,1711362920085,1711362921969,49.8176313,24.0118025,12.880000114440918,,partially
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/winterization/d4_alternative_source_heating,1711362921976,1711362924270,49.8176313,24.0118025,12.880000114440918,,no
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/winterization/d5_winterization_needs,1711362924277,1711362947864,49.8176313,24.0118025,12.880000114440918,,"poor_heating_system, lack_of_fuel_for_heating_sources"
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/winterization/d4_alternative_source_heating,1711362947872,1711362960810,,,,,
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/winterization/d5_winterization_needs,1711362960819,1711362963326,,,,,
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/winterization/d5_1_1_top_3_winterization_needs,1711362963334,1711362968291,,,,,"poor_heating_system, lack_of_fuel_for_heating_sources"
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/winterization/d6_winterization_support,1711362968299,1711362972635,,,,,none
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/wash_hygiene/e1_access_water,1711362972642,1711362979461,,,,,taps_available_in_the_site_centralized_water_supply
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/wash_hygiene/e1_1_1_quality_drinking_water,1711362979468,1711362982345,,,,,good
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/wash_hygiene/e1_1_2_access_drinking_water,1711362982352,1711362986705,,,,,"drinking_from_the_main_water_source_without_treatment, own_water"
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/wash_hygiene/e1_2_meeting_water_needs,1711362986712,1711362989378,,,,,all_of_the_above
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/wash_hygiene/e1_3_meeting_water_needs_everyday,1711362989384,1711362991432,,,,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/wash_hygiene/e1_4_hot_water,1711362991442,1711362994872,,,,,fully
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/wash_hygiene/e1_5_source_hot_water,1711362994878,1711363003832,,,,,individual_boiler_room
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/wash_hygiene/e1_5_1_1_wash_concerns_needs,1711363003840,1711363009468,,,,,no_boilers_on_site
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/wash_hygiene/e2_wash_needs,1711363009475,1711363019811,,,,,washing_drying_machines
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/wash_hygiene/e2_2_top_3_wash_needs,1711363019819,1711363022159,,,,,washing_drying_machines
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/wash_hygiene/e3_wash_support,1711363022165,1711363024775,,,,,
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/wash_hygiene/e2_2_top_3_wash_needs,1711363024782,1711363024967,,,,,
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/wash_hygiene/e2_wash_needs,1711363024975,1711363025189,,,,,
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/wash_hygiene/e1_5_1_1_wash_concerns_needs,1711363025197,1711363026703,,,,,
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/wash_hygiene/e2_wash_needs,1711363026711,1711363031302,,,,washing_drying_machines,none
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/wash_hygiene/e3_wash_support,1711363031311,1711363033816,,,,,none
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/wash_hygiene/information_on_bathing_facilities/e4_bathing_facilities,1711363033824,1711363035743,,,,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/wash_hygiene/information_on_bathing_facilities/e4_1_number_showers_yn,1711363035751,1711363036923,,,,,no
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/wash_hygiene/information_on_bathing_facilities/e4_2_shower_facilities_private,1711363036933,1711363040374,,,,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/wash_hygiene/information_on_bathing_facilities/e4_3_shower_gender,1711363040380,1711363041411,,,,,
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/wash_hygiene/information_on_bathing_facilities/e4_2_shower_facilities_private,1711363041418,1711363048343,,,,yes,no_partially
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/wash_hygiene/information_on_bathing_facilities/e4_3_shower_gender,1711363048352,1711363052235,,,,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/wash_hygiene/information_on_bathing_facilities/e4_4_shower_hot_water,1711363052242,1711363055140,,,,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/wash_hygiene/information_on_bathing_facilities/e4_5_disability_showers,1711363055148,1711363057670,,,,,no
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/wash_hygiene/e5_1_toilets,1711363057677,1711363060889,,,,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/wash_hygiene/e5_1_2_type_sanitary_unit,1711363060897,1711363062195,,,,,toilet_connected_to_a_sewarage_network
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/wash_hygiene/e5_2_number_toilets_yn,1711363062202,1711363063562,,,,,no
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/wash_hygiene/e5_3_toilet_private,1711363063569,1711363066386,,,,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/wash_hygiene/e5_4_toilet_gender,1711363066392,1711363068299,,,,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/wash_hygiene/e5_5_disability_toilets,1711363068307,1711363070348,,,,,no
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/wash_hygiene/e6_washing_machines,1711363070357,1711363073519,,,,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/wash_hygiene/e6_1_number_washing_machines_yn,1711363073525,1711363075732,,,,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/wash_hygiene/e6_1_1_number_washing_machines,1711363075739,1711363082434,,,,,1
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/wash_hygiene/e7_drying_machines,1711363082441,1711363084706,,,,,no
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/wash_hygiene/e7_2_drying_clothing,1711363084712,1711363087075,49.817617,24.011832,11.5,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/wash_hygiene/e8_type_waste_disposal,1711363087083,1711363089028,49.817617,24.011832,11.5,,disposed_specific_collection_point
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/wash_hygiene/e8_1_1_garbage_bins_radius_50,1711363089036,1711363092351,49.817617,24.011832,11.5,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/food/f1_access_food,1711363092360,1711363097279,49.817617,24.011832,11.5,,own_food
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/nfi/g1_types_nfi_need,1711363097285,1711363120541,49.817617,24.011832,11.5,,none
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/nfi/g2_items_for_arranging_beds,1711363120548,1711363130836,49.817617,24.011832,11.5,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/nfi/g3_types_nfis_provided,1711363130845,1711363136295,49.817617,24.011832,11.5,,
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/nfi/g3_1_3_provided_hygiene_and_cleaning_items,1711363138074,1711363141573,49.817617,24.011832,11.5,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/nfi/g4_wifi_connection,1711363141582,1711363143821,49.817617,24.011832,11.5,,yes_full_access
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/nfi/g4_1_wifi_free,1711363143828,1711363145045,49.817617,24.011832,11.5,,metered
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/nfi/g5_mobile_signal,1711363145052,1711363146758,49.817617,24.011832,11.5,,good
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/protection/h1_adult_pss,1711363146767,1711363148722,49.817617,24.011832,11.5,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/protection/h2_known_pss,1711363148729,1711363150482,49.817617,24.011832,11.5,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/protection/h2_1_adult_pss_yes,1711363150489,1711363152264,49.817617,24.011832,11.5,,available_on_site
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/protection/h2_2_advisory_service,1711363152274,1711363154709,49.817617,24.011832,11.5,,counselling_on_site
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/protection/h3_services_children_well_being,1711363154719,1711363173235,49.817617,24.011832,11.5,,"mental_health_and_psychosocial_support_services_girls_boys, group_counseling"
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/protection/h4_known_pss_children,1711363173241,1711363174273,49.817617,24.011832,11.5,,
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/protection/h3_services_children_well_being,1711363174279,1711363175381,49.817617,24.011832,11.5,"mental_health_and_psychosocial_support_services_girls_boys, group_counseling",mental_health_and_psychosocial_support_services_girls_boys
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/protection/h4_known_pss_children,1711363175388,1711363177448,49.817617,24.011832,11.5,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/protection/h5_social_workers_visit,1711363177456,1711363179694,49.817617,24.011832,11.5,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/protection/h5_1_social_workers_visit_frequency,1711363179702,1711363180985,49.817617,24.011832,11.5,,upon_request
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/protection/h5_2_sufficient_visits_social_workers,1711363180993,1711363183165,49.817617,24.011832,11.5,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/protection/h5_3_idp_employment,1711363183173,1711363185630,49.817617,24.011832,11.5,,26_50
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/protection/h5_4_causes_of_unemployment,1711363185636,1711363196782,49.817617,24.011832,11.5,,"caring_responsibilities, physically_unable_work"
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/protection/h6_social_activity,1711363196788,1711363200192,49.817617,24.011832,11.5,,yes_not_many_25_%
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/protection/h6_1_not_participate_social_activities,1711363200200,1711363204749,49.817617,24.011832,11.5,,"lack_interest, lack_opportunity"
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/protection/h6_2_relationship_site_residents_host_community,1711363204757,1711363211813,49.817617,24.011832,11.5,,dont_know
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/protection/h6_3_social_cohesion_negative_factors,1711363211819,1711363221101,49.817617,24.011832,11.5,,"different_cultural_identities, stereotypes_against_each_other, lack_willingness_from_both_groups_interact"
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/protection/h7_protection_needs,1711363221108,1711363223481,49.817617,24.011832,11.5,,
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/protection/h6_3_social_cohesion_negative_factors,1711363223487,1711363231550,49.817617,24.011832,11.5,"different_cultural_identities, stereotypes_against_each_other, lack_willingness_from_both_groups_interact","lack_willingness_from_both_groups_interact, different_cultural_identities"
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/protection/h7_protection_needs,1711363231557,1711363241612,49.817617,24.011832,11.5,,none
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/protection/h8_protection_support,1711363241619,1711363258287,49.817617,24.011832,11.5,,"provision_information_about_assistance_provided_humanitarian_actors, provision_information_available_administrative_social_services_entitlements"
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/protection/h8_1_2_sufficient_protection_support_provision_information_about_assistance_provided_humanitarian_actors,1711363258297,1711363261384,49.817617,24.011832,11.5,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/protection/h8_1_3_sufficient_protection_support_provision_information_available_administrative_social_services_entitlements,1711363261390,1711363263547,49.817617,24.011832,11.5,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/health/i1_reachable_by_ambulance,1711363263554,1711363265609,49.817617,24.011832,11.5,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/health/i2_first_aid,1711363265615,1711363267863,49.817617,24.011832,11.5,,no
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/health/i3_healthcare_facilities_near_site,1711363267870,1711363268813,49.817617,24.011832,11.5,,
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/health/i2_first_aid,1711363268819,1711363269743,49.817617,24.011832,11.5,,
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/health/i3_healthcare_facilities_near_site,1711363269750,1711363270557,49.817617,24.011832,11.5,,
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/health/i2_first_aid,1711363270563,1711363271489,49.817617,24.011832,11.5,no,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/health/i3_healthcare_facilities_near_site,1711363271495,1711363275427,49.817617,24.011832,11.5,,yes_both_primary_secondary_healthcare_facilities
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/health/i4_access_healthcare_services,1711363275434,1711363284646,49.817617,24.011832,11.5,,none
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/education/j1_access_education,1711363284653,1711363286560,49.817617,24.011832,11.5,,yes_both_kindergartens_and_schools
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/education/j2_mode_of_education,1711363286568,1711363290871,49.817617,24.011832,11.5,,offline_learning
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/education/j2_1_barriers_access_education,1711363290878,1711363302256,49.817617,24.011832,11.5,,none
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/education/j3_prevented_access_education,1711363302262,1711363304509,49.817617,24.011832,11.5,,no
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/comments/l1_comments_notes,1711363304520,1711363327915,49.817617,24.011832,11.5,,
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/comments/l2_comments_feedback,1711363327921,1711363454051,49.817617,24.011832,11.5,,
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/comments/thanks3,1711363454058,1711363455375,49.817617,24.011832,11.5,,
+end screen,,1711363455382,1711363456387,49.817617,24.011832,11.5,,
+form save,,1711363456843,,49.817617,24.011832,11.5,,
+form exit,,1711363456843,,49.817617,24.011832,11.5,,
+form finalize,,1711363456843,,49.817617,24.011832,11.5,,
+form resume,,1711377191227,,,,,,
+jump,,1711377191227,1711377194362,,,,,
+question,/aQJcPAoNKp2np3q2hKdULT/project_name/intro,1711377194396,1711377197643,49.8176126,24.0118664,11.734999656677246,,
+location tracking enabled,,1711377194467,,,,,,
+location permissions granted,,1711377194514,,,,,,
+location providers enabled,,1711377194515,,,,,,
+form exit,,1711377197643,,49.8176126,24.0118664,11.734999656677246,,

@@ -1,0 +1,29 @@
+event,node,start,end,latitude,longitude,accuracy,old-value,new-value
+form start,,1711363469773,,,,,,
+location tracking enabled,,1711363469779,,,,,,
+location permissions granted,,1711363469788,,,,,,
+location providers enabled,,1711363469789,,,,,,
+question,/aQJcPAoNKp2np3q2hKdULT/project_name/intro,1711363469800,1711363487090,49.8176302,24.0118235,96.0,,
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/organization,1711363487098,1711363489238,49.8176302,24.0118235,96.0,,REACH
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/enum_id,1711363489246,1711363492222,49.8176302,24.0118235,96.0,,enum_021
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/interview_type,1711363492229,1711363493570,49.8176302,24.0118235,96.0,,phone_interview
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/oblast,1711363493578,1711363505237,49.8176302,24.0118235,96.0,,UA73
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/raion,1711363505249,1711363507165,49.8176302,24.0118235,96.0,,UA7306
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/hromada,1711363507231,1711363510704,49.8176302,24.0118235,96.0,,UA7306061
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/settlement,1711363510899,1711363512988,49.8176302,24.0118235,96.0,,UA7306061001
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/site_adress/street_type,1711363513003,1711363515167,49.8176302,24.0118235,96.0,,street
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/site_adress/street_name,1711363515174,1711363526537,49.8176302,24.0118235,96.0,,Білоусова 
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/site_adress/house_number,1711363526545,1711363528985,49.8176302,24.0118235,96.0,,20
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/site_name_group/site_name_uid_list,1711363529446,1711363546462,49.8176302,24.0118235,96.0,,UKRs003363
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/site_name_group/site_name_text,1711363546470,1711363577706,49.8176302,24.0118235,96.0,,Буковинський державний медичний університет. Гуртожиток №4
+question,/aQJcPAoNKp2np3q2hKdULT/informed_consent_group/informed_consent,1711363577712,1711363579673,49.8176302,24.0118235,96.0,,yes
+group questions,/aQJcPAoNKp2np3q2hKdULT/informed_consent_group/site_focal_point,1711363579681,1711363584833,49.8176302,24.0118235,96.0,,
+question,/aQJcPAoNKp2np3q2hKdULT/informed_consent_group/site_focal_point/name,1711363579681,1711363584833,49.8176302,24.0118235,96.0,,Юрій
+question,/aQJcPAoNKp2np3q2hKdULT/informed_consent_group/site_focal_point/gender,1711363579681,1711363584833,49.8176302,24.0118235,96.0,,male
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/a1_site_active,1711363606315,1711363608838,49.8176302,24.0118235,96.0,,no
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/a1_1_site_active_no,1711363608847,1711363618194,49.8176302,24.0118235,96.0,,site_resumed_its_original_function
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/a1_1_1_1_thanks1,1711363618200,1711363619483,49.8176302,24.0118235,96.0,,
+end screen,,1711363619498,1711363620874,49.8176302,24.0118235,96.0,,
+form save,,1711363621134,,49.8176302,24.0118235,96.0,,
+form exit,,1711363621134,,49.8176302,24.0118235,96.0,,
+form finalize,,1711363621135,,49.8176302,24.0118235,96.0,,
