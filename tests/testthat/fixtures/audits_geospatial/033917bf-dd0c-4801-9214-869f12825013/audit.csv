@@ -1,0 +1,93 @@
+event,node,start,end,latitude,longitude,accuracy,old-value,new-value
+form start,,1711704620449,,,,,,
+location tracking enabled,,1711704620454,,,,,,
+location permissions granted,,1711704620458,,,,,,
+location providers enabled,,1711704620459,,,,,,
+question,/aQJcPAoNKp2np3q2hKdULT/project_name/intro,1711704620483,1711704639373,50.4756311,30.6385083,36.63199996948242,,
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/organization,1711704639373,1711704642357,50.4756311,30.6385083,36.63199996948242,,REACH
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/enum_id,1711704642360,1711704647041,50.4756311,30.6385083,36.63199996948242,,enum_014
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/interview_type,1711704647042,1711704648261,50.4756311,30.6385083,36.63199996948242,,physical_visit_to_the_site
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/oblast,1711704648261,1711704656843,50.4756311,30.6385083,36.63199996948242,,UA80
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/raion,1711704656846,1711704658876,50.4756311,30.6385083,36.63199996948242,,UA8000
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/hromada,1711704658904,1711704660160,50.4756311,30.6385083,36.63199996948242,,UA8000000
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/settlement,1711704660228,1711704661694,50.4756311,30.6385083,36.63199996948242,,UA8000000000
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/site_adress/street_type,1711704661695,1711704663744,50.4756311,30.6385083,36.63199996948242,,street
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/site_adress/street_name,1711704663745,1711704676647,50.4756311,30.6385083,36.63199996948242,,Кубанської України
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/site_adress/house_number,1711704676647,1711704678513,50.4756311,30.6385083,36.63199996948242,,2
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/site_name_group/site_name_uid_list,1711704678708,1711704682426,50.4756311,30.6385083,36.63199996948242,,UKRs011435
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/site_name_group/site_name_text,1711704682427,1711704696834,50.4756311,30.6385083,36.63199996948242,,Комунальне підприємство
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/site_name_group/site_name_uid_list,1711704696835,1711704700459,50.4756311,30.6385083,36.63199996948242,,
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/site_name_group/site_name_text,1711704700459,1711704709403,50.4756311,30.6385083,36.63199996948242,Комунальне підприємство,"Комунальне підприємство
+Київський "
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/site_name_group/site_name_uid_list,1711704709403,1711704710982,50.4756311,30.6385083,36.63199996948242,,
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/site_name_group/site_name_text,1711704710982,1711704716287,50.4756311,30.6385083,36.63199996948242,"Комунальне підприємство
+Київський ","Комунальне підприємство
+Київський будинок "
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/site_name_group/site_name_uid_list,1711704716288,1711704717833,50.4756311,30.6385083,36.63199996948242,,
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/site_name_group/site_name_text,1711704717834,1711704733107,50.4756311,30.6385083,36.63199996948242,"Комунальне підприємство
+Київський будинок ","Комунальне підприємство
+Київський будинок-інтернат
+"
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/site_name_group/site_name_uid_list,1711704733108,1711704734464,50.4756311,30.6385083,36.63199996948242,,
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/site_name_group/site_name_text,1711704734465,1711704747393,50.4756311,30.6385083,36.63199996948242,"Комунальне підприємство
+Київський будинок-інтернат
+","Комунальне підприємство
+Київський будинок-інтернат
+ветеранів праці"
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/site_name_group/site_name_uid_list,1711704747393,1711704749272,50.4756311,30.6385083,36.63199996948242,,
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/site_name_group/site_name_text,1711704749273,1711704775298,50.4756311,30.6385083,36.63199996948242,"Комунальне підприємство
+Київський будинок-інтернат
+ветеранів праці","Комунальне підприємство
+Київський будинок-інтернат
+ветеранів праці 
+UKRs011435"
+question,/aQJcPAoNKp2np3q2hKdULT/informed_consent_group/informed_consent,1711704775298,1711704777029,50.4756311,30.6385083,36.63199996948242,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/informed_consent_group/site_focal_point/name,1711704777029,1711704806887,50.4756311,30.6385083,36.63199996948242,,Дмитро
+question,/aQJcPAoNKp2np3q2hKdULT/informed_consent_group/site_focal_point/gender,1711704777029,1711704806887,50.4756311,30.6385083,36.63199996948242,,male
+question,/aQJcPAoNKp2np3q2hKdULT/informed_consent_group/site_focal_point/phone_number,1711704777029,1711704806887,50.4756311,30.6385083,36.63199996948242,380,380953240480
+group questions,/aQJcPAoNKp2np3q2hKdULT/informed_consent_group/site_focal_point,1711704777031,1711704806887,50.4756311,30.6385083,36.63199996948242,,
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/a1_site_active,1711704806887,1711704808221,50.4756311,30.6385083,36.63199996948242,,yes
+question,/aQJcPAoNKp2np3q2hKdULT/questionnaire/CCCM/site_active_yes_or_host/a1_2_people_can_hosted_number,1711704808222,1711706959103,50.4756311,30.6385083,36.63199996948242,,
+jump,,1711706959103,1711706960414,,,,,
+end screen,,1711706960458,1711706961714,50.4761267,30.638425,100.0,,
+form save,,1711706962397,,50.4761267,30.638425,100.0,,
+form exit,,1711706962398,,50.4761267,30.638425,100.0,,
+form resume,,1711715323212,,,,,,
+jump,,1711715323212,1711715349360,50.4764515,30.6395531,18.864999771118164,,
+location tracking enabled,,1711715331258,,,,,,
+location permissions granted,,1711715331264,,,,,,
+location providers enabled,,1711715331266,,,,,,
+question,/aQJcPAoNKp2np3q2hKdULT/informed_consent_group/site_focal_point/name,1711715331277,1711715349360,50.4764515,30.6395531,18.864999771118164,Дмитро,
+question,/aQJcPAoNKp2np3q2hKdULT/informed_consent_group/site_focal_point/gender,1711715331277,1711715349360,50.4764515,30.6395531,18.864999771118164,male,female
+question,/aQJcPAoNKp2np3q2hKdULT/informed_consent_group/site_focal_point/phone_number,1711715331277,1711715349360,50.4764515,30.6395531,18.864999771118164,380953240480,
+group questions,/aQJcPAoNKp2np3q2hKdULT/informed_consent_group/site_focal_point,1711715331277,1711715349360,50.4764515,30.6395531,18.864999771118164,,
+question,/aQJcPAoNKp2np3q2hKdULT/informed_consent_group/informed_consent,1711715349361,1711715350441,50.4764515,30.6395531,18.864999771118164,,
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/site_name_group/site_name_text,1711715350443,1711715353810,50.4764515,30.6395531,18.864999771118164,,
+question,/aQJcPAoNKp2np3q2hKdULT/informed_consent_group/informed_consent,1711715353811,1711715356364,50.4764515,30.6395531,18.864999771118164,,
+group questions,/aQJcPAoNKp2np3q2hKdULT/informed_consent_group/site_focal_point,1711715356365,1711716062611,50.4764515,30.6395531,18.864999771118164,,
+jump,,1711716062612,1711716063998,,,,,
+end screen,,1711716064040,1711716066861,,,,,
+jump,,1711716066861,1711716068098,,,,,
+end screen,,1711716068132,1711720758551,50.3928017,30.471284,26.54199981689453,,
+form exit,,1711720758551,,50.3928017,30.471284,26.54199981689453,,
+form resume,,1711721378523,,,,,,
+jump,,1711721378523,1711721386157,50.3927289,30.471557,18.469999313354492,,
+location tracking enabled,,1711721384087,,,,,,
+location permissions granted,,1711721384092,,,,,,
+location providers enabled,,1711721384093,,,,,,
+question,/aQJcPAoNKp2np3q2hKdULT/informed_consent_group/informed_consent,1711721384105,1711721386157,50.3927289,30.471557,18.469999313354492,,
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/site_name_group/site_name_text,1711721386157,1711721400687,50.3927289,30.471557,18.469999313354492,,
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/site_name_group/site_name_uid_list,1711721400889,1711721402427,50.3927289,30.471557,18.469999313354492,,
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/site_adress/house_number,1711721402428,1711721403888,50.3927289,30.471557,18.469999313354492,,
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/site_adress/street_name,1711721403888,1711721405304,50.3927289,30.471557,18.469999313354492,,
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/site_adress/house_number,1711721405305,1711721406405,50.3927289,30.471557,18.469999313354492,,
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/site_name_group/site_name_uid_list,1711721406405,1711721407713,50.3927289,30.471557,18.469999313354492,,
+question,/aQJcPAoNKp2np3q2hKdULT/initial_data/site_name_group/site_name_text,1711721407714,1711721409005,50.3927289,30.471557,18.469999313354492,,
+question,/aQJcPAoNKp2np3q2hKdULT/informed_consent_group/informed_consent,1711721409006,1711721411008,50.3927289,30.471557,18.469999313354492,yes,no
+question,/aQJcPAoNKp2np3q2hKdULT/informed_consent_group/thanks,1711721411008,1711721412428,50.3927289,30.471557,18.469999313354492,,
+end screen,,1711721412429,1711721418055,50.3927289,30.471557,18.469999313354492,,
+question,/aQJcPAoNKp2np3q2hKdULT/informed_consent_group/thanks,1711721418056,1711721419379,50.3927289,30.471557,18.469999313354492,,
+end screen,,1711721419380,1711721422123,50.3927289,30.471557,18.469999313354492,,
+form save,,1711721422510,,50.3927289,30.471557,18.469999313354492,,
+form exit,,1711721422510,,50.3927289,30.471557,18.469999313354492,,
+form finalize,,1711721422510,,50.3927289,30.471557,18.469999313354492,,
