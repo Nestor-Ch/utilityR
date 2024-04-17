@@ -26,7 +26,7 @@ This function is non vectorized. Mostly used in pipes after a `group_by(uuid)` c
 \dontrun{
 loaded.audits \%>\%
   dplyr::group_by(uuid) \%>\%
-  dplyr::group_modify(~process.audit.geospatial(.x)) \%>\%
+  dplyr::group_modify(~process.audit.geospatial(.x,start_q='consent',end_q='final_q_of_interview')) \%>\%
   dplyr::ungroup()
 }
 }
