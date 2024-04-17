@@ -216,7 +216,7 @@ testthat::test_that('process.audit.geospatial works, test 1 - general functional
                                       dplyr::group_by(uuid) %>%
                                       dplyr::group_modify(~process.audit.geospatial(.x, start_q ='informed_consent', end_q = 'j3_prevented_access_education')) %>%
                                       dplyr::ungroup() %>%
-                                      dplyr::select(-c(longitude,latitude,start,end)))
+                                      dplyr::select(-c(longitude,latitude,start,end,accuracy)))
 
   expected_result <- data.frame(
     uuid = c(unique(test_loaded$uuid)[1], rep(unique(test_loaded$uuid)[2],6),unique(test_loaded$uuid)[3],
@@ -274,7 +274,7 @@ testthat::test_that('process.audit.geospatial works, test 2 - missing variable w
                              dplyr::group_by(uuid) %>%
                              dplyr::group_modify(~process.audit.geospatial(.x, start_q ='informed_consent', end_q = 'j3_prevented_access_education')) %>%
                              dplyr::ungroup() %>%
-                             dplyr::select(-c(longitude,latitude,start,end)),expected_result),
+                             dplyr::select(-c(longitude,latitude,start,end,accuracy)),expected_result),
     paste0("The questions you've entered are not present in the data for uuid: ",unique(test_loaded$uuid)[1]))
 
 })
@@ -318,7 +318,7 @@ testthat::test_that('process.audit.geospatial works, test 4 - no geotracking war
                              dplyr::group_by(uuid) %>%
                              dplyr::group_modify(~process.audit.geospatial(.x, start_q ='informed_consent', end_q = 'j3_prevented_access_education')) %>%
                              dplyr::ungroup() %>%
-                             dplyr::select(-c(longitude,latitude,start,end)),expected_result),
+                             dplyr::select(-c(longitude,latitude,start,end,accuracy)),expected_result),
     'The enumerator has disabled the geolocation tracking')
 
 })
@@ -344,7 +344,7 @@ testthat::test_that('process.audit.geospatial works, test 5 - empty coordinates'
                              dplyr::group_by(uuid) %>%
                              dplyr::group_modify(~process.audit.geospatial(.x, start_q ='informed_consent', end_q = 'j3_prevented_access_education')) %>%
                              dplyr::ungroup() %>%
-                             dplyr::select(-c(longitude,latitude,start,end)),expected_result),
+                             dplyr::select(-c(longitude,latitude,start,end,accuracy)),expected_result),
     'All values between the chosen questions are NA. Returning an empty df')
 
 })
@@ -372,7 +372,7 @@ testthat::test_that('process.audit.geospatial works, test 6 - missing variable w
                              dplyr::group_by(uuid) %>%
                              dplyr::group_modify(~process.audit.geospatial(.x, start_q ='informed_consent', end_q = 'j3_prevented_access_education')) %>%
                              dplyr::ungroup() %>%
-                             dplyr::select(-c(longitude,latitude,start,end)),expected_result),
+                             dplyr::select(-c(longitude,latitude,start,end,accuracy)),expected_result),
     "The questions you've entered are not present in the data for this uuid")
 })
 
