@@ -93,8 +93,6 @@ if(geo_column  %in% names(raw.main)){
 }
 
 
-
-
 # Run the check if the point lies in the polygon
 
 if(file.exists(polygon_file) & merge_column!=''){
@@ -126,7 +124,7 @@ if(file.exists(polygon_file) & merge_column!=''){
       latitude =str_split(!!sym(geo_column), " ")[[1]][2]
     ) %>% 
     ungroup()
-
+  
   # set the crs and ensure they're the same
   collected_sf <- collected_pts %>% st_as_sf(coords = c('latitude','longitude'), crs = "+proj=longlat +datum=WGS84")
   admin_boundary_select <- st_transform(admin_boundary_select, crs = "+proj=longlat +datum=WGS84")
@@ -139,18 +137,167 @@ if(file.exists(polygon_file) & merge_column!=''){
       !!sym(polygon_file_merge_column) == !!sym(merge_column) ~ "Correct polygon", 
       .default = "Wrong polygon"
     ))
-
+  
   if(any(spatial_join$GPS_MATCH !="Correct polygon")){
     
     check_spatial <- tibble(spatial_join) %>%
       filter(GPS_MATCH != "Correct polygon")
     # %>% view
     
-    write.xlsx(check_spatial, make.filename.xlsx("output/checking/audit/", "gps_checks"), overwrite = T)
+    write.xlsx(check_spatial, make.filename.xlsx(directory_dictionary$dir.audits.check, "gps_checks"), overwrite = T)
     rm(collected_sf, spatial_join, check_spatial,admin_boundary,admin_boundary_select)
     
-  }else cat("All GPS points are matching their selected poviat :)")
+  }else cat("All GPS points are matching their selected polygon :)")
 }
+
+
+if(use_audit==T){
+  if( !exists('audits')){
+    audits <- utilityR::load.audit.files(directory_dictionary$dir.audits, uuids = raw.main$uuid, track.changes = F)
+  }
+  
+  if(omit_locations){
+    ids_to_omit <- raw.main %>% filter(!!sym(location_column)%in% location_ids) %>% pull(uuid)
+    audits <- audits %>% filter(!uuid %in%ids_to_omit )
+  }
+  
+  
+  
+  # general processing. CHeck warnings in case of any
+  geo_processed_audits <- audits %>%
+    dplyr::group_by(uuid) %>%
+    dplyr::group_modify(~process.audit.geospatial(.x, start_q ='informed_consent', end_q = 'j2_1_barriers_access_education')) %>%
+    dplyr::ungroup()   %>% 
+    left_join(raw.main %>% select(uuid, directory_dictionary$enum_colname)) %>% 
+    rename(col_enum = directory_dictionary$enum_colname)
+  
+  # get the cases of empty coordinates
+  geo_processed_audits_issues <- geo_processed_audits %>% 
+    filter(variable_explanation=='issue',
+           !grepl('is not present for this uuid',issue)) %>% 
+    select(where(~!all(is.na(.x))), -c(question,variable_explanation))
+  
+  general_table <- geo_processed_audits %>% 
+    filter(!is.na(latitude)) %>% 
+    filter(abs(0.6745 * (accuracy - median(accuracy, na.rm = T)) / 
+                 median(abs(accuracy - median(accuracy, na.rm = T)), na.rm = T)) < 3) %>% 
+    group_by(uuid) %>% 
+    mutate(lagget_lat = lag(latitude),
+           lagged_long = lag(longitude)
+    ) %>% 
+    mutate(time_difference = ((start-dplyr::lag(end))/60000)/60,
+           distance = distHaversine(cbind(longitude,latitude), cbind(lagged_long,lagget_lat)),
+           time_difference = ifelse(round(time_difference,2)==0, NA,time_difference ),
+           distance = ifelse(distance%_<=_%(accuracy) | distance%_<=_%lag(accuracy), NA,distance),
+           speed = round((distance/1000)/time_difference,2),
+           distance = distance/1000
+    ) %>% 
+    select(-lagget_lat,-lagged_long) %>% 
+    ungroup() %>% 
+    filter(speed<300) %>% 
+    mutate(start = as.POSIXct(start / 1000, origin = "1970-01-01"),
+           end = as.POSIXct(end / 1000, origin = "1970-01-01"))
+  
+  # get the table with interview speeds for interviewers who were moving too fast
+  summary_speed <- general_table %>% 
+    group_by(uuid) %>% 
+    mutate(max_speed = max(speed, na.rm = T)) %>% 
+    filter(any(max_speed>=top_allowed_speed)) %>% 
+    select(-max_speed) %>% 
+    ungroup()
+  # get the general table with average speed per problematic interviewer
+  summary_speed_short <- summary_speed %>% 
+    group_by(uuid) %>% 
+    summarise(mean_speed = mean(speed, na.rm = T),
+              col_enum = unique(col_enum))
+  
+  # fill up the excel file
+  wb <- createWorkbook()
+  addWorksheet(wb, "General table")
+  addWorksheet(wb, "Audit issues summary")
+  addWorksheet(wb, "Speed issues")
+  addWorksheet(wb, "Speed issues summary")
+  addWorksheet(wb, "Location issues")
+  addWorksheet(wb, "Location issues summary")
+  
+  
+  writeData(wb, "General table", general_table)
+  writeData(wb, "Audit issues summary", geo_processed_audits_issues)
+  writeData(wb, "Speed issues", summary_speed)
+  writeData(wb, "Speed issues summary", summary_speed_short)
+  
+  
+  # whether the points of the interview are in their correct squares
+  
+  # general checks
+  if(!merge_column %in% colnames(raw.main)){ 
+    stop('The merge_column with polygon names is not present in your data')
+  }
+  sf_use_s2(TRUE)
+  admin_boundary <- st_read(dsn = polygon_file)
+  if(! polygon_file_merge_column %in% names(admin_boundary)){
+    stop('The polygon_file_merge_column with polygon names is not present in your json file')
+  } 
+  
+  # select only geometry and the ID of the polygon and make valid
+  admin_boundary_select <-  admin_boundary %>% 
+    select(!!sym(polygon_file_merge_column)) %>% 
+    st_make_valid()
+  
+  # select only needed columns from the general_table
+  collected_pts <- general_table %>% 
+    select(uuid, latitude,longitude,variable_explanation,question,col_enum) %>%
+    left_join(raw.main %>% select(uuid,!!sym(merge_column)))
+  
+  
+  # set the crs and ensure they're the same
+  collected_sf <- collected_pts %>% st_as_sf(coords = c('longitude','latitude'), crs = "+proj=longlat +datum=WGS84")
+  admin_boundary_select <- st_transform(admin_boundary_select, crs = "+proj=longlat +datum=WGS84")
+  sf_use_s2(FALSE)
+  
+  spatial_join <- st_join(collected_sf, admin_boundary_select, join = st_within) %>%
+    st_drop_geometry() %>% 
+    mutate(GPS_MATCH = case_when(
+      is.na(!!sym(polygon_file_merge_column)) ~ "Outside polygon",
+      !!sym(polygon_file_merge_column) == !!sym(merge_column) ~ "Correct polygon", 
+      .default = "Wrong polygon"
+    ))
+  
+  
+  if(any(spatial_join$GPS_MATCH !="Correct polygon")){
+    
+    check_spatial <- tibble(spatial_join) %>%
+      group_by(uuid) %>% 
+      filter(any(GPS_MATCH != "Correct polygon")) %>% 
+      ungroup()
+    
+    summary_spatial <- check_spatial %>% 
+      group_by(uuid) %>% 
+      summarise(indicated_location = unique(!!sym(merge_column)),
+                actual_location  = paste0(unique(!!sym(polygon_file_merge_column)) ,collapse = ', '),
+                n_coordinates = n(),
+                wrong_coordinates = length(GPS_MATCH[GPS_MATCH!="Correct polygon"]),
+                col_enum = unique(col_enum)
+                ) %>% 
+      ungroup()
+    
+    writeData(wb, "Location issues", check_spatial)
+    writeData(wb, "Location issues summary", summary_spatial)
+    
+    for(i in 1:6){setColWidths(wb, sheet = i, cols = 1:10, widths = "auto")}
+    
+    
+  }else{
+    cat("All GPS points are matching their selected polygon :)")
+    for(i in 1:4){setColWidths(wb, sheet = i, cols = 1:10, widths = "auto")}
+    }
+  
+  saveWorkbook(wb, make.filename.xlsx(directory_dictionary$dir.audits.check, "audit_checks_full"), overwrite = TRUE)
+
+}
+
+
+
 # 
 # #-------------------------------------------------------------------------------
 # 
@@ -179,7 +326,7 @@ if(file.exists(polygon_file) & merge_column!=''){
 #   "e1cb77b8-abfe-485f-b3cd-709baa88c419"
 #   ##
 # )
-# cl.spatial_recode <- check_wrong_admin2 %>% filter(uuid %in% ids) %>%  
+# cl.spatial_recode <- check_wrong_admin4Pcode2 %>% filter(uuid %in% ids) %>%  
 #   mutate(old.value = selected_admin2, new.value = within_admin2, variable = "admin2", issue = "Enumerator selected wrong poviat by mistake") %>% 
 #   select(any_of(CL_COLS))
 # 

@@ -6,11 +6,15 @@ detail. you can browse the vignettes of this package by calling `vignette(packag
 The text below presents a comprehensive overview of the cleaning process and how each of the functions are used within their respective frameworks.
 The text below follows the structure of the cleaning template presented in the markdown templates of this package.
 
+
 ## Table of Contents
 - [Open up the cleaning template](#Open-up-the-cleaning-template)
 - [Duplicates and no-consents](#Cleaning-duplicates-and-no-consent-entries)
 - [Audit checks and soft duplicates](#Audit-checks-and-soft-duplicates)
 - [Geospatial checks](#Geospatial-checks)
+  - [Fake accuracy check](#Fake-accuracy-check)
+  - [Indicated point within polygon check](#Indicated-point-within-polygon-check)
+  - [Audit GPS points within polygon check](#Audit-GPS-points-within-polygon-check)
 - [Other requests and translations](#Other-requests-and-translations)
   - [Recoding other responses](#The-other-entry-workflow)
   - [Recoding translations](#The-translation-entry-workflow)
@@ -19,6 +23,7 @@ The text below follows the structure of the cleaning template presented in the m
   - [Recoding translation requests](#Recoding-translation-requests)
   - [Non-english check](#Non-English-check)
   - [Consistency check](#Consistency-check)
+  - [Binary check](#Binary-check)
 - [999 checks](#999-checks)
 - [Logic checks](#Logic-checks)
 - [Checks for outliers](#Checks-for-outliers)
@@ -27,11 +32,8 @@ The text below follows the structure of the cleaning template presented in the m
 
 ### Open up the cleaning template
 
-1. Load the utilityR library
-2. Create a new file using the utilityR markdown template
-3. Create a new Rmarkdown file by clicking 'File'->'New File'->'R Markdown'->'From Template'->'Cleaning template'. This will create a new directory in your local machine that will host all of the cleaning template files as well as folder subdirectories that you'll need for the cleaning.
-4. Load the kobo tool into the 'resources' folder. Load the raw data into the 'data\inputs\kobo_export' folder and the audit files into 'data\inputs\audit' folder if you have them.
-5. Start the `1_cleaning.R` file.
+1. Load the kobo tool into the 'resources' folder. Load the raw data into the 'data\inputs\kobo_export' folder and the audit files into 'data\inputs\audit' folder if you have them.
+2. Start the `1_cleaning.R` file.
 
 ### Initialization
 
@@ -105,20 +107,46 @@ The only bit of manual entry that needs to be done when running this file is fil
 
 ### Geospatial checks
 
-The spatial checks section checks for interviews with 0 geo coordinate precision. If these are present in the data, this may mean that the interviewer has installed a fake gps app onto their phone and has used it to fake the interview.
-
+#### Fake accuracy check
+The spatial checks section checks for interviews with 0 geo coordinate precision. If these are present in the data, this may mean that the interviewer has installed a fake gps app onto their phone and has used it to fake the interview.  
+#### Indicated point within polygon check  
 If you've conducted polygon sampling and didn't include the check for wheter the collected datapoint lies within the polyon where it's supposed to be colleced you'll need to specify the following:
 - `geo_column` - the name of the column that holds your coordinates (in the data)
 - `polygon_file` - the path to the your `.json` polygon file. This should be a file that holds the polygons of your sampling unit (settlements, hromadas or custom polygons, depending on what you need)
 - `polygon_file_merge_column` - The name of the column that serves as a unique identifier of your polygon in your `polygon_file` (pcode or the polygon_id)
-- `merge_column` - The name of the column that serves as a unique identifier of your polygon in your `raw.main` object (pcode or the polygon_id) 
+- `merge_column` - The name of the column that serves as a unique identifier of your polygon in your `raw.main` object (pcode or the polygon_id)  
 
 The script will check if the selected columns are present in the data objects and try to fit the sampled points into the polygons. If any of the interviews were conducted outside of their respective polygons, the algorithm will write the `gps_checks.xlsx` file. The poing can be classified as the following:
 - `Outside polygon` - the point wasn't matched to any of the polygons in your  `polygon_file`
 - `Wrong polygon` - the point was matched to a polygon in the `polygon_file` but it's not the polygon where the enumerator said the interview was being conducted.  
+#### Audit GPS points within polygon check  
+After this check is done, the deletion log is written into a `geospatial_check` and `gps_checks` excel files. Look trough them and remove those uuids that you'd like to keep in the data. 
 
-After this check is done, the deletion log is written into a `geospatial_check` and `gps_checks` excel files. Look trough them and remove those uuids that you'd like to keep in the data. After you're done, run the `section_3_spatial_decisions.R` and we're done with the deletion bit of the cleaning.
 
+If you want to run **audit** GIS check, you will have to specify the following:
+- `use_audit` - whether you want to run the audit GPS check. Set to `TRUE` if using, set to `FALSE` if not.
+- `top_allowed_speed` - top speed that the interviewer is allowed to move during the interview in kp/h
+- `initial_question` - the question that you consider the start of the interview within audits - at which point in the interview we can be sure that the enumerator has started the interview?
+- `final_question` - the question that you consider the end of the interview within audits - at which point in the interview we can be sure that the enumerator has ended the interview?
+- `omit_locations` - are there any locations with volatile GPS tracking you'd like to remove from this analysis?
+- `location_column` - what is the column in your data that signifies the locations you'd like to omit? It Doesn't have to match the `merge_column` if you're omitting other (larger) geo levels. Leave blank if not using.
+- `location_ids` - the IDs of `location_column` you'd like to omit. Leave blank if not using.  
+**For this check to work you also have to specify the `polygon_file`, `polygon_file_merge_column` and `merge_column` from the Indicated point within polygon check section**
+
+If you have included collection of GPS coordinates into the audit files you can conduct an audit GIS check process. This process will process the audit data and collect the unique GPS points within the interview bounds (see above for details). Cases where there were no coordinates within the selected interview bounds will be separated from the rest of the check and written into a separate excel sheet.
+The GPS accuracy will be used to estimate cases where the accuracy of the coordinate is too low, cases outside of 3 standard deviations of the median will be dropped.   
+The time and distance between the start of the new question with a unique GPS coordinate and the end of the previous question with another GPS coordinate will be added into the dataframe. Cases where the time difference is effectively 0 or where the distance is lower than the accuracy will be set to NA. Distance will be converted to kilometers and time will be converted to hours. After this is done, speed is calculated. Cases where speed is higher than 300 km per hour will be removed as they're considered to be errors. In cases where the movement speed is higher than expected maximum speed of an in-person interview will be flagged.  
+The last check is concerned with checking whether all unique GPS points in the audit are attributed to the correct polygon. To conduct this, the user will need to specify the same variables as mentioned in the **Indicated point within polygon check** section. The mechanism of the check is basically the same. As a result this check forms an `audit_checks_full` Excel file. It contains the following sheets:  
+- `General table` table that contains all valid GPS data in the audit files,
+- `Audit issues summary` table that contains the cases where it wasn't possible to gather geospatial data from the interview.
+- `Speed issues` table that contains all cases where the movement speed was higher than expected at least one time during the interview.
+- `Speed issues summary` - table with average movement speed of each interview in `Speed issues` table.
+- `Location issues` - table with all interviews where the location of the interview was outside of the expected polygon at least once.
+- `Location issues summary` - a table that shows how many unique points were gathered in the interview and how many of them were collected in the wrong location. Also shows the expected and actual location of the interview.  
+Look through all of the tables and work with `summary` sheets. If you think that the interview should be deleted **keep** it in its `summary` sheet. If not, delete the row. The sheets that don't have the `summary` in the name are more for your data exploration needs, feel free to change them as needed.
+
+
+After you're done, run the `section_3_spatial_decisions.R` and we're done with the deletion bit of the cleaning.
 
 ###  Other requests and translations
 
@@ -181,6 +209,8 @@ When the user starts running the `section_4_apply_changes_to_requests` file the 
 - Whether there are any empty rows
 - Whether the choices that the user has added in the `existing` column are actually present in the `tool.choices` object.
 - Whether the user has any entries within `existing.v` column that match the `None` criterion. These values include: `None`,`Don't know`,`Prefer not to answer`,etc. These entries need special treatment as the user entering them means that all other replies to the given question are invalid except for the `None` reply. The check looks if any of your entries are similar to these and asks the user to make sure that the 'name' values of these choices (from `tool.choices` object) are present in the `none_selection` object. By default, the object includes c(`do_not_know`, `prefer_not_to_answer`, `none`,`none_of_the_above`,`dont_know`, `do_not_want_to_answer`) and is passed to `recode_others` function that passes it internally to `recode.others_select_multiple` function. If you need to add some other cases, or remove them, feel free to modify this object.
+- Whether your `select_one` variables only have one option in the `existing.v` column.
+- Whether you've included any spaces or other empty values in any of the columns.
 
 If those checks have passed, the script will split the requests file depending on whether the questions belong to the main or loop dataframe. Each of these pairs of objects (the dataframe and its relevant recode requests) will be passed through the function `recode.others` that will create a cleaning log with the following set of changes for each case:
 - If the reply is `true`, it'll replace the Ukrainian/Russian version of the `_other` response with the translated version.
@@ -235,6 +265,8 @@ If any non-english characters have been found in your dataframes it'll be stored
 #### Consistency check
 The final bit of the script is running the `select.multiple.check` which tries to find inconsistencies between the cumulative columns of `select_multiple` questions and their respective binary columns. The file will show the differences between what is expected from the cumulative column and what is present in the binaries. It is left up to the user to decide what to do with these inconsistencies.
 
+#### Binary check
+This is a small check that loops through all binary values in the dataframe and looks at whether all values are what we expect them to be: either `0`, `1` or `NA`. If there are any inconsistencies, the script will throw an error and ask the user to check the `wrong_values_frame` object for details of the error. It stores variables that have unexpected entries. The user should check the unique values on those to see what caused the error.
 
 ### 999 checks
 The next bit of the script checks the dataframes for 99 and 999 values in numerical columns as well as any other values that you're suspicious of. You can specify these values in the `code_for_check` vector. These values are suspicious because they are a relic from the SPSS based sociological research. As the .sav values save values as numerics, it became necessary to assign NA or DK values a single code so that they are easily recognisable and you can recode them quickly. Usually, these are maked as 99,98 or 999. This is not applicable for us as we're not working in SPSS. This bit of script produces a `cl_log_999` object and a `output/checking/999_diferences.xlsx` excel file that document these entries. You can look through them and keep the rows that need to be recoded in your opinion.
@@ -260,7 +292,7 @@ The script then runs the selected outlier detection algorithm and writes the sus
 The excel file will have a new column `checked`. It exists to allow the user to let the HQ know that the outlier value was checked even if it's not fixed. If the outlier value is accurate and you with to keep it in the dataset, set the value of the `checked` column to `value checked`, if you want to change the old value to the new one, specify it within the `new.value` column and set the `checked` column value to `value corrected`. Now you can load up the clean excel file as the `cleaning.log.outliers_full` object and run `section_6_finish_outlier_check.R`.
 
 ### Finalize the data
-The last section goes through removal of PII columns, gathering the cleaning and deletion logs, building the submission excel for HQ validation and writing the submission package. Outside of specifying the `pii.to.remove_main` that holds the names of the PII columns barely any interaction is needed from the users side. The file for HQ submission is written as `Cleaning_logbook` excel in the `output/Cleaning_logbook` directory.
+The last section goes through removal of PII columns and columns where all values are empty, gathering the cleaning and deletion logs, building the submission excel for HQ validation and writing the submission package. Outside of specifying the `pii.to.remove_main` that holds the names of the PII columns barely any interaction is needed from the users side. The file for HQ submission is written as `Cleaning_logbook` excel in the `output/Cleaning_logbook` directory.
 
 ### Contributors 
 
