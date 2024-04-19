@@ -114,20 +114,32 @@ Once you've checked all entries in the files in "output/checking/audit/" directo
 source('src/sections/section_2_run_audit_decisions.R')
 ```
 
-The section below is deprecated and rarely used. We're keeping it in case it comes in handy sometime in the future
+The section below is dedicated to all geospatial checks that can be run on the data.
 
 ```{r Section  3  - Loop inconsitencies + spatial checks}
-#specify the column that holds the cordinates
-geo_column <- '' # the name of the column that holds your coordinates (in the data).Leave blank if not using
-polygon_file <- 'resources/UKR_ADM4_2020.geojson' # the file with polygons that were supposed to be sampled
-polygon_file_merge_column <-'' # what is the name of the column that signifies the name of the polygon in your json file? Leave blank if not using
-merge_column <- '' # what is the name of the column that signifies the name of the polygon in your dataframe? Leave blank if not using
+# audit geospatial check block------------------------------
+use_audit <- F # if using audit checks for geospatial checking. Set to false if not doing geospatial check from audits
+top_allowed_speed <- 15 # top allowed speed for an enumerator in km per hour
+initial_question <- '' # the question that you consider the start of the interview within audits - at which point in the interview we can be sure that the enumerator has started the interview?
+final_question <- '' # the question that you consider the end of the interview within audits - at which point in the interview we can be sure that the enumerator has ended the interview?
+
+omit_locations <- F # do you want to omit certail locations because GPS there may be too volatile ?
+location_column <- 'oblast' # doesn't have to match the merge_column if you're omitting other (larger geo levels). Leave blank if not using
+location_ids <- c('') # have to be present in the location_column! Leave blank if not using
+
+# polygonal files and the columns that indicate the interview location in both the polygon file and our dataframe
+polygon_file <- 'resources/UKR_ADM4_2020.geojson' # the file with polygons that were supposed to be sampled 
+polygon_file_merge_column <-'admin4Pcode' # what is the name of the column that signifies the name of the polygon in your json file? 
+merge_column <- 'settlement' # what is the name of the column that signifies the name of the polygon in your dataframe? Leave blank if not using
+# end of audit geospatial check block------------------------------
+
+#specify the column that holds the cordinates 
+geo_column <- 'geo_point' # the name of the column that holds your coordinates (in the data). Leave blank if not using
 
 source('src/sections/section_3_loops_and_spatial_checks.R')
 
-
 ```
-Once you've checked all entries in the "output/checking/audit/geospatial_check"  and only left what needs to be deleted implement the decisions below
+Once you've checked all entries in the "output/checking/audit/geospatial_check"  and "output/checking/audit/gps_checks" and only left what needs to be deleted implement the decisions below
 ```{r Section  3  - Loop inconsitencies + spatial checks decisions}
 source('src/sections/section_3_spatial_decisions.R')
 ```
@@ -188,6 +200,8 @@ cleaning.log.match <- utilityR::select.multiple.check(raw.main, tool.survey, id_
 if (nrow(cleaning.log.match) > 0) {
   write.xlsx(cleaning.log.match, "output/checking/select_multiple_match.xlsx", overwrite=T)
 }
+
+source('src/sections/section_4_check_binaries.R')
 ```
 
 Check if any columns are equal to '999'/'99', enter any other values you're suspicious of
@@ -289,6 +303,32 @@ kobo.raw.main  <- kobo.raw.main %>% select(-any_of(pii.to.remove_main))
 if(length(ls)>1){
   ls_loops <- ls[2:length(ls)]
 }else{ls_loops <- c()}
+
+# remove empty columns from loops
+if(length(ls_loops)>0){
+  for(loop in ls_loops){
+    txt <- paste0("empty_cols <- apply(",loop,",2,function(x){all(is.na(x))}) %>% 
+    data.frame() %>% 
+    rownames_to_column(var='name') %>% 
+    rename('test'=2) %>% 
+    filter(test==TRUE) %>% pull(name)")
+    
+    eval(parse(txt))
+    
+    cols.to.remove <- c(
+      "deviceid",
+      "staff_other",
+      "audit",
+      "audit_URL",
+      "username",empty_cols)
+    
+    txt <- paste0(loop,"  <- ",loop," %>% select(-any_of(cols.to.remove))")
+    
+    eval(parse(txt))
+
+  }
+}
+
 ```
 
 

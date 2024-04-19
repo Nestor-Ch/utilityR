@@ -80,7 +80,7 @@ if(length(sheet_names_new)>0){
   eval(parse(text = txt))
 
   txt <- paste0('res.soft_duplicates_l <- utilityR::find.similar.surveys(
-                ',sheet_names_new[i],'_tmp, tool.survey, uuid = "loop_index", enum.column=directory_dictionary$enum_colname,is.loop=T)')
+                ',sheet_names_new[i],'_tmp, tool.survey, uuid = "loop_index", enum.column=directory_dictionary$enum_colname, is.loop=T)')
 
   eval(parse(text = txt))
 
@@ -124,5 +124,4 @@ cat("Check outliers of enumerators surveys group in output/checking/outliers/enu
 cat("Also, you can find analysis of the enumerators in analysis data frame, and outliers in outliers data frame.
       If you want to check data without analysis, res.soft_duplicates for you. You can do different manipulations by yourself")
 
-rm(audits, data.audit, analysis.result)
-
+rm(data.audit, analysis.result)
