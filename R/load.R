@@ -64,6 +64,7 @@ load.tool.choices <- function(filename_tool, label_colname, keep_cols=F){
 
 load.tool.survey <- function(filename_tool, label_colname,  keep_cols = F){
   tool.survey <- readxl::read_xlsx(filename_tool, sheet = "survey", col_types = "text")
+  tool.survey$type <- stringr::str_squish(tool.survey$type)
   tool.survey <- tool.survey[!is.na(tool.survey$type),]
   tool.survey <- tool.survey %>%
     dplyr::mutate(q.type=as.character(lapply(type, function(x) stringr::str_split(x, " ")[[1]][1])),
