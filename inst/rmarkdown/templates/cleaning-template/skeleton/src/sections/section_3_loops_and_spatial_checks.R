@@ -111,6 +111,7 @@ if(file.exists(polygon_file) & merge_column!=''){
   } 
   admin_boundary_select <-  admin_boundary %>% 
     select(!!sym(polygon_file_merge_column)) %>% 
+    rename(actual_location =!!sym(polygon_file_merge_column)) %>% 
     st_make_valid()
   
   # TODO additional check for low precision??
@@ -118,6 +119,7 @@ if(file.exists(polygon_file) & merge_column!=''){
   collected_pts <- raw.main %>% 
     filter(!is.na(!!sym(geo_column))) %>%
     select(uuid, !!sym(directory_dictionary$enum_colname), !!sym(merge_column), !!sym(geo_column)) %>%
+    rename(indicated_location = !!sym(merge_column)) %>% 
     rowwise() %>% 
     mutate(
       longitude = str_split(!!sym(geo_column), " ")[[1]][1],
@@ -128,15 +130,31 @@ if(file.exists(polygon_file) & merge_column!=''){
   # set the crs and ensure they're the same
   collected_sf <- collected_pts %>% st_as_sf(coords = c('latitude','longitude'), crs = "+proj=longlat +datum=WGS84")
   admin_boundary_select <- st_transform(admin_boundary_select, crs = "+proj=longlat +datum=WGS84")
+  admin_boundary_centers <- st_centroid(admin_boundary_select)%>% 
+    mutate(lon_center = sf::st_coordinates(.)[,1],
+           lat_center = sf::st_coordinates(.)[,2]) %>% 
+    st_drop_geometry()
+  
   sf_use_s2(FALSE)
   
   spatial_join <- st_join(collected_sf, admin_boundary_select, join = st_within) %>%
     st_drop_geometry() %>% 
+    left_join(admin_boundary_centers) %>% 
+    rowwise() %>% 
+    mutate(longitude = str_split(!!sym(geo_column), " ")[[1]][2],
+           latitude =str_split(!!sym(geo_column), " ")[[1]][1],
+           longitude=as.numeric(longitude),
+           latitude = as.numeric(latitude),
+           distance_from_center = distHaversine(cbind(longitude,latitude), cbind(lon_center,lat_center))) %>% 
+    ungroup() %>% 
+    select(-c(longitude,latitude,lon_center,lat_center)) %>% 
     mutate(GPS_MATCH = case_when(
-      is.na(!!sym(polygon_file_merge_column)) ~ "Outside polygon",
-      !!sym(polygon_file_merge_column) == !!sym(merge_column) ~ "Correct polygon", 
+      is.na(actual_location) ~ "Outside polygon",
+      actual_location == indicated_location ~ "Correct polygon", 
       .default = "Wrong polygon"
     ))
+  
+  
   
   if(any(spatial_join$GPS_MATCH !="Correct polygon")){
     
@@ -146,7 +164,8 @@ if(file.exists(polygon_file) & merge_column!=''){
     
     write.xlsx(check_spatial, make.filename.xlsx(directory_dictionary$dir.audits.check, "gps_checks"), overwrite = T)
     rm(collected_sf, spatial_join, check_spatial,admin_boundary,admin_boundary_select)
-    
+    warning('If the resulting distances look weird, please double check the order of of measures in the coordinate column, 
+            sometimes long and lat are mixed up. This may mean a small change of the script')
   }else cat("All GPS points are matching their selected polygon :)")
 }
 
@@ -278,7 +297,7 @@ if(use_audit==T){
                 n_coordinates = n(),
                 wrong_coordinates = length(GPS_MATCH[GPS_MATCH!="Correct polygon"]),
                 col_enum = unique(col_enum)
-                ) %>% 
+      ) %>% 
       ungroup()
     
     writeData(wb, "Location issues", check_spatial)
@@ -290,10 +309,10 @@ if(use_audit==T){
   }else{
     cat("All GPS points are matching their selected polygon :)")
     for(i in 1:4){setColWidths(wb, sheet = i, cols = 1:10, widths = "auto")}
-    }
+  }
   
   saveWorkbook(wb, make.filename.xlsx(directory_dictionary$dir.audits.check, "audit_checks_full"), overwrite = TRUE)
-
+  
 }
 
 
