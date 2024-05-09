@@ -114,26 +114,55 @@ if(file.exists(polygon_file) & merge_column!=''){
     rename(actual_location =!!sym(polygon_file_merge_column)) %>% 
     st_make_valid()
   
+  
+  if(omit_locations){
+    ids_to_omit <- raw.main %>% filter(!!sym(location_column)%in% location_ids) %>% pull(uuid)
+    raw.main_geo <- raw.main %>% filter(!uuid %in%ids_to_omit )
+  }else{
+    raw.main_geo <- raw.main
+  }
+  
+  
   # TODO additional check for low precision??
   
-  collected_pts <- raw.main %>% 
+  collected_pts <- raw.main_geo %>% 
     filter(!is.na(!!sym(geo_column))) %>%
     select(uuid, !!sym(directory_dictionary$enum_colname), !!sym(merge_column), !!sym(geo_column)) %>%
     rename(indicated_location = !!sym(merge_column)) %>% 
     rowwise() %>% 
     mutate(
-      longitude = str_split(!!sym(geo_column), " ")[[1]][1],
-      latitude =str_split(!!sym(geo_column), " ")[[1]][2]
+      latitude =str_split(!!sym(geo_column), " ")[[1]][1],
+      longitude = str_split(!!sym(geo_column), " ")[[1]][2],
     ) %>% 
     ungroup()
   
+  # check if mostly all latitude is between the expected range
+  if(!(
+    sum(between(as.numeric(collected_pts$latitude),44,54))>0.90*nrow(collected_pts)&
+    sum(between(as.numeric(collected_pts$longitude),22,41))>0.90*nrow(collected_pts))){
+    # if not - rename them
+    collected_pts <- collected_pts %>% 
+      rename(longitude = latitude,
+             latitude = longitude)
+  }
+  
   # set the crs and ensure they're the same
-  collected_sf <- collected_pts %>% st_as_sf(coords = c('latitude','longitude'), crs = "+proj=longlat +datum=WGS84")
+  collected_sf <- collected_pts %>% st_as_sf(coords = c('longitude','latitude'), crs = "+proj=longlat +datum=WGS84")
   admin_boundary_select <- st_transform(admin_boundary_select, crs = "+proj=longlat +datum=WGS84")
   admin_boundary_centers <- st_centroid(admin_boundary_select)%>% 
     mutate(lon_center = sf::st_coordinates(.)[,1],
            lat_center = sf::st_coordinates(.)[,2]) %>% 
     st_drop_geometry()
+  
+  if(!(
+    sum(between(as.numeric(admin_boundary_centers$lat_center),44,54))>0.90*nrow(admin_boundary_centers)&
+    sum(between(as.numeric(admin_boundary_centers$lon_center),22,41))>0.90*nrow(admin_boundary_centers))){
+    # if not - rename them
+    admin_boundary_centers <- admin_boundary_centers %>% 
+      rename(lon_center = lat_center,
+             lat_center = lon_center)
+  }
+  
   
   sf_use_s2(FALSE)
   
@@ -144,8 +173,19 @@ if(file.exists(polygon_file) & merge_column!=''){
     mutate(longitude = str_split(!!sym(geo_column), " ")[[1]][2],
            latitude =str_split(!!sym(geo_column), " ")[[1]][1],
            longitude=as.numeric(longitude),
-           latitude = as.numeric(latitude),
-           distance_from_center = distHaversine(cbind(longitude,latitude), cbind(lon_center,lat_center))) %>% 
+           latitude = as.numeric(latitude))
+  
+  if(!(
+    sum(between(as.numeric(spatial_join$latitude),44,54))>0.90*nrow(spatial_join)&
+    sum(between(as.numeric(spatial_join$longitude),22,41))>0.90*nrow(spatial_join))){
+    # if not - rename them
+    spatial_join <- spatial_join %>% 
+      rename(longitude = latitude,
+             latitude = longitude)
+  }
+  
+  spatial_join <- spatial_join %>% 
+    mutate(distance_from_center = distHaversine(cbind(longitude,latitude), cbind(lon_center,lat_center))) %>% 
     ungroup() %>% 
     select(-c(longitude,latitude,lon_center,lat_center)) %>% 
     mutate(GPS_MATCH = case_when(
