@@ -38,9 +38,7 @@ if(nrow(other.responses)>0){
                                                  sheet = sheet_name_others, validate = T)
     # remove from other.responses.j where uuid in or.edited$uuid
     other.responses <- other.responses[!other.responses$uuid %in% existed.requests$uuid,]
-    print(nrow(other.responses))
   }
-  other.responses <- other.responses[1, ]
   # translate your data
   other.responses.j <- utilityR::translate.responses(responses = other.responses,
                                                      values_from = 'responses',
@@ -105,7 +103,6 @@ if(nrow(trans.responses)>0){
     # remove from other.responses.j where uuid in or.edited$uuid
     trans.responses <- trans.responses[!trans.responses$uuid %in% existed.requests$uuid,]
   }
-  trans.responses <- trans.responses[1, ]
   # translate all of the responses
   trans.responses.j <- utilityR::translate.responses(responses = trans.responses,
                                                      values_from = 'responses',
