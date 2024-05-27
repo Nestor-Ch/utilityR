@@ -185,9 +185,9 @@ After receiving the outputs of this function, please check the `dir.requests` di
 
 ```{r Section  4 - Others and translations - recoding}
 # name that hosts the clean recode.others file, leave as '' if you don't have this file. Nothing will be recoded that way
-name_clean_others_file <- 'XXX' # name of the sheet where you're holding your requests
+name_clean_others_file <- other_request_file_pattern # name of the sheet where you're holding your requests
 # name that hosts the clean translation requests file, leave as '' if you don't have this file. Nothing will be recoded that way
-name_clean_trans_file <- 'XXX'
+name_clean_trans_file <- text_request_file_pattern
 
 source('src/sections/section_4_apply_changes_to_requests.R')
 
