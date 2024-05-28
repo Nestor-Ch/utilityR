@@ -188,6 +188,9 @@ When you're done with this, you can save the excel file and move on to the trans
 Prior to running the translation of the `text` responses, the user needs to specify two parameters:
 - `trans_cols_to_skip` - a vector list of columns that need to be omitted from the process and the translations. These may be columns of enumerator comments, names of locations of the interviews, personal data of the respondent, etc. After these are specified the user can run the `get.trans.db` function, which will return the `trans.db` object - a dataframe of variable names that are to be extracted from the data. This function is similar to the abovementioned `get.other.db` function, but it omits the `_other` questions.
 - `missing_vars`- a dataframe containing the variables that are not present in the `trans.db` and should be added to it. The user needs to specify the variable and its label.  
+- `partial_clean` - if the user was running translations during the data collection and there are a few `_other` files in the directory, specify this parameters as `TRUE`, this will result in already translated `uuid`s to not be re-translated.
+- `other_request_file_pattern` specify the name pattern of your `other` requests files. Later this is used to get the pattern of all of your `_other` request files in `name_clean_others_file`
+- `text_request_file_pattern` specify the name pattern of your translation requests files. Later this is used to get the pattern of all of your `_other` request files in `name_clean_trans_file`
 
 After this, the user can continue running and translating the responses, this will produce the `text_requests_final` document in the `directory_dictionary$dir.requests` with the following structure
 
