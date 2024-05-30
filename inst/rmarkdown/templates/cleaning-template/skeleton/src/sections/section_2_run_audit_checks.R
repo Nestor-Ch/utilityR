@@ -17,8 +17,12 @@ if(nrow(audits) == 0) {
   audits.summary <- tibble(uuid = raw.main$uuid, tot.rt = NA)
 }else{
   audits.summary <- audits %>%
+    distinct(inter_q_duration,duration, uuid,start_readable,end_readable, .keep_all = T) %>% 
+    filter(!(inter_q_duration %_<_% 0 & !event %in% c('form.exit','form.start'))) %>% 
     group_by(uuid) %>%
-    group_modify(~utilityR::process.uuid(.x))
+    group_modify(~utilityR::process.uuid(.x)) %>% 
+    ungroup() %>% 
+    mutate(tot.rt = tot.rt+tot.rt.inter)
 }
 
 # get the additional data from the main df
@@ -80,7 +84,7 @@ if(length(sheet_names_new)>0){
   eval(parse(text = txt))
 
   txt <- paste0('res.soft_duplicates_l <- utilityR::find.similar.surveys(
-                ',sheet_names_new[i],'_tmp, tool.survey, uuid = "loop_index", enum.column=directory_dictionary$enum_colname, is.loop=T)')
+                ',sheet_names_new[i],'_tmp, tool.survey, uuid = "loop_index", enum.column=directory_dictionary$enum_colname)')
 
   eval(parse(text = txt))
 
