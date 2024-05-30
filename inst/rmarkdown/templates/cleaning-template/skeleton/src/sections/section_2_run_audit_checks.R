@@ -17,11 +17,11 @@ if(nrow(audits) == 0) {
   audits.summary <- tibble(uuid = raw.main$uuid, tot.rt = NA)
 }else{
   audits.summary <- audits %>%
-    distinct(inter_q_duration,duration, uuid,start_readable,end_readable, .keep_all = T) %>% 
-    filter(!(inter_q_duration %_<_% 0 & !event %in% c('form.exit','form.start'))) %>% 
+    distinct(inter_q_duration,duration, uuid,start_readable,end_readable,event, .keep_all = T) %>%
+    filter(!(inter_q_duration %_<_% 0 & !event %in% c('form.exit','form.start'))) %>%
     group_by(uuid) %>%
-    group_modify(~utilityR::process.uuid(.x)) %>% 
-    ungroup() %>% 
+    group_modify(~utilityR::process.uuid(.x)) %>%
+    ungroup() %>%
     mutate(tot.rt = tot.rt+tot.rt.inter)
 }
 
