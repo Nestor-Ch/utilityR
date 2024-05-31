@@ -1,7 +1,7 @@
 
 # DECISIONs:
 # Enter uuids of the interviews that didn't pass the audit check
-
+if (file.exists(make.filename.xlsx(directory_dictionary$dir.audits.check, "survey_durations"))){
 duration_check <- readxl::read_excel(make.filename.xlsx(directory_dictionary$dir.audits.check, "survey_durations"))
 
 ids <- duration_check %>% 
@@ -17,7 +17,10 @@ ids <- duration_check %>%
 
 deletion.log.too.slow <- utilityR::create.deletion.log(raw.main %>% filter(uuid %in% ids),
                                                        directory_dictionary$enum_colname, "Survey duration deemed too slow")
-
+}else{
+  deletion.log.too.fast <- data.frame()
+  deletion.log.too.slow <- data.frame()
+}
 
 # Enter uuids of the interviews that are soft duplicates to remove:
 deletion.log.softduplicates <- data.frame()
