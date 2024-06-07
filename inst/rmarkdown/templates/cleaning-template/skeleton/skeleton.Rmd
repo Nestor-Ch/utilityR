@@ -105,6 +105,22 @@ max_length_answer_1_question <- 20
 # The minimum number of different columns that makes us confident that the entry is not a soft duplicate
 min_num_diff_questions <- 8
 
+# use API key?
+use_API <- T
+token <- "" # check your token at https://kobo.impact-initiatives.org/token/?format=json
+
+# connect to the server here
+kobo_setup(url = "https://kobo.impact-initiatives.org/",
+           token = token)
+
+
+kobo_asset_list()  # you can check all your available assets with kobo_asset_list() and select the correct uid out of that
+assest_uid <- ''
+
+# run the checks
+source('src/sections/section_2_run_audit_checks.R')
+
+
 # run the checks
 source('src/sections/section_2_run_audit_checks.R')
 ```
