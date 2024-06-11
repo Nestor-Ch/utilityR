@@ -6,23 +6,41 @@ if (use_API){
 
   if(!'uuid' %in% names(audits)){
     audits <- audits %>%
+      mutate(`_id` = as.character(`_id`)) %>%
       left_join(raw.main %>%
                   select(`_id`,uuid))
+
   }
 
-  audits$start <- as.numeric(strptime(audits$start,"%Y-%m-%d %H:%M:%S"))
-  audits$end <- as.numeric(strptime(audits$end,"%Y-%m-%d %H:%M:%S"))
+  audits <- audits %>%
+    dplyr::group_by(uuid) %>%
+    dplyr::mutate(inter_q_duration = (start - dplyr::lag(end))) %>%
+    dplyr::ungroup() %>%
+    dplyr::mutate(duration = (end - start),
+                  group = sapply(stringr::str_split(node, "\\/"), function(x) {
+                    id.group <- ifelse("G_survey" %in% x, 4, 3)
+                    return(x[id.group])}),
+                  question = sapply(stringr::str_split(node, "\\/"), function(x) {
+                    return(x[length(x)])})) %>%
+    dplyr::mutate(event = stringr::str_replace_all(event, " ", ".")) %>%
+    dplyr::rename(`new.value` = `new-value`,
+                  `old.value`=`old-value`,
+                  start_readable = start,
+                  end_readable = end,
+                  start = start_int,
+                  end = end_int)
+
 
 }else{
   # load your audit files
   audits <- utilityR::load.audit.files(directory_dictionary$dir.audits, uuids = raw.main$uuid, track.changes = F)
+  audits$start_readable <- as.POSIXct(audits$start / 1000, origin = "1970-01-01")
+  audits$end_readable <- as.POSIXct(audits$end / 1000, origin = "1970-01-01")
 }
 
 if(nrow(audits) > 0) {
 
   # add 2 more columns to make readable start and end columns
-  audits$start_readable <- as.POSIXct(audits$start / 1000, origin = "1970-01-01")
-  audits$end_readable <- as.POSIXct(audits$end / 1000, origin = "1970-01-01")
 
   audits <- audits %>%
     mutate(inter_q_duration = ifelse(lag(event)=='jump',0,inter_q_duration),

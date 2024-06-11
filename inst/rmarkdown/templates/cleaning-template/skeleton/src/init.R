@@ -5,8 +5,8 @@ if (!require("pacman")) install.packages("pacman")
 
 devtools::install_github('https://github.com/REACH-WoU/utilityR', build_vignettes = T)
 devtools::install_github('https://github.com/REACH-WoU-Regional/translateR', build_vignettes = T)
-devtools::install_github('https://github.com/Nestor-Ch/robotoolbox')
-
+devtools::install_github('https://github.com/cynkra/dm')
+devtools::install_github('https://github.com/dickoa/robotoolbox')
 
 pacman::p_load(docstring, tidyverse, readxl, writexl, openxlsx, stringr,
                sf, geosphere, qdapRegex, cluster, randomcoloR, svDialogs, scales, janitor, utilityR,zip,geosphere,
