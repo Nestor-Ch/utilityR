@@ -2,7 +2,7 @@ cleaning.log <- data.frame()
 
 if(name_clean_others_file != ''){
   or.edited  <- utilityR::load.requests(directory_dictionary$dir.requests,
-                                        name_clean_others_file,
+                                        other_request_file_pattern,
                                         sheet = sheet_name_others, validate = T)
   
   # check if all ref.type are filled
@@ -379,7 +379,7 @@ We have found the following cases: ",
 
 if(name_clean_trans_file!= ''){
   
-  trans <-  utilityR::load.requests(directory_dictionary$dir.requests, name_clean_trans_file, validate = F)
+  trans <-  utilityR::load.requests(directory_dictionary$dir.requests, text_request_file_pattern, validate = F)
   
   # run the bits below
   cleaning.log.trans <- utilityR::recode.trans.requests(trans, response_col = 'responses')
