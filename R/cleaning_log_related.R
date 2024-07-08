@@ -175,6 +175,10 @@ make.logical.check.entry <- function(check, id, question.names, issue, cols_to_k
     res <- rbind(res, new.entries)
   }
 
+  if(!is.loop){
+    res$loop_index <- NA_character_
+  }
+
   return(res %>%
            dplyr::arrange(uuid))
 }

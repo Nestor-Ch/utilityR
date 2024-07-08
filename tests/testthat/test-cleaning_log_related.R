@@ -511,8 +511,9 @@ testthat::test_that("make.logical.check.entry works - test 1 general functionali
     old.value = c(NA_character_, 'security_considerations','security_considerations'),
     new.value = NA_character_,
     invalid = NA_character_,
-    explanation = NA_character_
-  ) %>%
+    explanation = NA_character_,
+    loop_index = NA_character_
+    ) %>%
     dplyr::tibble()
 
 
@@ -549,7 +550,8 @@ testthat::test_that("make.logical.check.entry works -  test 2 - more data", {
                   NA_character_,'relative_safety availability_of_accommodation','relative_safety availability_of_accommodation'),
     new.value = NA_character_,
     invalid = NA_character_,
-    explanation = NA_character_
+    explanation = NA_character_,
+    loop_index = NA_character_
   ) %>%
     dplyr::tibble() %>%
     dplyr::arrange(uuid)
