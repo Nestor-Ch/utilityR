@@ -51,7 +51,7 @@ process.uuid <- function(df){
       sub.df <- dplyr::filter(df, start>=t1 & start<=t2)
       questions <- dplyr::filter(sub.df,  event == "question"| event == "group.questions")
       rt <- append(rt, sum(questions$duration)/60)
-      rt_inter <- append(rt_inter, sum(questions$inter_q_duration)/60)
+      rt_inter <- append(rt_inter, as.numeric(sum(questions$inter_q_duration)/60))
       q <- append(q, length(unique(questions$node)))
       j <- append(j, sum(sub.df$event=="jump"))
       e <- append(e, nrow(dplyr::filter(questions, !is.na(`old.value`) & `old.value`!="")))
