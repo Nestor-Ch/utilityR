@@ -50,7 +50,7 @@ process.uuid <- function(df){
       t <- append(t, (t2-t1)/1000/60)
       sub.df <- dplyr::filter(df, start>=t1 & start<=t2)
       questions <- dplyr::filter(sub.df,  event == "question"| event == "group.questions")
-      rt <- append(rt, sum(questions$duration)/60)
+      rt <- append(rt, as.numeric(sum(questions$duration)/60))
       rt_inter <- append(rt_inter, as.numeric(sum(questions$inter_q_duration)/60))
       q <- append(q, length(unique(questions$node)))
       j <- append(j, sum(sub.df$event=="jump"))
