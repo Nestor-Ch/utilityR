@@ -31,13 +31,13 @@ The text below follows the structure of the cleaning template presented in the m
 - [Contributors](#Contributors)
 
 ### Open up the cleaning template
-
-1. Load the kobo tool into the 'resources' folder. Load the raw data into the 'data\inputs\kobo_export' folder and the audit files into 'data\inputs\audit' folder if you have them.
-2. Start the `1_cleaning.R` file.
+1. Load the package by calling `library(utilityR)`. Create a new directory for your cleaning by clicking `File`->`New file`->`R Markdown`->`From Template`->`cleaning template`. Choose the name and the directory of your cleaning folder and create it by clicking `Ok`.
+2. Load the kobo tool into the 'resources' folder. Load the raw data into the 'data\inputs\kobo_export' folder and the audit files into 'data\inputs\audit' folder if you have them.
+3. Start the `1_cleaning.Rmd` file.
 
 ### Initialization
 
-Prior to running anything fill up the `directory_dictionary` list with the relevant names. Load the API key file and run the `init.R` and `load_Data.R` files. Usually, no inputs from your side are needed for these two bits of script.
+Prior to running anything fill up the `directory_dictionary` list with the relevant names. Load the API key file and run the `init.R` and `load_Data.R` files. If loading the data from the kobo server directly, specify so in the `Base section` block. You'll need your API key and the uid of your project. The script will load the data and the tool automatically and place it in the appropriate folders (the paths you indicate in the directory dictionary).
 
 The raw data are saved in the `kobo.raw.main` and `kobo.raw.loopx` files (x is the number of your loop e.g. kobo.raw.loop1) that are later duplicated into `raw.main` and `raw.loopx` files. This is convenient for cases where you want to re-run your cleaning procedure from scratch and don't want to waste time on reading your dataframes again. Just run the rows that create `raw.main` and `raw.loopx` objects and you'll be set.
 
