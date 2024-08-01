@@ -15,7 +15,8 @@ pacman::p_load(docstring, tidyverse, readxl, writexl, openxlsx, stringr,
 
 make.short.name <- function(name, no_date = F){
   return(gsub("__","_", paste0(directory_dictionary$research_cycle_name,"_",directory_dictionary$round,"_",
-                               name, ifelse(no_date, "", paste0("_", directory_dictionary$dctime_short)))))}
+                               name, ifelse(no_date, "", paste0("_", directory_dictionary$dctime_short,'_',
+                                                                format(Sys.time(), "%m_%d_%H_%M"))))))}
 
 make.filename.xlsx <- function(dir = ".", name, no_date = F) return(gsub("//","/", paste0(dir, "/", make.short.name(name, no_date), ".xlsx")))
 

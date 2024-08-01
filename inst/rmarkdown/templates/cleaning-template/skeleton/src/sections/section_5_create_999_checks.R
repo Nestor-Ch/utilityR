@@ -3,7 +3,7 @@ cl_log_999 <- tibble()
 
 # get the integers from main
 int_cols_main  <- tool.survey %>% 
-  filter(type == "integer" & datasheet == "main") %>% 
+  filter(type %in% c("integer","decimal") & datasheet == "main") %>% 
   pull(name)
 # recode if any
 cl_log_999_main <- utilityR::recode.set.NA.if(raw.main,int_cols_main, code = code_for_check,issue = 'Wrong entry') %>% 
@@ -15,7 +15,7 @@ cl_log_999 <- bind_rows(cl_log_999,cl_log_999_main)
 if(length(sheet_names_new)>0){
   for(i in 1:length(sheet_names_new)){
     txt <- paste0('int_cols_loop',i,' <- tool.survey %>% 
-    filter(type == "integer" & datasheet != "main" & name %in% names(',sheet_names_new[[i]],')) %>% 
+    filter(type %in% c("integer","decimal") & datasheet != "main" & name %in% names(',sheet_names_new[[i]],')) %>% 
     pull(name)')
     eval(parse(text=txt))
     txt <- paste0('if(length(int_cols_loop',i,')>0){
