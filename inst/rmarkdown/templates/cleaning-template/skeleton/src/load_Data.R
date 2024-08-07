@@ -8,19 +8,20 @@ if (use_API){
     
     tool <- kobo_form(assest_uid)
     tool <- tool %>%
-      select(name,list_name,type,label,lang,
-             calculation,required,relevant,appearance,choice_filter, constraint,constraint_message, hint, choices, kuid)
+      select(any_of(c('name','list_name','type','label','lang',
+             'calculation','required','relevant','appearance','choice_filter', 'constraint',
+             'constraint_message', 'hint', 'choices', 'kuid')))
     # remove unnecessary rows from the tool
     tool_cl <- tool %>%
-      select(-c(label,lang,constraint_message,hint)) %>%
+      select(-any_of(c('label','lang','constraint_message','hint'))) %>%
       distinct()
     
     # create the labels
     tool_cl <- tool_cl %>%
       left_join(
         tool %>%
-          select(kuid,label,lang,constraint_message,hint) %>%
-          pivot_longer(c(label,constraint_message,hint), names_to = 'column',values_to = 'text') %>%
+          select(any_of(c('kuid','label','lang','constraint_message','hint'))) %>%
+          pivot_longer(any_of(c('label','constraint_message','hint')), names_to = 'column',values_to = 'text') %>%
           mutate(names_col = ifelse(column =='label',
                                     paste0(gsub("\\::.*","",directory_dictionary$label_colname),'::', lang),
                                     paste0(column,'::',lang))) %>%
@@ -29,21 +30,21 @@ if (use_API){
     
     # process the choices
     tool.choices <- tool_cl %>%
-      select(list_name,kuid, choices) %>% # choices are saved in a nested dataframe for each row. We'll unnest them
+      select(any_of(c('list_name','kuid', 'choices'))) %>% # choices are saved in a nested dataframe for each row. We'll unnest them
       rowwise() %>%
       filter(nrow(choices)>0) %>% # but first we'll remove the empty rows
       ungroup() %>%
       unnest(choices) %>%
-      select(-value_version) %>%
+      select(-any_of(c('value_version'))) %>%
       mutate(names_col = paste0(gsub("\\::.*","",directory_dictionary$label_colname),'::', value_lang)) %>%
       distinct() %>%
-      pivot_wider(id_cols = c(kuid,list_name,value_name), names_from = names_col, values_from = value_label) %>%
+      pivot_wider(id_cols = any_of(c('kuid','list_name','value_name')), names_from = names_col, values_from = value_label) %>%
       rename(name = value_name)
     
     tool.survey <- tool_cl %>%
       mutate(q.type = type,
              type = paste(list_name, name)) %>%
-      select(type,name,starts_with('label'), calculation,required,relevant, appearance, choice_filter,
+      select(type,name,starts_with('label'), any_of(c('calculation','required','relevant', 'appearance', 'choice_filter')),
              starts_with('constraint'),
              starts_with('hint'),list_name, kuid)
     
