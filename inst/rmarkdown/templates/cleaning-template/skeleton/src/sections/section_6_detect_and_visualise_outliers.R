@@ -1,6 +1,6 @@
 cleaning.log.outliers <- data.frame()
 
-cols.integer_main <- filter(tool.survey, type == "integer")
+cols.integer_main <- filter(tool.survey, type %in% c("integer","decimal"))
 # get the integer columns in main
 if (length(cols.integer_raw.main) == 0) cols.integer_raw.main <- cols.integer_main[cols.integer_main$name %in% colnames(raw.main),] %>% pull(name)
 # set up empty lists
