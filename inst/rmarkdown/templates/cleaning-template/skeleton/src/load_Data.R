@@ -6,7 +6,7 @@ if (use_API){
   if(!file.exists(directory_dictionary$filename.tool)){
     
     
-    tool <- kobo_form(assest_uid)
+    tool <- kobo_form(asset_uid)
     tool <- tool %>%
       select(any_of(c('name','list_name','type','label','lang',
              'calculation','required','relevant','appearance','choice_filter', 'constraint',
@@ -43,10 +43,10 @@ if (use_API){
     
     tool.survey <- tool_cl %>%
       mutate(q.type = type,
-             type = paste(list_name, name)) %>%
+             type = ifelse(!is.na(list_name),paste(q.type,list_name),q.type)) %>%
       select(type,name,starts_with('label'), any_of(c('calculation','required','relevant', 'appearance', 'choice_filter')),
              starts_with('constraint'),
-             starts_with('hint'),list_name, kuid)
+             starts_with('hint'), kuid)
     
     # write the tool into an excel
     wb <- createWorkbook()

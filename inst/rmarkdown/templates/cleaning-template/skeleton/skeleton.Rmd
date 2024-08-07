@@ -48,7 +48,7 @@ kobo_setup(url = "https://kobo.impact-initiatives.org/",
 
 
 kobo_asset_list()  # you can check all your available assets with kobo_asset_list() and select the correct uid out of that
-assest_uid <- ''
+asset_uid <- ''
 
 ```
 
@@ -122,6 +122,10 @@ max_length_answer_1_question <- 20
 # Used during the check for soft duplicates.
 # The minimum number of different columns that makes us confident that the entry is not a soft duplicate
 min_num_diff_questions <- 8
+
+
+# use API key for audit loading?
+use_API <- T
 
 
 # run the checks
