@@ -46,7 +46,9 @@ Suggests:
 VignetteBuilder: 
     knitr
 Remotes:
-    github::REACH-WoU-Regional/translateR
+    github::REACH-WoU-Regional/translateR,
+    github::cynkra/dm,
+    github::dickoa/robotoolbox
 Config/testthat/edition: 3
 Encoding: UTF-8
 LazyData: true
