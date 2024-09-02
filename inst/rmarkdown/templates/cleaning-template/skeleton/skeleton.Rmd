@@ -291,8 +291,18 @@ If the entry within the `cleaning.log.outliers` works for you, set the `checked`
 Save your changes in the same file or create a new file in output/checking/responses/ and change the path in the `cleaning.log.outliers` below
 
 ```{r}
-cleaning.log.outliers_full <- read.xlsx(paste0("output/checking/outliers/outlier_analysis_", n.sd, "sd.xlsx"),
-                                   sheet = 1)
+cleaning.log.outliers_full <- read.xlsx(paste0("output/checking/outliers/outlier_analysis_", n.sd, "sd.xlsx"), sheet = 1) 
+
+if(any(is.na(cleaning.log.outliers_full$checked))){ 
+  stop('Some entries of your outlier file have missing status on the `checked` column. Please fix') 
+} 
+
+cleaning.log.outliers_full <- cleaning.log.outliers_full %>% 
+  mutate(new.value = case_when( 
+    checked%==%'value corrected' ~ new.value, 
+    checked%==%'value checked' ~ old.value, 
+    TRUE ~ NA 
+  ))
 
 cleaning.log.outliers <- cleaning.log.outliers_full %>% filter(checked%==%'value corrected')
 
@@ -360,7 +370,7 @@ if(length(ls_loops)>0){
     txt <- paste0(loop,"  <- ",loop," %>% select(-any_of(cols.to.remove))")
     
     eval(parse(txt))
-
+    
   }
 }
 
@@ -370,10 +380,10 @@ if(length(ls_loops)>0){
 ```{r Section 7 - Save the raw dataset with no PII}
 # create the data list that will be written into the excel 
 if(length(ls)>1){
-txt <- paste0(
-  'datasheets <-list("main" =kobo.raw.main,',
-  paste0('"',ls_loops,'" = ',sheet_names, collapse = ','),')'
-)
+  txt <- paste0(
+    'datasheets <-list("main" =kobo.raw.main,',
+    paste0('"',ls_loops,'" = ',sheet_names, collapse = ','),')'
+  )
 }else{
   txt <- 'datasheets <-list("main" =kobo.raw.main)'
 }
@@ -387,12 +397,12 @@ write.xlsx(datasheets, make.filename.xlsx("output/data_log", "full_data"), overw
 # clean data (pii removed)
 
 if(length(ls)>1){
-txt <- paste0(
-  'datasheets_anon <-list("main" =raw.main,',
-  paste0('"',ls_loops,'" = ',sheet_names_new, collapse = ','),')'
-)}else{
-  txt <- 'datasheets_anon <-list("main" =raw.main)'
-}
+  txt <- paste0(
+    'datasheets_anon <-list("main" =raw.main,',
+    paste0('"',ls_loops,'" = ',sheet_names_new, collapse = ','),')'
+  )}else{
+    txt <- 'datasheets_anon <-list("main" =raw.main)'
+  }
 eval(parse(text= txt))
 
 write.xlsx(datasheets_anon, make.filename.xlsx("output/final", "final_anonymized_data"), overwrite = T,
