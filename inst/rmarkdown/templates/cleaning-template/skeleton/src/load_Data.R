@@ -67,7 +67,7 @@ if (use_API){
   
   # load the data
   if(!file.exists(paste0(directory_dictionary$data_path,directory_dictionary$data_name))){
-    df <- as.list(kobo_submissions(assest_uid))
+    df <- as.list(kobo_submissions(asset_uid))
     write.xlsx(df,paste0(directory_dictionary$data_path,directory_dictionary$data_name))
     
   }else{
