@@ -164,6 +164,34 @@ geo_column <- 'geo_point' # the name of the column that holds your coordinates (
 source('src/sections/section_3_loops_and_spatial_checks.R')
 
 ```
+
+As a separate block, here you can run individual checks for an enumerator. The script takes on the list of individual blocks of questions written as a list, and checks these blocks per enumerator, trying to find potential anomalies in in the enumerator's answer patterns.
+
+```{r Section  X  - Anomaly search}
+
+# set up the blocks of questions that'll be tested. It's best to choose the blocks you suspect may be clicked through by the enumerator.
+# This check will write Enumerator_anomalies.xlsx file into your `checking` folder where you'll have tests for problematic enumerators.
+
+ls_group <- list(
+  'list_1' = c("B_15_wgss_seeing", "B_16_wgss_hearing", 
+                      "B_17_wgss_walking", "B_18_wgss_cognit", "B_19_wgss_selfcare", 
+                      "B_20_wgss_comm"),
+  'list_2' = c("I_27_cereals_0", "I_27_1_cereals_own_prod_val_0", "I_28_fruit_0", 
+                      "I_28_1_fruit_own_prod_val_0", "I_29_animal_0", "I_29_1_animal_own_prod_val_0", 
+                      "I_30_sugar_0", "I_30_1_sugar_own_prod_val_0", "I_31_bread_0", 
+                      "I_31_1_bread_own_prod_val_0", "I_32_water_0", "I_33_outside_0", 
+                      "I_34_all_0", "I_34_1_other_own_prod_val_0", "I_35_food_gifts_0", 
+                      "I_36_service_gifts_0")
+)
+
+# add the geospatial column - the analysis will be done per georgraphy, it's best to choose geography wide enough to get more enumerators working in an area, but local enough so that geographically specific patterns may come trhough (i.e. Answers in Lviv and Sumy will be different from one another, so it's better to keep them separate if possible)
+
+geo_column <- 'macroregion'
+
+source('src/sections/section_x_anomaly.R')
+```
+
+
 Once you've checked all entries in the "output/checking/audit/geospatial_check"  and "output/checking/audit/gps_checks" and only left what needs to be deleted implement the decisions below
 ```{r Section  3  - Loop inconsitencies + spatial checks decisions}
 source('src/sections/section_3_spatial_decisions.R')
