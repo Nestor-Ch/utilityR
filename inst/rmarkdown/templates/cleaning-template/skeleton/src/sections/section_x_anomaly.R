@@ -205,8 +205,8 @@ if (length(check.logic.questions) != 0) {
   }
   probs_df$probs <- paste0(round(probs_df$probs * 100, 2), "%")
   
-  write.xlsx(probs_df, 'Enumerator_anomalies_logic.xlsx')
-  write.xlsx(suspected_data, 'Enumerators_anomalies_logic_data.xlsx')
+  write.xlsx(probs_df, paste0(directory_dictionary$dir.audits.check, 'Enumerator_anomalies_logic.xlsx'))
+  write.xlsx(suspected_data, paste0(directory_dictionary$dir.audits.check, 'Enumerators_anomalies_logic_data.xlsx'))
 } else {
   cat("Columns for logic check wasn't defined, process skipped")
 }
