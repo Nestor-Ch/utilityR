@@ -8,7 +8,7 @@ devtools::install_github('https://github.com/REACH-WoU-Regional/translateR', bui
 devtools::install_github('https://github.com/cynkra/dm')
 devtools::install_github('https://github.com/dickoa/robotoolbox')
 
-pacman::p_load(docstring, tidyverse, readxl, writexl, openxlsx, stringr,
+pacman::p_load(docstring, tidyverse, readxl, writexl, openxlsx, stringr, markovchain,
                sf, geosphere, qdapRegex, cluster, randomcoloR, svDialogs, scales, janitor, utilityR,zip,geosphere,
                translateR,robotoolbox)
 
