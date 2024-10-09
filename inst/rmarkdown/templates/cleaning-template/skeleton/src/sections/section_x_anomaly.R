@@ -323,7 +323,7 @@ if (length(check.logic.questions) != 0) {
   
   common.enums.vector <- unname(unlist(common.enums.logic))
   suspected <- problematic_enums %>%
-    dplyr::filter(problematic_enumerator_to_check == T & enum_id %in% common.enums.vector)
+    dplyr::filter(problematic_enumerator_to_check == T & !!sym(directory_dictionary$enum_colname) %in% common.enums.vector)
   
   if (nrow(suspected) == 0) {
     cat("None\n")
