@@ -382,8 +382,8 @@ pii.to.remove_main <- c(
 raw.main  <- raw.main %>% select(-any_of(pii.to.remove_main))
 kobo.raw.main  <- kobo.raw.main %>% select(-any_of(pii.to.remove_main))
 
-if(length(ls)>1){
-  ls_loops <- ls[2:length(ls)]
+if(length(sheet_names)>1){
+  ls_loops <- sheet_names[2:length(sheet_names)]
 }else{ls_loops <- c()}
 
 # remove empty columns from loops
