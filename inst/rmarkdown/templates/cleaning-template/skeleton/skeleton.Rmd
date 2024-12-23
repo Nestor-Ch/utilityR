@@ -17,7 +17,7 @@ rm(list = ls())
 directory_dictionary <- list(
   research_cycle_name = 'xxxx',
   round = 'xxxx',
-  dir.audits = "data/inputs/audits/reach/", # The directory to your audit files
+  dir.audits = "data/inputs/audits/", # The directory to your audit files
   dir.audits.check = "output/checking/audit/",# The directory to your audit summary files (you'll be checking these)
   dir.requests = "output/checking/requests/", # the directory of your other_requests file
   dir.responses = "output/checking/responses/", # the directory of your responses to open questions
@@ -36,23 +36,24 @@ source("src/init.R")
 
 Set up how the data will be loaded here. If using API key, this will load the latest data fom your kobo server and create excel files in the appropriate folders. If not, set use_API to false (this will also cause Kobo audits to not be loaded from the kobo server but from the files in the `audits` folder).
 ```{r Base section - setup how the data will be loaded}
-
 # If loading the data through API fill the following
 # use API key?
 use_API <- T
-token <- "" # check your token at https://kobo.impact-initiatives.org/token/?format=json
 
-# connect to the server here
-kobo_setup(url = "https://kobo.impact-initiatives.org/",
-           token = token)
+if (use_API) {
+  token <- "e5895090cb45140ad364f68b8592d32a38bf007a" # check your token at https://kobo.impact-initiatives.org/token/?format=json
+  # connect to the server here
+  kobo_setup(url = "https://kobo.impact-initiatives.org/",
+             token = token)
+  
+  
+  kobo_asset_list()  # you can check all your available assets with kobo_asset_list() and select the correct uid out of that
+  asset_uid <- 'aBB5WE2RVBfUaDRctcj7pC'
+}
 
-
-kobo_asset_list()  # you can check all your available assets with kobo_asset_list() and select the correct uid out of that
-asset_uid <- ''
 
 ```
 
-Initialize packages, load tools.
 Add the API key file into `resources` directory prior to running this
 
 ```{r initialize_packages_load_inputs}
@@ -127,10 +128,8 @@ min_num_diff_questions <- 8
 # use API key for audit loading?
 use_API <- T
 
-
 # run the checks
 source('src/sections/section_2_run_audit_checks.R')
-
 ```
 
 Once you've checked all entries in the files in "output/checking/audit/" directory and only left those rows that need to be deleted implement the decisions below
@@ -163,6 +162,10 @@ geo_column <- 'geo_point' # the name of the column that holds your coordinates (
 
 source('src/sections/section_3_loops_and_spatial_checks.R')
 
+```
+Once you've checked all entries in the "output/checking/audit/geospatial_check"  and "output/checking/audit/gps_checks" and only left what needs to be deleted implement the decisions below
+```{r Section  3  - Loop inconsitencies + spatial checks decisions}
+source('src/sections/section_3_spatial_decisions.R')
 ```
 
 As a separate block, here you can run individual checks for an enumerator. The script takes on the list of individual blocks of questions written as a list, and checks these blocks per enumerator, trying to find potential anomalies in in the enumerator's answer patterns.
@@ -201,10 +204,7 @@ source('src/sections/section_x_anomaly.R')
 ```
 
 
-Once you've checked all entries in the "output/checking/audit/geospatial_check"  and "output/checking/audit/gps_checks" and only left what needs to be deleted implement the decisions below
-```{r Section  3  - Loop inconsitencies + spatial checks decisions}
-source('src/sections/section_3_spatial_decisions.R')
-```
+
 Now you're ready to create the full deletion log
 ```{r Section  3  - write the deletion log}
 # duplicates are merged only prior to writing the file.
@@ -328,18 +328,8 @@ If the entry within the `cleaning.log.outliers` works for you, set the `checked`
 Save your changes in the same file or create a new file in output/checking/responses/ and change the path in the `cleaning.log.outliers` below
 
 ```{r}
-cleaning.log.outliers_full <- read.xlsx(paste0("output/checking/outliers/outlier_analysis_", n.sd, "sd.xlsx"), sheet = 1) 
-
-if(any(is.na(cleaning.log.outliers_full$checked))){ 
-  stop('Some entries of your outlier file have missing status on the `checked` column. Please fix') 
-} 
-
-cleaning.log.outliers_full <- cleaning.log.outliers_full %>% 
-  mutate(new.value = case_when( 
-    checked%==%'value corrected' ~ new.value, 
-    checked%==%'value checked' ~ old.value, 
-    TRUE ~ NA 
-  ))
+cleaning.log.outliers_full <- read.xlsx(paste0("output/checking/outliers/outlier_analysis_", n.sd, "sd.xlsx"),
+                                   sheet = 1)
 
 cleaning.log.outliers <- cleaning.log.outliers_full %>% filter(checked%==%'value corrected')
 
@@ -407,7 +397,7 @@ if(length(ls_loops)>0){
     txt <- paste0(loop,"  <- ",loop," %>% select(-any_of(cols.to.remove))")
     
     eval(parse(txt))
-    
+
   }
 }
 
@@ -417,10 +407,10 @@ if(length(ls_loops)>0){
 ```{r Section 7 - Save the raw dataset with no PII}
 # create the data list that will be written into the excel 
 if(length(ls)>1){
-  txt <- paste0(
-    'datasheets <-list("main" =kobo.raw.main,',
-    paste0('"',ls_loops,'" = ',sheet_names, collapse = ','),')'
-  )
+txt <- paste0(
+  'datasheets <-list("main" =kobo.raw.main,',
+  paste0('"',ls_loops,'" = ',sheet_names, collapse = ','),')'
+)
 }else{
   txt <- 'datasheets <-list("main" =kobo.raw.main)'
 }
@@ -434,12 +424,12 @@ write.xlsx(datasheets, make.filename.xlsx("output/data_log", "full_data"), overw
 # clean data (pii removed)
 
 if(length(ls)>1){
-  txt <- paste0(
-    'datasheets_anon <-list("main" =raw.main,',
-    paste0('"',ls_loops,'" = ',sheet_names_new, collapse = ','),')'
-  )}else{
-    txt <- 'datasheets_anon <-list("main" =raw.main)'
-  }
+txt <- paste0(
+  'datasheets_anon <-list("main" =raw.main,',
+  paste0('"',ls_loops,'" = ',sheet_names_new, collapse = ','),')'
+)}else{
+  txt <- 'datasheets_anon <-list("main" =raw.main)'
+}
 eval(parse(text= txt))
 
 write.xlsx(datasheets_anon, make.filename.xlsx("output/final", "final_anonymized_data"), overwrite = T,

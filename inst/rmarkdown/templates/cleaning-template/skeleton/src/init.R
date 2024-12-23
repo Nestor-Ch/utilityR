@@ -13,16 +13,15 @@ pacman::p_load(docstring, tidyverse, readxl, writexl, openxlsx, stringr, markovc
                translateR,robotoolbox)
 
 
-make.short.name <- function(name, no_date = F){
+make.short.name <- function(name, no_date = F, no_time = T){
   return(gsub("__","_", paste0(directory_dictionary$research_cycle_name,"_",directory_dictionary$round,"_",
                                name, ifelse(no_date, "", paste0("_", directory_dictionary$dctime_short,'_',
-                                                                format(Sys.time(), "%m_%d_%H_%M"))))))}
+                                                                ifelse(no_time, "", format(Sys.time(), "%m_%d_%H_%M")))))))}
 
-make.filename.xlsx <- function(dir = ".", name, no_date = F) return(gsub("//","/", paste0(dir, "/", make.short.name(name, no_date), ".xlsx")))
+make.filename.xlsx <- function(dir = ".", name, no_date = F, no_time = T) return(gsub("//","/", paste0(dir, "/", make.short.name(name, no_date), ".xlsx")))
 
 
 
 options(scipen = 999)
 options(dplyr.summarise.inform = FALSE)
 ###############################################################################
-
