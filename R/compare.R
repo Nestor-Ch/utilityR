@@ -56,12 +56,12 @@ compare_columns <- function(clean_data, raw_data, id_col, is.loop=F, columns_to_
 
 
     comparison_results <- clean_data %>%
-      dplyr::select(uniqui, dplyr::all_of(columns_to_check)) %>%
+      dplyr::select(uniqui, !!sym(id_col), dplyr::all_of(columns_to_check)) %>%
       dplyr::mutate_all(as.character) %>%
       tidyr::pivot_longer(dplyr::all_of(columns_to_check), names_to = 'variable', values_to = 'new.value' )
 
     old_results <- raw_data %>%
-      dplyr::select(uniqui, dplyr::all_of(columns_to_check)) %>%
+      dplyr::select(uniqui, !!sym(id_col), dplyr::all_of(columns_to_check)) %>%
       dplyr::mutate_all(as.character) %>%
       tidyr::pivot_longer(dplyr::all_of(columns_to_check), names_to = 'variable', values_to = 'old.value' )
 
