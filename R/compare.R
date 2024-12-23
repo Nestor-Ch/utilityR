@@ -56,12 +56,12 @@ compare_columns <- function(clean_data, raw_data, id_col, is.loop=F, columns_to_
 
 
     comparison_results <- clean_data %>%
-      dplyr::select(uniqui, uuid, dplyr::all_of(columns_to_check)) %>%
+      dplyr::select(uniqui, dplyr::all_of(columns_to_check)) %>%
       dplyr::mutate_all(as.character) %>%
       tidyr::pivot_longer(dplyr::all_of(columns_to_check), names_to = 'variable', values_to = 'new.value' )
 
     old_results <- raw_data %>%
-      dplyr::select(uniqui, uuid, dplyr::all_of(columns_to_check)) %>%
+      dplyr::select(uniqui, dplyr::all_of(columns_to_check)) %>%
       dplyr::mutate_all(as.character) %>%
       tidyr::pivot_longer(dplyr::all_of(columns_to_check), names_to = 'variable', values_to = 'old.value' )
 
@@ -83,7 +83,7 @@ compare_columns <- function(clean_data, raw_data, id_col, is.loop=F, columns_to_
       dplyr::mutate(issue = issue)
   }
 
-  comparison_results <- comparison_results %>% dplyr::select(uuid, loop_index, variable, old.value, new.value, issue)
+  comparison_results <- comparison_results %>% dplyr::select(!!sym(id_col), loop_index, variable, old.value, new.value, issue)
 
   return(comparison_results)
 }
