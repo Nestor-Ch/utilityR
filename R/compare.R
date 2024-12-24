@@ -51,22 +51,30 @@ compare_columns <- function(clean_data, raw_data, id_col, is.loop=F, columns_to_
     columns_to_check <- intersect(columns_to_check,names(clean_data))
   }
 
-    clean_data$uniqui <- clean_data[[id_col]]
-    raw_data$uniqui <- raw_data[[id_col]]
+  clean_data$uniqui <- clean_data[[id_col]]
+  raw_data$uniqui <- raw_data[[id_col]]
+
+  # find columns with uuid in the name
+  # remember orig name, rename to "uuid"
+  uuid_column_orig <- grep("uuid", names(clean_data), value = TRUE)[[1]]
+
+  # rename this column to "uuid"
+  names(clean_data)[names(clean_data) == uuid_column_orig] <- "uuid"
+  names(raw_data)[names(raw_data) == uuid_column_orig] <- "uuid"
 
 
-    comparison_results <- clean_data %>%
-      dplyr::select(uniqui, uuid, dplyr::all_of(columns_to_check)) %>%
-      dplyr::mutate_all(as.character) %>%
-      tidyr::pivot_longer(dplyr::all_of(columns_to_check), names_to = 'variable', values_to = 'new.value' )
+  comparison_results <- clean_data %>%
+    dplyr::select(uniqui, uuid, dplyr::all_of(columns_to_check)) %>%
+    dplyr::mutate_all(as.character) %>%
+    tidyr::pivot_longer(dplyr::all_of(columns_to_check), names_to = 'variable', values_to = 'new.value' )
 
-    old_results <- raw_data %>%
-      dplyr::select(uniqui, uuid, dplyr::all_of(columns_to_check)) %>%
-      dplyr::mutate_all(as.character) %>%
-      tidyr::pivot_longer(dplyr::all_of(columns_to_check), names_to = 'variable', values_to = 'old.value' )
+  old_results <- raw_data %>%
+    dplyr::select(uniqui, uuid, dplyr::all_of(columns_to_check)) %>%
+    dplyr::mutate_all(as.character) %>%
+    tidyr::pivot_longer(dplyr::all_of(columns_to_check), names_to = 'variable', values_to = 'old.value' )
 
 
-    comparison_results <- comparison_results %>% dplyr::left_join(old_results)
+  comparison_results <- comparison_results %>% dplyr::left_join(old_results)
 
   # Filter out rows where values are the same
   comparison_results <- comparison_results[!comparison_results$old.value %==na% comparison_results$new.value, ]
@@ -83,7 +91,8 @@ compare_columns <- function(clean_data, raw_data, id_col, is.loop=F, columns_to_
       dplyr::mutate(issue = issue)
   }
 
-  comparison_results <- comparison_results %>% dplyr::select(uuid, loop_index, variable, old.value, new.value, issue)
+  comparison_results <- comparison_results %>% dplyr::select(uuid, loop_index, variable, old.value, new.value, issue) %>%
+    dplyr::rename(uuid = !!rlang::sym(uuid_column_orig))
 
   return(comparison_results)
 }
